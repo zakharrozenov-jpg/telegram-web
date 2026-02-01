@@ -1,283 +1,250 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Case Hunters</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0b0f14;
-  color:#fff;
-  padding-top:100px
-}
-#topBar{
-  position:fixed;
-  top:0;left:0;right:0;
-  background:#020617;
-  padding:14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 4px 20px rgba(0,0,0,.6);
-  z-index:10
-}
-#logo{
-  font-family:'Russo One',sans-serif;
-  font-size:22px;
-  color:#facc15
-}
-#balanceBox{
-  padding:8px 14px;
-  border-radius:14px;
-  background:linear-gradient(135deg,#facc15,#eab308);
-  color:#020617;
-  font-weight:bold;
-  box-shadow:0 0 15px rgba(250,204,21,.6)
-}
-button{
-  background:#facc15;
-  border:none;
-  border-radius:10px;
-  padding:8px 14px;
-  font-weight:bold;
-  cursor:pointer
-}
-.section{
-  background:#111827;
-  border-radius:16px;
-  padding:14px;
-  margin:12px auto;
-  width:min(96vw,560px)
-}
-.case,.item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:#1f2937;
-  border-radius:12px;
-  padding:10px;
-  margin:8px 0;
-  cursor:pointer
-}
-.case:hover{background:#374151}
-.case img,.item img{width:52px;border-radius:8px}
-.small{font-size:12px;opacity:.7}
-.selected{outline:2px solid #facc15}
-
-/* ROULETTE */
-.roulette{
-  overflow:hidden;
-  border:2px solid #facc15;
-  border-radius:14px;
-  height:100px;
-  margin:10px 0
-}
-.track{
-  display:flex;
-  transform:translateX(0);
-  will-change:transform
-}
-.roulette-item{
-  width:90px;
-  flex-shrink:0;
-  text-align:center;
-  font-size:11px
-}
-.roulette-item img{
-  width:60px;
-  height:60px;
-  display:block;
-  margin:0 auto 4px;
-  border-radius:8px
-}
-
-/* MODAL */
-#overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.9);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:20
-}
-#modal{
-  background:#020617;
-  border-radius:18px;
-  padding:16px;
-  width:min(95vw,520px)
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Case Hunters</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0;font-family:Arial;background:#0b0f14; color:#fff;padding-top:100px }
+    #topBar { position:fixed; top:0; left:0; right:0; background:#020617; padding:14px;
+      display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 20px rgba(0,0,0,.6); z-index:10 }
+    #logo { font-family:'Russo One',sans-serif; font-size:22px; color:#facc15 }
+    #balanceBox { padding:8px 14px; border-radius:14px;
+      background:linear-gradient(135deg,#facc15,#eab308); color:#020617; font-weight:bold; box-shadow:0 0 15px rgba(250,204,21,.6)}
+    button { background:#facc15; border:none; border-radius:10px; padding:8px 14px; font-weight:bold; cursor:pointer }
+   .section { background:#111827; border-radius:16px; padding:14px; margin:12px auto; width:min(96vw,560px) }
+    .case,.item { display:flex; justify-content:space-between; align-items:center; background:#1f2937;
+      border-radius:12px; padding:10px; margin:8px 0; cursor:pointer }
+    .case:hover { background:#374151 }
+    .case img,.item img { width:52px;border-radius:8px }
+    .small { font-size:12px;opacity:.7 }
+    .selected{outline:2px solid #facc15}
+    .roulette{overflow:hidden; border:2px solid #facc15; border-radius:14px; height:100px; margin:10px 0}
+    .track{display:flex; transform:translateX(0); will-change:transform }
+    .roulette-item{width:90px; flex-shrink:0; text-align:center; font-size:11px }
+    .roulette-item img{width:60px; height:60px; display:block; margin:0 auto 4px; border-radius:8px}
+    #overlay{position:fixed; inset:0; background:rgba(0,0,0,.9); display:none; align-items:center; justify-content:center; z-index:20}
+    #modal{background:#020617; border-radius:18px; padding:16px; width:min(95vw,520px)}
+  </style>
 </head>
-
 <body>
 
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;gap:8px;align-items:center">
     <div id="balanceBox">💰 <span id="balance">500</span> 🪙</div>
-    <button onclick="openDeposit()">➕</button>
-    <button onclick="openWithdraw()">➖</button>
+    <button type="button" id="depositBtn">➕</button>
+    <button type="button" id="withdrawBtn">➖</button>
   </div>
 </div>
 
 <div class="section">
-<h3>📦 Кейсы</h3>
-<div id="cases"></div>
+  <h3>📦 Кейсы</h3>
+  <div id="cases"></div>
 </div>
 
 <div class="section">
-<h3>🎒 Инвентарь</h3>
-<div id="inventory"></div>
-<button onclick="sell()">Продать</button>
+  <h3>🎒 Инвентарь</h3>
+  <div id="inventory"></div>
+  <button type="button" id="sellBtn">Продать</button>
 </div>
 
 <div class="section">
-<h3>⬆️ Апгрейд</h3>
-<div id="upgradeText" class="small">Выбери предмет</div>
-<button onclick="upgrade()">Апгрейдить</button>
+  <h3>⬆️ Апгрейд</h3>
+  <div id="upgradeText" class="small">Выбери предмет</div>
+  <button type="button" id="upgradeBtn">Апгрейдить</button>
 </div>
 
 <div id="overlay">
-<div id="modal">
-<h3 id="caseTitle"></h3>
-<div class="roulette">
-  <div id="track" class="track"></div>
-</div>
-<button onclick="spin()">🎰 Открыть</button>
-<button onclick="closeModal()">Закрыть</button>
-</div>
+  <div id="modal">
+    <h3 id="caseTitle"></h3>
+    <div class="roulette">
+      <div id="track" class="track"></div>
+    </div>
+    <button type="button" id="spinBtn">🎰 Открыть</button>
+    <button type="button" id="closeModalBtn">Закрыть</button>
+  </div>
 </div>
 
 <script>
-Telegram.WebApp.ready();
-Telegram.WebApp.expand();
+// TG init
+if(window.Telegram?.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
 
-/* BALANCE */
-let balance=+localStorage.bal||500;
-const balEl=document.getElementById('balance');
-function upd(){balEl.textContent=balance;localStorage.bal=balance}
-upd();
+// Картинки кейсов и предметов (замени на свои при необходимости!)
+const skinImgs = [
+  "https://community.akamai.steamstatic.com/economy/image/QmdXm4avjRjNR6aZrsDMDpgK89xhBMPCB9wSWuaUZVc5Lt/128fx128f", // Fade
+  "https://community.akamai.steamstatic.com/economy/image/QmRa6Zd656fCWw6dzR4okNrVnCkWKCkpP6r9zbzp4Mqaxg/128fx128f", // Kill Confirmed
+  "https://community.akamai.steamstatic.com/economy/image/QmWwui1w4fdLkGbmQipx6C1MAxzfXwTW6kngHnwiueJAec/128fx128f", // Redline
+  "https://community.akamai.steamstatic.com/economy/image/QmRMJgkb9NBXcECK2D2DgdAwhm8Pb9kh6ne5Mr6FNJu3No/128fx128f"  // Asiimov
+];
+const caseImgs = [
+  "https://i.imgur.com/kqT0IhL.png", // Case50
+  "https://i.imgur.com/7sdFvLC.png", // Case100
+  "https://i.imgur.com/px9PXZK.png", // Case150
+  "https://i.imgur.com/W5RqkuU.png", // Case200
+  "https://i.imgur.com/p8G6JbO.png"  // Case250
+];
 
-/* SAFE IMAGES (Telegram/iOS) */
-const IMG_CASE='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="12" width="64" height="64" fill="%23facc15"/><text x="32" y="38" text-anchor="middle" font-size="14" fill="%23020617">CASE</text></svg>';
-const IMG_ITEM='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="10" width="64" height="64" fill="%231f2937"/><text x="32" y="38" text-anchor="middle" font-size="12" fill="%23facc15">SKIN</text></svg>';
-
-/* ITEMS */
+// Описания предметов и кейсов, теперь с url!
 const items=[
- {name:'Glock-18 | Fade',price:20,img:IMG_ITEM},
- {name:'USP-S | Kill Confirmed',price:35,img:IMG_ITEM},
- {name:'AK-47 | Redline',price:60,img:IMG_ITEM},
- {name:'AWP | Asiimov',price:90,img:IMG_ITEM}
+  {name:'Glock-18 | Fade',price:20,img:skinImgs[0]},
+  {name:'USP-S | Kill Confirmed',price:35,img:skinImgs[1]},
+  {name:'AK-47 | Redline',price:60,img:skinImgs[2]},
+  {name:'AWP | Asiimov',price:90,img:skinImgs[3]}
 ];
-
-/* CASES */
 const cases=[
- {name:'Case 50',price:50,rtp:.98},
- {name:'Case 100',price:100,rtp:.97},
- {name:'Case 150',price:150,rtp:.96},
- {name:'Case 200',price:200,rtp:.95},
- {name:'Case 250',price:250,rtp:.95}
+  {name:'Case 50',price:50,rtp:.98,img:caseImgs[0]},
+  {name:'Case 100',price:100,rtp:.97,img:caseImgs[1]},
+  {name:'Case 150',price:150,rtp:.96,img:caseImgs[2]},
+  {name:'Case 200',price:200,rtp:.95,img:caseImgs[3]},
+  {name:'Case 250',price:250,rtp:.95,img:caseImgs[4]}
 ];
 
-const casesEl=document.getElementById('cases');
-cases.forEach(c=>{
- const d=document.createElement('div');
- d.className='case';
- d.innerHTML=`
-   <img src="${IMG_CASE}">
-   <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
-   <div>${c.price} 🪙</div>`;
- d.onclick=()=>openCase(c);
- casesEl.appendChild(d);
-});
+// Состояния:
+let state = {
+  balance: +(localStorage.bal || 500),
+  inventory: [],
+  selectedIdx: null,
+  currentCase: null,
+  rollWinItem: null,
+  modalVisible: false
+};
 
-/* INVENTORY */
-let inv=[],sel=null;
-const invEl=document.getElementById('inventory');
-function drawInv(){
- invEl.innerHTML='';
- inv.forEach((i,idx)=>{
-  const d=document.createElement('div');
-  d.className='item'+(sel===idx?' selected':'');
-  d.innerHTML=`<img src="${i.img}">${i.name}<div>${i.price} 🪙</div>`;
-  d.onclick=()=>{sel=idx;upgradeText.textContent=i.name;drawInv()};
-  invEl.appendChild(d);
- });
+// Элементы
+const balEl = document.getElementById('balance');
+const casesEl = document.getElementById('cases');
+const invEl = document.getElementById('inventory');
+const upgradeText = document.getElementById('upgradeText');
+const overlay = document.getElementById('overlay');
+const modal = document.getElementById('modal');
+const caseTitle = document.getElementById('caseTitle');
+const track = document.getElementById('track');
+
+// Обновление баланса и отображение
+function updateBalance(sum) {
+  if (typeof sum === 'number') state.balance = sum;
+  localStorage.bal = state.balance;
+  balEl.textContent = state.balance;
 }
 
-/* CASE OPEN */
-let curCase,winItem;
-function openCase(c){
- curCase=c;
- caseTitle.textContent=c.name;
- track.innerHTML='';
- winItem=Math.random()<c.rtp?items[Math.floor(Math.random()*items.length)]:null;
-
- for(let i=0;i<25;i++){
-  const it=items[Math.floor(Math.random()*items.length)];
-  track.innerHTML+=`
-   <div class="roulette-item">
-     <img src="${it.img}">
-     <div>${it.name}</div>
-   </div>`;
- }
- track.style.transition='none';
- track.style.transform='translateX(0)';
- overlay.style.display='flex';
+// Рендер кейсов
+function drawCases() {
+  casesEl.innerHTML = '';
+  cases.forEach((c, idx) => {
+    const d = document.createElement('div');
+    d.className = 'case';
+    d.innerHTML =
+      `<img src="${c.img}" alt="${c.name}" loading="lazy">
+      <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
+      <div>${c.price} 🪙</div>`;
+    d.onclick = () => openCase(c);
+    casesEl.appendChild(d);
+  });
 }
 
-function spin(){
- if(balance<curCase.price)return alert('Недостаточно средств');
- balance-=curCase.price;upd();
-
- track.style.transition='transform 6s cubic-bezier(.05,.8,0,1)';
- track.style.transform='translateX(-900px)';
-
- setTimeout(()=>{
-  if(winItem) inv.push(winItem);
-  drawInv();
-  closeModal();
- },6000);
+// Рендер инвентаря
+function drawInventory() {
+  invEl.innerHTML = '';
+  state.inventory.forEach((item, idx) => {
+    const d = document.createElement('div');
+    d.className = 'item' + (state.selectedIdx === idx ? ' selected':'');
+    d.innerHTML = `<img src="${item.img}" alt="${item.name}" loading="lazy">${item.name}<div>${item.price} 🪙</div>`;
+    d.onclick = () => { state.selectedIdx = idx; upgradeText.textContent = item.name; drawInventory(); };
+    invEl.appendChild(d);
+  });
 }
 
-function closeModal(){
- overlay.style.display='none';
+// Открытие кейса
+function openCase(c) {
+  state.currentCase = c;
+  caseTitle.textContent = c.name;
+  state.rollWinItem = Math.random() < c.rtp ? getRandom(items) : null;
+  track.innerHTML = '';
+
+  for (let i = 0; i < 25; i++) {
+    const it = items[Math.floor(Math.random()*items.length)];
+    track.innerHTML += `<div class="roulette-item">
+      <img src="${it.img}" alt="${it.name}" loading="lazy"><div>${it.name}</div>
+    </div>`;
+  }
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+  showModal(true);
 }
 
-/* SELL */
-function sell(){
- if(sel==null)return;
- balance+=inv[sel].price;
- inv.splice(sel,1);
- sel=null;upd();drawInv();
+// Рулетка (spin)
+let spinInProgress = false;
+function spin() {
+  if (spinInProgress) return;
+  if (!state.currentCase) return;
+  if (state.balance < state.currentCase.price) return alert('Недостаточно средств');
+  spinInProgress = true;
+  updateBalance(state.balance - state.currentCase.price);
+
+  track.style.transition = 'transform 6s cubic-bezier(.05,.8,0,1)';
+  track.style.transform = 'translateX(-900px)';
+
+  setTimeout(() => {
+    if (state.rollWinItem) state.inventory.push({...state.rollWinItem});
+    drawInventory();
+    upgradeText.textContent = 'Выбери предмет';
+    state.selectedIdx = null;
+    showModal(false);
+    spinInProgress = false;
+  }, 6000);
 }
 
-/* UPGRADE */
-function upgrade(){
- if(sel==null)return alert('Выбери предмет');
- const item=inv[sel];
- const chance=item.price/300;
- if(Math.random()<chance){
-  const better=items.filter(i=>i.price>item.price);
-  inv[sel]=better[Math.floor(Math.random()*better.length)];
- }else{
-  inv.splice(sel,1);
- }
- sel=null;
- upgradeText.textContent='Выбери предмет';
- drawInv();
+// Продажа
+function sell() {
+  if (state.selectedIdx == null) return;
+  updateBalance(state.balance + state.inventory[state.selectedIdx].price);
+  state.inventory.splice(state.selectedIdx,1);
+  state.selectedIdx = null;
+  upgradeText.textContent = 'Выбери предмет';
+  drawInventory();
 }
 
-/* DEMO */
-function openDeposit(){alert('Пополнение (демо)')}
-function openWithdraw(){alert('Вывод (демо)')}
+// Апгрейд
+function upgrade() {
+  if (state.selectedIdx == null) return alert('Выбери предмет');
+  const item = state.inventory[state.selectedIdx];
+  const chance = item.price/300;
+  if (Math.random() < chance) {
+    const better = items.filter(i => i.price > item.price);
+    if (better.length > 0)
+      state.inventory[state.selectedIdx] = {...getRandom(better)};
+  } else {
+    state.inventory.splice(state.selectedIdx,1);
+  }
+  state.selectedIdx = null;
+  upgradeText.textContent = 'Выбери предмет';
+  drawInventory();
+}
+
+// Модалка
+function showModal(vis) {
+  overlay.style.display = vis ? 'flex' : 'none';
+  state.modalVisible = vis;
+}
+function getRandom(arr) {
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+// Демо ввод/вывод
+document.getElementById('depositBtn').onclick = () => alert('Пополнение (демо)');
+document.getElementById('withdrawBtn').onclick = () => alert('Вывод (демо)');
+document.getElementById('sellBtn').onclick = sell;
+document.getElementById('upgradeBtn').onclick = upgrade;
+document.getElementById('spinBtn').onclick = spin;
+document.getElementById('closeModalBtn').onclick = () => showModal(false);
+
+// Первичный рендер
+drawCases();
+drawInventory();
+updateBalance(state.balance);
+
 </script>
-
 </body>
 </html>
