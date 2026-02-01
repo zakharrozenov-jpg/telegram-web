@@ -10,19 +10,18 @@
 <style>
 body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:110px}
 #topBar{position:fixed;top:0;left:0;right:0;background:#020617;padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6)}
-#logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15;cursor:pointer}
+#logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
 button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;cursor:pointer}
 .section{background:#111827;border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,560px)}
-.case,.item,.chatMsg{display:flex;justify-content:space-between;align-items:center;background:#1f2937;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
+.case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
 .case img,.item img{width:52px}
-.selected{outline:2px solid #facc15}
 .small{font-size:12px;opacity:.7}
+.selected{outline:2px solid #facc15}
 .roulette{overflow:hidden;border:2px solid #facc15;border-radius:12px;height:90px}
 .track{display:flex;position:relative;left:0;transition:left 6s cubic-bezier(.05,.8,0,1)}
 .track div{min-width:90px;margin:0 4px}
-#overlay,#adminPanel{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center}
-#modal,#adminBox{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
-.log{font-size:12px;border-bottom:1px solid #1f2937;padding:4px 0}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center}
+#modal{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
 </style>
 </head>
 
@@ -30,11 +29,7 @@ button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-w
 
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
-  <div>
-    Баланс: <b><span id="balance">0</span></b> 🪙
-    <button onclick="alert('Пополнение скоро')">➕</button>
-    <button onclick="openWithdraw()">💸</button>
-  </div>
+  <div>Баланс: <b><span id="balance">500</span></b> 🪙</div>
 </div>
 
 <div class="section">
@@ -49,44 +44,22 @@ button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-w
 </div>
 
 <div class="section">
-<h3>💬 Чат</h3>
-<div id="chat"></div>
+<h3>⬆️ Апгрейд</h3>
+<div id="upgradeText" class="small">Выбери предмет</div>
+<button onclick="upgrade()">Апгрейдить</button>
 </div>
 
 <div id="overlay">
 <div id="modal">
 <h3 id="caseTitle"></h3>
 <div class="roulette"><div id="track" class="track"></div></div>
-<button id="spinBtn" onclick="spin()">🎰 Открыть</button>
+<button onclick="spin()">🎰 Открыть</button>
 <button onclick="overlay.style.display='none'">Закрыть</button>
-</div>
-</div>
-
-<!-- ADMIN -->
-<div id="adminPanel">
-<div id="adminBox">
-<h3>👑 Админка</h3>
-<div>Баланс игрока: <b id="adminBal"></b></div><br>
-<button onclick="adminAdd()">➕100</button>
-<button onclick="adminSub()">➖100</button>
-<h4>Логи</h4>
-<div id="logs"></div>
-<button onclick="adminPanel.style.display='none'">Закрыть</button>
 </div>
 </div>
 
 <script>
 const tg=Telegram.WebApp;tg.ready();tg.expand();
-
-/* ADMIN */
-const ADMIN_ID = 123456789;
-const userId = tg.initDataUnsafe?.user?.id || localStorage.uid || Math.floor(Math.random()*1e9);
-localStorage.uid=userId;
-const isAdmin = userId === ADMIN_ID;
-
-/* LOGS */
-let logs=JSON.parse(localStorage.logs||'[]');
-function addLog(t){logs.push(t);localStorage.logs=JSON.stringify(logs);}
 
 /* BALANCE */
 let balance=+localStorage.bal||500;
@@ -94,17 +67,31 @@ const balEl=document.getElementById('balance');
 function upd(){balEl.textContent=balance;localStorage.bal=balance}
 upd();
 
-/* DATA */
+/* ITEMS — заниженная средняя цена (МАРЖА) */
 const items=[
- {name:'AK-47 | Redline',price:180,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_ak47_cu_ak47_redline_light_large.png'},
- {name:'AWP | Asiimov',price:420,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_awp_cu_awp_asiimov_light_large.png'},
- {name:'Glock-18 | Fade',price:220,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_glock_cu_glock18_fade_light_large.png'}
+ {name:'Glock-18 | Fade',price:20,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_glock_cu_glock18_fade_light_large.png'},
+ {name:'USP-S | Kill Confirmed',price:35,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_usp_silencer_cu_usp_kill_confirmed_light_large.png'},
+ {name:'AK-47 | Redline',price:60,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_ak47_cu_ak47_redline_light_large.png'},
+ {name:'AWP | Asiimov',price:90,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_awp_cu_awp_asiimov_light_large.png'}
 ];
+
+/* CASES — 5 штук */
 const cases=[
- {name:'Bronze',price:100,rtp:.68},
- {name:'Silver',price:200,rtp:.6},
- {name:'Gold',price:250,rtp:.55}
+ {name:'Case 50',price:50,rtp:.98},
+ {name:'Case 100',price:100,rtp:.97},
+ {name:'Case 150',price:150,rtp:.96},
+ {name:'Case 200',price:200,rtp:.95},
+ {name:'Case 250',price:250,rtp:.95}
 ];
+
+const casesEl=document.getElementById('cases');
+cases.forEach(c=>{
+ const d=document.createElement('div');
+ d.className='case';
+ d.innerHTML=`<div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div><div>${c.price} 🪙</div>`;
+ d.onclick=()=>openCase(c);
+ casesEl.appendChild(d);
+});
 
 /* INVENTORY */
 let inv=[],sel=null;
@@ -114,22 +101,11 @@ function drawInv(){
  inv.forEach((i,idx)=>{
   const d=document.createElement('div');
   d.className='item'+(sel===idx?' selected':'');
-  d.innerHTML=`<img src="${i.img}">${i.name}<div>${i.price}</div>`;
-  d.onclick=()=>{sel=idx;drawInv()};
+  d.innerHTML=`<img src="${i.img}">${i.name}<div>${i.price} 🪙</div>`;
+  d.onclick=()=>{sel=idx;upgradeText.textContent=i.name;drawInv()};
   invEl.appendChild(d);
  });
 }
-
-/* CASES */
-let busy=false;
-const casesEl=document.getElementById('cases');
-cases.forEach(c=>{
- const d=document.createElement('div');
- d.className='case';
- d.innerHTML=`<div>${c.name}<div class="small">${c.price} 🪙</div></div><div>RTP ${c.rtp*100}%</div>`;
- d.onclick=()=>!busy&&openCase(c);
- casesEl.appendChild(d);
-});
 
 /* CASE OPEN */
 let curCase,winItem;
@@ -145,20 +121,14 @@ function openCase(c){
  overlay.style.display='flex';
 }
 function spin(){
- if(busy)return;
  if(balance<curCase.price)return alert('Нет средств');
- busy=true;
- spinBtn.disabled=true;
  balance-=curCase.price;upd();
- addLog(`OPEN ${curCase.name} -${curCase.price}`);
  track.style.left='-720px';
  setTimeout(()=>{
-  if(winItem){inv.push(winItem);addLog(`WIN ${winItem.name}`);}
+  if(winItem) inv.push(winItem);
   drawInv();
   overlay.style.display='none';
   track.style.left='0';
-  busy=false;
-  spinBtn.disabled=false;
  },6000);
 }
 
@@ -166,30 +136,22 @@ function spin(){
 function sell(){
  if(sel==null)return;
  balance+=inv[sel].price;
- addLog(`SELL ${inv[sel].name}`);
  inv.splice(sel,1);sel=null;upd();drawInv();
 }
 
-/* CHAT */
-const chat=document.getElementById('chat');
-function chatMsg(t){chat.innerHTML+=`<div class="chatMsg">${t}</div>`;chat.scrollTop=9999}
-
-/* ADMIN OPEN */
-let tap=0;
-logo.onclick=()=>{
- tap++;
- if(tap>=5 && isAdmin){
-  adminPanel.style.display='flex';
-  adminBal.textContent=balance;
-  logsDiv.innerHTML=logs.map(l=>`<div class="log">${l}</div>`).join('');
+/* UPGRADE */
+function upgrade(){
+ if(sel==null)return alert('Выбери предмет');
+ const item=inv[sel];
+ const chance=item.price/300;
+ if(Math.random()<chance){
+  const better=items.filter(i=>i.price>item.price);
+  inv[sel]=better[Math.floor(Math.random()*better.length)];
+ }else{
+  inv.splice(sel,1);
  }
+ sel=null;upgradeText.textContent='Выбери предмет';drawInv();
 }
-
-/* ADMIN ACTIONS */
-const logsDiv=document.getElementById('logs');
-function adminAdd(){balance+=100;upd();addLog('ADMIN +100')}
-function adminSub(){balance-=100;upd();addLog('ADMIN -100')}
-function openWithdraw(){alert('Вывод скоро')}
 </script>
 
 </body>
