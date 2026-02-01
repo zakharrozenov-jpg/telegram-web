@@ -8,20 +8,92 @@
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 
 <style>
-body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:110px}
-#topBar{position:fixed;top:0;left:0;right:0;background:#020617;padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6)}
-#logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
-button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;cursor:pointer}
-.section{background:#111827;border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,560px)}
-.case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
-.case img,.item img{width:52px}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b0f14;
+  color:#fff;
+  padding-top:110px
+}
+#topBar{
+  position:fixed;
+  top:0;left:0;right:0;
+  background:#020617;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  z-index:10
+}
+#logo{
+  font-family:'Russo One',sans-serif;
+  font-size:22px;
+  color:#facc15
+}
+button{
+  background:#facc15;
+  border:none;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:bold;
+  cursor:pointer
+}
+.section{
+  background:#111827;
+  border-radius:16px;
+  padding:14px;
+  margin:12px auto;
+  width:min(96vw,560px)
+}
+.case,.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#1f2937;
+  border-radius:12px;
+  padding:10px;
+  margin:8px 0;
+  cursor:pointer
+}
+.case img,.item img{
+  width:52px;
+  background:#020617;
+  border-radius:8px
+}
 .small{font-size:12px;opacity:.7}
 .selected{outline:2px solid #facc15}
-.roulette{overflow:hidden;border:2px solid #facc15;border-radius:12px;height:90px}
-.track{display:flex;position:relative;left:0;transition:left 6s cubic-bezier(.05,.8,0,1)}
+
+.roulette{
+  overflow:hidden;
+  border:2px solid #facc15;
+  border-radius:12px;
+  height:90px;
+  margin:10px 0
+}
+.track{
+  display:flex;
+  position:relative;
+  left:0;
+  transition:left 6s cubic-bezier(.05,.8,0,1)
+}
 .track div{min-width:90px;margin:0 4px}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center}
-#modal{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
+
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:20
+}
+#modal{
+  background:#020617;
+  border-radius:18px;
+  padding:16px;
+  width:min(95vw,520px)
+}
 </style>
 </head>
 
@@ -29,7 +101,12 @@ button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-w
 
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
-  <div>Баланс: <b><span id="balance">500</span></b> 🪙</div>
+
+  <div style="display:flex;gap:8px;align-items:center">
+    <div>Баланс: <b><span id="balance">500</span></b> 🪙</div>
+    <button onclick="openDeposit()">➕ Пополнение</button>
+    <button onclick="openWithdraw()">➖ Вывод</button>
+  </div>
 </div>
 
 <div class="section">
@@ -52,7 +129,9 @@ button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-w
 <div id="overlay">
 <div id="modal">
 <h3 id="caseTitle"></h3>
-<div class="roulette"><div id="track" class="track"></div></div>
+<div class="roulette">
+  <div id="track" class="track"></div>
+</div>
 <button onclick="spin()">🎰 Открыть</button>
 <button onclick="overlay.style.display='none'">Закрыть</button>
 </div>
@@ -67,7 +146,7 @@ const balEl=document.getElementById('balance');
 function upd(){balEl.textContent=balance;localStorage.bal=balance}
 upd();
 
-/* ITEMS — заниженная средняя цена (МАРЖА) */
+/* ITEMS */
 const items=[
  {name:'Glock-18 | Fade',price:20,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_glock_cu_glock18_fade_light_large.png'},
  {name:'USP-S | Kill Confirmed',price:35,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_usp_silencer_cu_usp_kill_confirmed_light_large.png'},
@@ -75,7 +154,7 @@ const items=[
  {name:'AWP | Asiimov',price:90,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_awp_cu_awp_asiimov_light_large.png'}
 ];
 
-/* CASES — 5 штук */
+/* CASES */
 const cases=[
  {name:'Case 50',price:50,rtp:.98},
  {name:'Case 100',price:100,rtp:.97},
@@ -88,7 +167,9 @@ const casesEl=document.getElementById('cases');
 cases.forEach(c=>{
  const d=document.createElement('div');
  d.className='case';
- d.innerHTML=`<div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div><div>${c.price} 🪙</div>`;
+ d.innerHTML=`
+ <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
+ <div>${c.price} 🪙</div>`;
  d.onclick=()=>openCase(c);
  casesEl.appendChild(d);
 });
@@ -101,7 +182,10 @@ function drawInv(){
  inv.forEach((i,idx)=>{
   const d=document.createElement('div');
   d.className='item'+(sel===idx?' selected':'');
-  d.innerHTML=`<img src="${i.img}">${i.name}<div>${i.price} 🪙</div>`;
+  d.innerHTML=`
+   <img src="${i.img}" onerror="this.src='https://via.placeholder.com/64?text=CS'">
+   ${i.name}
+   <div>${i.price} 🪙</div>`;
   d.onclick=()=>{sel=idx;upgradeText.textContent=i.name;drawInv()};
   invEl.appendChild(d);
  });
@@ -116,7 +200,10 @@ function openCase(c){
  winItem=Math.random()<c.rtp?items[Math.floor(Math.random()*items.length)]:null;
  for(let i=0;i<20;i++){
   const it=items[Math.floor(Math.random()*items.length)];
-  track.innerHTML+=`<div><img src="${it.img}" width="60"></div>`;
+  track.innerHTML+=`
+   <div>
+    <img src="${it.img}" width="60" onerror="this.src='https://via.placeholder.com/64?text=CS'">
+   </div>`;
  }
  overlay.style.display='flex';
 }
@@ -151,6 +238,24 @@ function upgrade(){
   inv.splice(sel,1);
  }
  sel=null;upgradeText.textContent='Выбери предмет';drawInv();
+}
+
+/* POPUP DEMO */
+function openDeposit(){
+ alert(`💳 ПОПОЛНЕНИЕ
+
+1 токен = 10 ₽
+Минимум: 100 ₽
+
+Скоро: CryptoBot / TON`);
+}
+function openWithdraw(){
+ alert(`💸 ВЫВОД
+
+Минимум: 500 🪙
+Формат: чек (CryptoBot)
+
+В разработке`);
 }
 </script>
 
