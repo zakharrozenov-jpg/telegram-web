@@ -18,7 +18,7 @@
     .case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;
       border-radius:12px;padding:10px;margin:8px 0;cursor:pointer;}
     .case:hover{background:#374151}
-    .case img,.item img{width:52px;border-radius:8px;}
+    .case img,.item img{width:52px;height:52px;object-fit:cover;border-radius:8px;}
     .small{font-size:12px;opacity:.7}
     .selected{outline:2px solid #facc15}
     .upgrade-candidate{outline:3px solid #38bdf8;}
@@ -51,12 +51,48 @@
       cursor:default;
       opacity:0.85;
     }
+    /* Фейковый онлайн */
+    #fakeOnlineBox{
+      margin-top:24px;
+      width:100vw;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#111827;
+      padding:9px 0;
+      font-size:18px;
+      color:#facc15;
+      font-family:'Russo One',Arial,sans-serif;
+      letter-spacing:1px;
+      box-shadow:0 -1px 5px rgba(0,0,0,.25);
+    }
+    /* Реферальный раздел */
+    #referralBox{
+      margin:10px auto 0 auto;
+      background:#1e293b;
+      width:min(96vw,480px);
+      border-radius:16px;
+      box-shadow:0 0 20px rgba(33,33,40,0.13);
+      padding:18px 14px 18px 14px;
+      color:#facc15;
+      font-size:17px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+    }
+    #myRefCodeInput{background:#facc15;color:#0b0f14;width:130px;text-align:center;border-radius:8px;margin-left:5px;border:0;font-size:16px;font-family:Russo One,Arial;}
+    #otherRefInput{background:#ddd;color:#0b0f14;width:120px;text-align:center;border-radius:8px;border:0;font-size:15px;}
+    #refGetBtn{background:#fde68a;margin-left:6px;}
+    #refMsg{font-size:13px;color:#ffd;}
+    #copyRefBtn{background:#fbbf24;margin-left:13px;padding:5px 10px;}
+    .ref-row{width:100%;display:flex;align-items:center;justify-content:center;}
   </style>
 </head>
 <body>
 
 <div id="dailyBonusBox">
-  <button type="button" id="bonusBtn">🎁 Ежедневн��й бонус 1 000 000</button>
+  <button type="button" id="bonusBtn">🎁 Ежедневный бонус 1 000 000</button>
   <div id="bonusMsg" class="small"></div>
 </div>
 
@@ -86,6 +122,23 @@
   <button type="button" id="upgradeBtn">Апгрейдить</button>
 </div>
 
+<!-- Рефералы и онлайн СНИЗУ -->
+<div id="referralBox">
+  <div style="font-weight:bold;">🚀 Реферальная система</div>
+  <div class="ref-row">
+    <span class="small">Твой код:</span>
+    <input id="myRefCodeInput" readonly>
+    <button type="button" id="copyRefBtn">Скопировать</button>
+  </div>
+  <div class="ref-row">
+    <span class="small">Введите пригласительный код:</span>
+    <input type="text" id="otherRefInput" placeholder="Код друга">
+    <button type="button" id="refGetBtn">Получить бонус</button>
+  </div>
+  <div id="refMsg"></div>
+</div>
+<div id="fakeOnlineBox">👥 Онлайн: <span id="fakeOnlineCount">1280</span></div>
+
 <div id="overlay">
   <div id="modal">
     <h3 id="caseTitle"></h3>
@@ -96,8 +149,6 @@
     <button type="button" id="closeModalBtn">Закрыть</button>
   </div>
 </div>
-
-<!-- Upgrade modal -->
 <div id="upgradeModal">
   <div>Три-два-икс Апгрейд</div>
   <div class="skin" id="upgradeSelected"></div>
@@ -107,37 +158,30 @@
 </div>
 
 <script>
-// --- Safe SVG icons (Telegram WebApp compatible) ---
-const svgCase = [
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#facc15"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 1</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#eab308"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 2</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#fbbf24"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 3</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#fde68a"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 4</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#f59e42"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 5</text></svg>'
-];
-
-const svgItems = [
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#1e293b"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">GLOCK</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#334155"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">USP-S</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#475569"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">AK-47</text></svg>',
-  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#64748b"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">AWP</text></svg>',
-];
+// PNG-картинки через base64! Можешь заменить на свои:
+const pngCase1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQ6AIAwDQfsT09X/f3pkgy2FkaJLIV+rsVqZ7KcK49VxELpi8r+dO7exyp3dvUSVVTknasZcJI4Lhtqb93BlBUqFv5PUM92ib3Zpsr/e3zRy/I5bIkYAAAAASUVORK5CYII=';
+const pngCase2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQ7CMAwD0FzjJl9d0UfTopLfMoYOhHoiP2U7VTLRm/8gLaxAiHzZPwl1WxcVwTRMyuVdR8D02wKUIxiCIjMQ1LU8HHlTA3RS1IrRK31Xf7GRqEyAO0uXAAAAAElFTkSuQmCC';
+const pngCase3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YOQqAIBAE0Q9wW9TE/s+cmDJSGAL3Cw7Xij0rUV2KUg8mfrfJUPkyKdp00I6qgr+hq4CvEAlaTACl9ahOAD5vFYLGKAF4zwAVyjFAMJpOVt74AzjFYWWQwUnAAAAAElFTkSuQmCC';
+const pngCase4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQoAIAwDQeP1dAfx9e9PhJmUV/BtTARyT55LBv6/ik1y4VvGS1rlfEYUg8r3Qqf2wqgDUJMGZL/ksR+1ms5wKVCpkGVSpRrs0vwwMLBd5PU7wDNJmYOtd7UaAAAAAElFTkSuQmCC';
+const pngCase5 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQqAMAgEQfRk6ff/hzIrpMRkV+hbkvb6wpQY8PkJeQh+RtWngbVkj6k9I4EqoXtGrR6GOcRpnvOzA2GG0VJKmjWCoYzm8JA5oQ9bsQbnihFuKJcbY2AAAAAElFTkSuQmCC';
+const pngSkin1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAaUlEQVR42u3SsQkAMAgDQX//pTmBAyIRzAOpPNfmoWvAx0YSXf6R7Xc8ieKe+agrCJQC2lzEuJ6R8BlQ2M4AI48hEA3kGEQgjOGkIMBAEIJDwcQAZMxeUSHoIlDwJAQZKoJeGRIC40pDHvDoRc0XZGJBdEAAAAASUVORK5CYII=';
+const pngSkin2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAWElEQVR42u3UsQ2AMAhDQafy/x/OIQJuysi2LN8d4Iq6Q2ex0JgzX0vO4tTuFTz5KPHL7MIztwKDFYLrY5WXCrAPoHaDCYBqABBicEhKCfg4MICzGChQuPVkHIrBtfky4OuQz6QveMgAAAAASUVORK5CYII=';
+const pngSkin3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAWElEQVR42u3UsQkAMAhDQc2r/flZCQXoObrJlWSHEA4kWPdiWkBWKzTxCFwryCwPAQzHpu4Iyy6w2GjziDQAhMwBiECAZCGoQAh/6ICjdWWHBHJQcbFQOersQr5AKpA/KJY4CIc+6AJZQAAAABJRU5ErkJggg==';
+const pngSkin4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAZ0lEQVR42u3YwQnAMAhAQa3/1xnYBrZAcJKoZmAWhPZEhzK7gc6XwBwkWh5d3x2Y1eR4qN0G1onQDCOxuxh3EjPZ4hh6jISSX1C5Q0twfJYhgUwiXgeD0QCNXtrIiLazihTPMQq0IDsl16goJkI25EAAAAABJRU5ErkJggg==';
 
 const items=[
-  {name:'Glock-18 | Fade',price:20,img:svgItems[0]},
-  {name:'USP-S | Kill Confirmed',price:35,img:svgItems[1]},
-  {name:'AK-47 | Redline',price:60,img:svgItems[2]},
-  {name:'AWP | Asiimov',price:90,img:svgItems[3]}
+  {name:'Glock-18 | Fade',price:20,img:pngSkin1},
+  {name:'USP-S | Kill Confirmed',price:35,img:pngSkin2},
+  {name:'AK-47 | Redline',price:60,img:pngSkin3},
+  {name:'AWP | Asiimov',price:90,img:pngSkin4}
 ];
 const cases=[
-  {name:'Case 50',price:50,rtp:.98,img:svgCase[0]},
-  {name:'Case 100',price:100,rtp:.97,img:svgCase[1]},
-  {name:'Case 150',price:150,rtp:.96,img:svgCase[2]},
-  {name:'Case 200',price:200,rtp:.95,img:svgCase[3]},
-  {name:'Case 250',price:250,rtp:.95,img:svgCase[4]}
+  {name:'Case 50',price:50,rtp:.98,img:pngCase1},
+  {name:'Case 100',price:100,rtp:.97,img:pngCase2},
+  {name:'Case 150',price:150,rtp:.96,img:pngCase3},
+  {name:'Case 200',price:200,rtp:.95,img:pngCase4},
+  {name:'Case 250',price:250,rtp:.95,img:pngCase5}
 ];
-
-// --- State ---
 let state = {
   balance: +(localStorage.bal || 500),
   inventory: [],
@@ -148,7 +192,6 @@ let state = {
   upgradeSelecting: false,
   upgradeIdx: null
 };
-// --- Elements ---
 const balEl = document.getElementById('balance');
 const casesEl = document.getElementById('cases');
 const invEl = document.getElementById('inventory');
@@ -162,19 +205,26 @@ const upgradeSelected = document.getElementById('upgradeSelected');
 const upgradeResult = document.getElementById('upgradeResult');
 const doUpgradeBtn = document.getElementById('doUpgradeBtn');
 const cancelUpgradeBtn = document.getElementById('cancelUpgradeBtn');
-
 const dailyBonusBox = document.getElementById('dailyBonusBox');
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusMsg = document.getElementById('bonusMsg');
+const refBox = document.getElementById('referralBox');
+const myRefInput = document.getElementById('myRefCodeInput');
+const copyRefBtn = document.getElementById('copyRefBtn');
+const otherRefInput = document.getElementById('otherRefInput');
+const refGetBtn = document.getElementById('refGetBtn');
+const refMsg = document.getElementById('refMsg');
+const fakeOnlineBox = document.getElementById('fakeOnlineBox');
+const fakeOnlineCount = document.getElementById('fakeOnlineCount');
 const BONUS_AMOUNT = 1_000_000;
+const REF_BONUS = 100_000;
 
-// ===== Баланс и инвентарь
+// ===== Баланс, кейсы, инвентарь
 function updateBalance(sum) {
   if (typeof sum === 'number') state.balance = sum;
   localStorage.bal = state.balance;
   balEl.textContent = state.balance;
 }
-
 function drawCases() {
   casesEl.innerHTML = '';
   cases.forEach((c, idx) => {
@@ -186,7 +236,6 @@ function drawCases() {
     casesEl.appendChild(d);
   });
 }
-
 function drawInventory() {
   invEl.innerHTML = '';
   state.inventory.forEach((item, idx) => {
@@ -204,7 +253,6 @@ function drawInventory() {
     invEl.appendChild(d);
   });
 }
-
 function openCase(c) {
   state.currentCase = c;
   caseTitle.textContent = c.name;
@@ -220,7 +268,6 @@ function openCase(c) {
   track.style.transform = 'translateX(0)';
   showModal(true);
 }
-
 let spinInProgress = false;
 function spin() {
   if (spinInProgress) return;
@@ -239,7 +286,6 @@ function spin() {
     spinInProgress = false;
   }, 6000);
 }
-
 document.getElementById('upgradeBtn').onclick = () => {
   if(state.upgradeSelecting) return; // уже выбираем
   state.upgradeSelecting = true;
@@ -247,13 +293,11 @@ document.getElementById('upgradeBtn').onclick = () => {
   upgradeText.textContent = "Выбери предмет для улучшения!";
   drawInventory();
 };
-
 function chooseForUpgrade(idx) {
   state.upgradeIdx = idx;
   state.upgradeSelecting = false;
   showUpgradeModal(idx);
 }
-
 function showUpgradeModal(idx) {
   const item = state.inventory[idx];
   upgradeModal.style.display = 'flex';
@@ -268,7 +312,6 @@ function hideUpgradeModal() {
   drawInventory();
   upgradeText.textContent = 'Нажми "Апгрейдить" и выбери предмет';
 }
-
 doUpgradeBtn.onclick = function() {
   if(state.upgradeIdx == null) return;
   const item = state.inventory[state.upgradeIdx];
@@ -296,11 +339,9 @@ doUpgradeBtn.onclick = function() {
     }, 1500);
   }, 1300);
 };
-
 cancelUpgradeBtn.onclick = function() {
   hideUpgradeModal();
 };
-
 function sell() {
   if (state.selectedIdx==null) return;
   updateBalance(state.balance + state.inventory[state.selectedIdx].price);
@@ -322,10 +363,8 @@ document.getElementById('sellBtn').onclick = sell;
 document.getElementById('spinBtn').onclick = spin;
 document.getElementById('closeModalBtn').onclick = () => showModal(false);
 
-// =============== DAILY BONUS ===============
 function getDayKey() {
   const now = new Date();
-  // Ключ вида "2026-02-01"
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 function canTakeBonus() {
@@ -350,8 +389,82 @@ bonusBtn.onclick = function() {
   updateBonusButton();
   bonusMsg.textContent = "Бонус получен, возвращайтесь завтра!";
 };
-// Инициализация
 updateBonusButton();
+
+// =============== Рефералка =========================
+// Простой уникальный "код" для теста
+function getMyRefCode() {
+  // Можно привязать к Telegram.WebApp.initDataUnsafe.user.id, если д��ступно
+  let code = localStorage.myReferralCode;
+  if (!code) {
+    code = Math.floor(Math.random()*900000+100000).toString();
+    localStorage.myReferralCode = code;
+  }
+  return code;
+}
+function canGetRefBonus() {
+  // Код не введён, бонус не получен
+  return localStorage.refBonusTaken !== "yes";
+}
+function getOtherReferredCode() {
+  return localStorage.refReceivedFrom || '';
+}
+myRefInput.value = getMyRefCode();
+copyRefBtn.onclick = () => {
+  myRefInput.select();
+  try {
+    document.execCommand('copy');
+    refMsg.textContent = "Скопировано!";
+  } catch(e) {
+    refMsg.textContent = "Скопируйте вручную!";
+  }
+  setTimeout(()=>{ refMsg.textContent = ""; },1400);
+};
+refGetBtn.onclick = () => {
+  const inputCode = otherRefInput.value.trim();
+  if (!inputCode) {
+    refMsg.textContent = "Введите код друга.";
+    return;
+  }
+  if (!canGetRefBonus()) {
+    refMsg.textContent = "Бонус уже был получен!";
+    return;
+  }
+  if (inputCode === getMyRefCode()) {
+    refMsg.textContent = "Это ваш код!";
+    return;
+  }
+  // Чтоб не спамить бонусами каждому
+  localStorage.refBonusTaken = "yes";
+  localStorage.refReceivedFrom = inputCode;
+  updateBalance(state.balance + REF_BONUS);
+  refMsg.textContent = `Бонус за реферала +${REF_BONUS.toLocaleString()}!`;
+  refGetBtn.disabled = true;
+  otherRefInput.disabled = true;
+};
+// Обновление
+if(!canGetRefBonus()) {
+  refGetBtn.disabled = true;
+  otherRefInput.disabled = true;
+  refMsg.textContent = "Бонус уже был получен!";
+} else {
+  refMsg.textContent = "";
+}
+
+// ============== Fake online ==============
+let online = 1280+Math.floor(Math.random()*30);
+function updateOnline(count) {
+  fakeOnlineCount.textContent = count;
+}
+updateOnline(online);
+setInterval(()=>{
+  let up = Math.random()>0.5 ? 1 : -1;
+  let delta = Math.floor(Math.random()*20)+8;
+  online += up*delta;
+  if (online < 500) online = 500+Math.floor(Math.random()*100);
+  if (online > 2500) online = 2400-Math.floor(Math.random()*50);
+  updateOnline(online);
+}, Math.floor(Math.random()*4000)+2200);
 
 // =============== INIT ===============
 drawCases();
