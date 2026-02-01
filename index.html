@@ -2,177 +2,221 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>CS:GO Кейсы с Рулеткой</title>
+<title>CS:GO Кейсы</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
-body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; text-align: center; padding: 40px; }
-h1 { color: #f39c12; margin-bottom: 20px; }
-
-.case { 
-  background: #2c3e50; padding: 20px; margin: 20px auto; 
-  border-radius: 15px; width: 400px; cursor: pointer; transition: background 0.3s; 
-  display: flex; align-items: center; justify-content: space-between; font-size: 1.2em;
+:root{
+  --accent:#f39c12;
+  --bg1:#2c3e50;
+  --bg2:#0f1419;
 }
-.case:hover { background: #34495e; }
-
-.roulette { 
-  display: flex; justify-content: center; margin-top: 20px; overflow: hidden; 
-  border: 2px solid #f39c12; border-radius: 15px; width: 420px; height: 80px; background: #222; position: relative; 
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Arial, sans-serif;
+  background:radial-gradient(circle at top, var(--bg1), var(--bg2));
+  color:#fff; text-align:center; padding-top:80px;
 }
-.roulette-track { display: flex; position: relative; left: 0; }
-.roulette-item { min-width: 100px; margin: 0 5px; text-align: center; color: #fff; font-size: 0.9em; }
-.roulette-item img { width: 60px; height: 60px; border-radius: 5px; }
+h1{color:var(--accent)}
 
-#openAll, #shareBtn { margin-top: 15px; padding: 12px 26px; font-size: 1.1em; cursor: pointer; 
-  background: #f39c12; border: none; border-radius: 8px; transition: 0.2s; }
-#openAll:hover, #shareBtn:hover { background: #e67e22; }
-#shareBtn { display: none; }
+#topBar{
+  position:fixed; top:10px; right:12px; z-index:10;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+}
+#balance{color:#2ecc71; font-weight:bold}
 
-.result { margin-top: 20px; font-size: 1.3em; min-height: 80px; }
-.reward-img { width: 120px; height: 120px; margin-top: 20px; display: none; animation: drop 0.8s ease forwards; }
-@keyframes drop { 0% { transform: translateY(-200px) scale(0); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+button{
+  background:linear-gradient(135deg,#f39c12,#e67e22);
+  border:none; border-radius:12px; padding:10px 16px;
+  cursor:pointer; font-weight:bold; transition:.2s;
+}
+button:hover{transform:scale(1.05)}
+button:active{transform:scale(.98)}
 
-.common { color: #ffffff; } 
-.rare { color: #1e90ff; } 
-.epic { color: #800080; } 
-.legendary { color: #ffa500; }
+.case{
+  background:linear-gradient(145deg,#2c3e50,#1a252f);
+  width:min(92vw,420px); margin:16px auto; padding:16px;
+  border-radius:18px; display:flex; justify-content:space-between;
+  align-items:center; cursor:pointer;
+  box-shadow:0 0 25px rgba(243,156,18,.15);
+  transition:.25s;
+}
+.case:hover{transform:scale(1.04); box-shadow:0 0 35px rgba(243,156,18,.35)}
 
-#totalPrice { margin-top: 15px; font-size: 1.2em; color: #2ecc71; }
+#overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.88);
+  display:none; align-items:center; justify-content:center; z-index:100;
+  animation:fadeIn .3s;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+#rouletteModal{
+  background:#121820; width:min(94vw,520px);
+  padding:20px; border-radius:22px;
+  box-shadow:0 0 40px rgba(0,0,0,.8);
+  animation:zoomIn .3s ease-out;
+}
+@keyframes zoomIn{from{transform:scale(.7)}to{transform:scale(1)}}
+
+.roulette{
+  width:100%; height:110px; overflow:hidden;
+  border:2px solid var(--accent); border-radius:14px;
+  margin-top:16px; position:relative;
+}
+.roulette::after{
+  content:''; position:absolute; left:50%; top:0; width:2px; height:100%;
+  background:var(--accent); box-shadow:0 0 10px var(--accent);
+}
+.roulette-track{display:flex; position:relative; left:0}
+.roulette-item{
+  min-width:120px; padding:10px; font-size:.75em; opacity:.9;
+}
+
+.result{margin-top:14px; font-size:1.25em; min-height:40px}
+
+/* RARITY */
+.common{color:#fff}
+.rare{color:#1e90ff}
+.epic{color:#a020f0; text-shadow:0 0 10px rgba(160,32,240,.6)}
+.legendary{
+  color:#ffa500;
+  text-shadow:0 0 14px rgba(255,165,0,.9), 0 0 28px rgba(255,165,0,.6);
+  animation:pulse 1.2s infinite alternate;
+}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+.shake{animation:shake .5s}
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-4px)}
+  50%{transform:translateX(4px)}
+  75%{transform:translateX(-2px)}
+  100%{transform:translateX(0)}
+}
+
+@media (max-width:420px){
+  .roulette{height:96px}
+  .roulette-item{min-width:104px}
+}
 </style>
 </head>
+
 <body>
 
-<h1>CS:GO Кейсы с Рулеткой</h1>
-<div id="casesContainer"></div>
-
-<div class="roulette">
-  <div id="rouletteTrack" class="roulette-track"></div>
+<div id="topBar">
+  <div id="balance">Баланс: 500 💰</div>
+  <button onclick="topUp()">➕ Пополнить</button>
 </div>
 
-<div id="totalPrice"></div>
-<button id="openAll">Открыть все кейсы</button>
-<button id="shareBtn">Поделиться в Telegram</button>
+<h1>CS:GO Кейсы</h1>
+<div id="casesContainer"></div>
 
-<div class="result" id="result"></div>
-<img id="rewardImg" class="reward-img" src="" alt="reward">
+<div id="overlay">
+  <div id="rouletteModal">
+    <h2 id="caseTitle"></h2>
+    <div class="roulette"><div id="rouletteTrack" class="roulette-track"></div></div>
+    <div class="result" id="result"></div>
+    <button onclick="closeRoulette()">Закрыть</button>
+  </div>
+</div>
 
-<audio id="openSound" src="https://www.myinstants.com/media/sounds/box_open.mp3"></audio>
+<audio id="spinSound" src="https://www.myinstants.com/media/sounds/coin-drop-4.mp3"></audio>
+<audio id="dropSound" src="https://www.myinstants.com/media/sounds/box_open.mp3"></audio>
 
 <script>
-// Кейсы $1 - $100
+const tg = Telegram.WebApp; tg.ready(); tg.expand();
+
+/* BALANCE */
+let balance = 500;
+const balanceEl = document.getElementById('balance');
+function updateBalance(){ balanceEl.textContent = `Баланс: ${balance} 💰`; }
+updateBalance();
+
+/* CASES */
 const cases = [
-  {name: 'Snakebite Case', price: 1, img: 'https://i.imgur.com/8eK2Q5Y.png'},
-  {name: 'Dreams & Nightmares Case', price: 3, img: 'https://i.imgur.com/z4Wf8nP.png'},
-  {name: 'Gamma Case', price: 6, img: 'https://i.imgur.com/HyYH8bL.png'},
-  {name: 'Huntsman Weapon Case', price: 10, img: 'https://i.imgur.com/Nt3FQFt.png'},
-  {name: 'Operation Hydra Case', price: 20, img: 'https://i.imgur.com/3p8f0Ht.png'},
-  {name: 'Operation Bravo Case', price: 50, img: 'https://i.imgur.com/4zOq7Vq.png'},
-  {name: 'eSports 2013 Case', price: 70, img: 'https://i.imgur.com/5JfX7Gf.png'},
-  {name: 'CS:GO Weapon Case', price: 100, img: 'https://i.imgur.com/1dXQh8b.png'}
+  {name:'Snakebite Case', price:25},
+  {name:'Dreams & Nightmares', price:75},
+  {name:'Gamma Case', price:150},
+  {name:'Huntsman Case', price:300},
+  {name:'Operation Bravo', price:1000}
 ];
 
-// Награды с редкостью
+/* DROPS (RTP ~70%) */
 const rewards = [
-  {name: '★ AWP | Dragon Lore', img: 'https://i.imgur.com/UhU5M1O.png', rarity:'legendary'},
-  {name: '★ M4A4 | Howl', img: 'https://i.imgur.com/ME7YZ6m.png', rarity:'epic'},
-  {name: '★ AK-47 | Redline', img: 'https://i.imgur.com/HZp7QpB.png', rarity:'rare'},
-  {name: '★ Desert Eagle | Blaze', img: 'https://i.imgur.com/E2Kj3tY.png', rarity:'epic'},
-  {name: '★ USP-S | Orion', img: 'https://i.imgur.com/xsMZxZT.png', rarity:'rare'},
-  {name: '★ P90 | Death by Kitty', img: 'https://i.imgur.com/0Qx0lM1.png', rarity:'common'},
-  {name: '★ Glock-18 | Fade', img: 'https://i.imgur.com/yTkZJ9K.png', rarity:'epic'}
+  {name:'P90 | Sand Spray', rarity:'common', chance:55},
+  {name:'USP-S | Forest Leaves', rarity:'common', chance:20},
+  {name:'AK-47 | Redline', rarity:'rare', chance:15},
+  {name:'M4A4 | Howl', rarity:'epic', chance:8},
+  {name:'AWP | Dragon Lore', rarity:'legendary', chance:2}
 ];
+function getReward(){
+  let roll=Math.random()*100, sum=0;
+  for(const r of rewards){ sum+=r.chance; if(roll<=sum) return r; }
+}
 
-const container = document.getElementById('casesContainer');
-const resultDiv = document.getElementById('result');
-const rewardImg = document.getElementById('rewardImg');
-const shareBtn = document.getElementById('shareBtn');
-const openSound = document.getElementById('openSound');
-const rouletteTrack = document.getElementById('rouletteTrack');
-const totalPriceDiv = document.getElementById('totalPrice');
-let lastResult = '';
-
-// Создаем крупные кнопки кейсов
-cases.forEach(c => {
-  const div = document.createElement('div');
-  div.className = 'case';
-  div.innerHTML = `<div><img src="${c.img}" width="50" height="50"> ${c.name}</div><div>≈ $${c.price}</div>`;
-  div.onclick = () => openCase(div, c);
-  container.appendChild(div);
+/* UI CASES */
+const container=document.getElementById('casesContainer');
+cases.forEach(c=>{
+  const d=document.createElement('div');
+  d.className='case';
+  d.innerHTML=`<div>${c.name}</div><div>💰 ${c.price}</div>`;
+  d.onclick=()=>openCase(c);
+  container.appendChild(d);
 });
 
-// Рассчёт общей цены всех кейсов с 10% скидкой
-const sumPrice = cases.reduce((acc, c) => acc + c.price, 0);
-const discountedPrice = (sumPrice * 0.9).toFixed(2);
-totalPriceDiv.innerHTML = `Цена открытия всех кейсов со скидкой 10%: <b>$${discountedPrice}</b>`;
+/* ROULETTE */
+const overlay=document.getElementById('overlay');
+const track=document.getElementById('rouletteTrack');
+const resultDiv=document.getElementById('result');
+const title=document.getElementById('caseTitle');
+const spinSound=document.getElementById('spinSound');
+const dropSound=document.getElementById('dropSound');
 
-// Генерация рулетки
-function generateRoulette() {
-  rouletteTrack.innerHTML = '';
-  for(let i=0;i<30;i++){ 
-    const c = cases[Math.floor(Math.random()*cases.length)];
-    const item = document.createElement('div');
-    item.className = 'roulette-item';
-    item.innerHTML = `<img src="${c.img}"><div>${c.name}</div>`;
-    rouletteTrack.appendChild(item);
+function generateRoulette(){
+  track.innerHTML='';
+  for(let i=0;i<36;i++){
+    const r=rewards[Math.floor(Math.random()*rewards.length)];
+    const it=document.createElement('div');
+    it.className='roulette-item '+r.rarity;
+    it.textContent=r.name;
+    track.appendChild(it);
   }
 }
 
-// Случайная награда
-function getRandomReward() {
-  return rewards[Math.floor(Math.random() * rewards.length)];
-}
+function openCase(caseObj){
+  if(balance<caseObj.price){ tg.showAlert('Недостаточно монет 💸'); return; }
+  balance-=caseObj.price; updateBalance();
 
-// Анимация рулетки с ускорением и замедлением
-function animateRoulette(targetOffset, duration = 4000) {
-  const startTime = performance.now();
-  const startLeft = parseFloat(rouletteTrack.style.left) || 0;
-
-  function step(currentTime) {
-    const elapsed = currentTime - startTime;
-    const t = Math.min(elapsed / duration, 1);
-    const ease = 1 - Math.pow(1 - t, 3); // плавное замедление
-    rouletteTrack.style.left = `${startLeft - ease * targetOffset}px`;
-    if(t < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-// Открытие кейса
-function openCase(div, caseObj) {
-  shareBtn.style.display = 'none';
-  rewardImg.style.display = 'none';
-  resultDiv.innerHTML = `Открываем <b>${caseObj.name}</b>... 🎰`;
-  openSound.currentTime = 0;
-  openSound.play();
+  title.textContent=caseObj.name;
+  resultDiv.textContent='';
+  overlay.style.display='flex';
 
   generateRoulette();
+  track.style.transition='none'; track.style.left='0';
 
-  const trackWidth = rouletteTrack.scrollWidth;
-  const viewportWidth = rouletteTrack.parentElement.clientWidth;
-  const randomOffset = Math.floor(Math.random() * (trackWidth - viewportWidth - 100)) + 50;
+  spinSound.currentTime=0; spinSound.play();
+  const offset=Math.floor(Math.random()*1200)+500;
 
-  animateRoulette(randomOffset);
+  setTimeout(()=>{
+    track.style.transition='left 3.2s cubic-bezier(0.08,0.9,0.18,1)';
+    track.style.left=`-${offset}px`;
+  },80);
 
-  setTimeout(() => {
-    const reward = getRandomReward();
-    lastResult = `Я открыл ${caseObj.name} (${caseObj.price}$) и получил ${reward.name}! 🎉`;
-    resultDiv.innerHTML = `<span class="${reward.rarity}">${lastResult}</span>`;
-    rewardImg.src = reward.img;
-    rewardImg.style.display = 'block';
-    shareBtn.style.display = 'inline-block';
-  }, 4200);
+  setTimeout(()=>{
+    const reward=getReward();
+    dropSound.currentTime=0; dropSound.play();
+    resultDiv.classList.add('shake');
+    resultDiv.innerHTML=`<span class="${reward.rarity}">${reward.name}</span>`;
+    setTimeout(()=>resultDiv.classList.remove('shake'),500);
+  },3300);
 }
 
-// Открыть все кейсы
-document.getElementById('openAll').onclick = () => {
-  cases.forEach((c, i) => setTimeout(()=>openCase(container.children[i], c), i*4500));
-};
+function closeRoulette(){ overlay.style.display='none'; }
 
-// Telegram share
-shareBtn.onclick = () => {
-  const shareText = lastResult + ' 🎉🔥';
-  const url = `https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`;
-  window.open(url, '_blank');
-};
+/* TOPUP (stub) */
+function topUp(){ tg.showAlert('Пополнение подключим позже 💳'); }
 </script>
 
 </body>
