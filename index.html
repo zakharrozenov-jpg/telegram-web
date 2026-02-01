@@ -2,115 +2,177 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>CS:GO Кейсы</title>
+<title>CS:GO Кейсы с Рулеткой</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; text-align: center; padding: 50px; }
-  h1 { color: #f39c12; }
-  .case { 
-    background: #2c3e50; padding: 10px; margin: 20px auto; 
-    border-radius: 10px; width: 320px; cursor: pointer; transition: 0.3s, transform 0.6s; 
-    display: flex; align-items: center; justify-content: left; gap: 10px;
-  }
-  .case img { width: 50px; height: 50px; border-radius: 5px; }
-  .case:hover { background: #34495e; }
-  .opening { transform: rotateY(360deg); }
-  .result { margin-top: 30px; font-size: 1.3em; color: #2ecc71; min-height: 80px; }
-  #openAll, #shareBtn { 
-    margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; 
-    background: #f39c12; border: none; border-radius: 5px; transition: 0.2s; 
-  }
-  #openAll:hover, #shareBtn:hover { background: #e67e22; }
-  #shareBtn { display: none; }
+body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; text-align: center; padding: 40px; }
+h1 { color: #f39c12; margin-bottom: 20px; }
+
+.case { 
+  background: #2c3e50; padding: 20px; margin: 20px auto; 
+  border-radius: 15px; width: 400px; cursor: pointer; transition: background 0.3s; 
+  display: flex; align-items: center; justify-content: space-between; font-size: 1.2em;
+}
+.case:hover { background: #34495e; }
+
+.roulette { 
+  display: flex; justify-content: center; margin-top: 20px; overflow: hidden; 
+  border: 2px solid #f39c12; border-radius: 15px; width: 420px; height: 80px; background: #222; position: relative; 
+}
+.roulette-track { display: flex; position: relative; left: 0; }
+.roulette-item { min-width: 100px; margin: 0 5px; text-align: center; color: #fff; font-size: 0.9em; }
+.roulette-item img { width: 60px; height: 60px; border-radius: 5px; }
+
+#openAll, #shareBtn { margin-top: 15px; padding: 12px 26px; font-size: 1.1em; cursor: pointer; 
+  background: #f39c12; border: none; border-radius: 8px; transition: 0.2s; }
+#openAll:hover, #shareBtn:hover { background: #e67e22; }
+#shareBtn { display: none; }
+
+.result { margin-top: 20px; font-size: 1.3em; min-height: 80px; }
+.reward-img { width: 120px; height: 120px; margin-top: 20px; display: none; animation: drop 0.8s ease forwards; }
+@keyframes drop { 0% { transform: translateY(-200px) scale(0); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+.common { color: #ffffff; } 
+.rare { color: #1e90ff; } 
+.epic { color: #800080; } 
+.legendary { color: #ffa500; }
+
+#totalPrice { margin-top: 15px; font-size: 1.2em; color: #2ecc71; }
 </style>
 </head>
 <body>
 
-<h1>CS:GO Кейсы</h1>
-
+<h1>CS:GO Кейсы с Рулеткой</h1>
 <div id="casesContainer"></div>
 
+<div class="roulette">
+  <div id="rouletteTrack" class="roulette-track"></div>
+</div>
+
+<div id="totalPrice"></div>
 <button id="openAll">Открыть все кейсы</button>
 <button id="shareBtn">Поделиться в Telegram</button>
 
 <div class="result" id="result"></div>
+<img id="rewardImg" class="reward-img" src="" alt="reward">
+
+<audio id="openSound" src="https://www.myinstants.com/media/sounds/box_open.mp3"></audio>
 
 <script>
-  const cases = [
-    {name: 'Кейс «Огненный дракон»', img: 'https://i.imgur.com/1dXQh8b.png'},
-    {name: 'Кейс «Золотой волк»', img: 'https://i.imgur.com/4zOq7Vq.png'},
-    {name: 'Кейс «Ледяная буря»', img: 'https://i.imgur.com/5JfX7Gf.png'},
-    {name: 'Кейс «Теневой тигр»', img: 'https://i.imgur.com/3p8f0Ht.png'},
-    {name: 'Кейс «Серебряный лев»', img: 'https://i.imgur.com/Nt3FQFt.png'}
-  ];
+// Кейсы $1 - $100
+const cases = [
+  {name: 'Snakebite Case', price: 1, img: 'https://i.imgur.com/8eK2Q5Y.png'},
+  {name: 'Dreams & Nightmares Case', price: 3, img: 'https://i.imgur.com/z4Wf8nP.png'},
+  {name: 'Gamma Case', price: 6, img: 'https://i.imgur.com/HyYH8bL.png'},
+  {name: 'Huntsman Weapon Case', price: 10, img: 'https://i.imgur.com/Nt3FQFt.png'},
+  {name: 'Operation Hydra Case', price: 20, img: 'https://i.imgur.com/3p8f0Ht.png'},
+  {name: 'Operation Bravo Case', price: 50, img: 'https://i.imgur.com/4zOq7Vq.png'},
+  {name: 'eSports 2013 Case', price: 70, img: 'https://i.imgur.com/5JfX7Gf.png'},
+  {name: 'CS:GO Weapon Case', price: 100, img: 'https://i.imgur.com/1dXQh8b.png'}
+];
 
-  const rewards = [
-    '★ AWP | Dragon Lore', 
-    '★ M4A4 | Howl', 
-    '★ AK-47 | Redline', 
-    '★ Desert Eagle | Blaze', 
-    '★ USP-S | Orion',
-    '★ P90 | Death by Kitty',
-    '★ Glock-18 | Fade'
-  ];
+// Награды с редкостью
+const rewards = [
+  {name: '★ AWP | Dragon Lore', img: 'https://i.imgur.com/UhU5M1O.png', rarity:'legendary'},
+  {name: '★ M4A4 | Howl', img: 'https://i.imgur.com/ME7YZ6m.png', rarity:'epic'},
+  {name: '★ AK-47 | Redline', img: 'https://i.imgur.com/HZp7QpB.png', rarity:'rare'},
+  {name: '★ Desert Eagle | Blaze', img: 'https://i.imgur.com/E2Kj3tY.png', rarity:'epic'},
+  {name: '★ USP-S | Orion', img: 'https://i.imgur.com/xsMZxZT.png', rarity:'rare'},
+  {name: '★ P90 | Death by Kitty', img: 'https://i.imgur.com/0Qx0lM1.png', rarity:'common'},
+  {name: '★ Glock-18 | Fade', img: 'https://i.imgur.com/yTkZJ9K.png', rarity:'epic'}
+];
 
-  const container = document.getElementById('casesContainer');
-  const resultDiv = document.getElementById('result');
-  const shareBtn = document.getElementById('shareBtn');
-  let lastResult = '';
+const container = document.getElementById('casesContainer');
+const resultDiv = document.getElementById('result');
+const rewardImg = document.getElementById('rewardImg');
+const shareBtn = document.getElementById('shareBtn');
+const openSound = document.getElementById('openSound');
+const rouletteTrack = document.getElementById('rouletteTrack');
+const totalPriceDiv = document.getElementById('totalPrice');
+let lastResult = '';
 
-  // Создание кнопок кейсов с картинками
-  cases.forEach((c, index) => {
-    const div = document.createElement('div');
-    div.className = 'case';
-    div.innerHTML = `<img src="${c.img}" alt="case">${c.name}`;
-    div.onclick = () => openCase(div, c.name);
-    container.appendChild(div);
-  });
+// Создаем крупные кнопки кейсов
+cases.forEach(c => {
+  const div = document.createElement('div');
+  div.className = 'case';
+  div.innerHTML = `<div><img src="${c.img}" width="50" height="50"> ${c.name}</div><div>≈ $${c.price}</div>`;
+  div.onclick = () => openCase(div, c);
+  container.appendChild(div);
+});
 
-  function getRandomReward() {
-    return rewards[Math.floor(Math.random() * rewards.length)];
+// Рассчёт общей цены всех кейсов с 10% скидкой
+const sumPrice = cases.reduce((acc, c) => acc + c.price, 0);
+const discountedPrice = (sumPrice * 0.9).toFixed(2);
+totalPriceDiv.innerHTML = `Цена открытия всех кейсов со скидкой 10%: <b>$${discountedPrice}</b>`;
+
+// Генерация рулетки
+function generateRoulette() {
+  rouletteTrack.innerHTML = '';
+  for(let i=0;i<30;i++){ 
+    const c = cases[Math.floor(Math.random()*cases.length)];
+    const item = document.createElement('div');
+    item.className = 'roulette-item';
+    item.innerHTML = `<img src="${c.img}"><div>${c.name}</div>`;
+    rouletteTrack.appendChild(item);
   }
+}
 
-  function openCase(div, caseName) {
-    shareBtn.style.display = 'none';
-    div.classList.add('opening');
-    resultDiv.innerHTML = `Открываем <b>${caseName}</b>... 🎁`;
-    setTimeout(() => {
-      div.classList.remove('opening');
-      const reward = getRandomReward();
-      lastResult = `Я открыл ${caseName} и получил ${reward}! 🎉`;
-      resultDiv.innerHTML = lastResult;
-      shareBtn.style.display = 'inline-block';
-    }, 800);
+// Случайная награда
+function getRandomReward() {
+  return rewards[Math.floor(Math.random() * rewards.length)];
+}
+
+// Анимация рулетки с ускорением и замедлением
+function animateRoulette(targetOffset, duration = 4000) {
+  const startTime = performance.now();
+  const startLeft = parseFloat(rouletteTrack.style.left) || 0;
+
+  function step(currentTime) {
+    const elapsed = currentTime - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3); // плавное замедление
+    rouletteTrack.style.left = `${startLeft - ease * targetOffset}px`;
+    if(t < 1) requestAnimationFrame(step);
   }
+  requestAnimationFrame(step);
+}
 
-  // Открытие всех кейсов
-  document.getElementById('openAll').onclick = () => {
-    resultDiv.innerHTML = '';
-    shareBtn.style.display = 'none';
-    let delay = 0;
-    let allResults = '';
-    const caseDivs = document.querySelectorAll('.case');
-    caseDivs.forEach((div, i) => {
-      setTimeout(() => {
-        div.classList.add('opening');
-        setTimeout(() => div.classList.remove('opening'), 600);
-        const reward = getRandomReward();
-        allResults += `Открыт ${cases[i].name}: ${reward} 🎉<br>`;
-        resultDiv.innerHTML = allResults;
-        lastResult = allResults.replace(/<br>/g, '\n'); 
-        shareBtn.style.display = 'inline-block';
-      }, delay);
-      delay += 800;
-    });
-  };
+// Открытие кейса
+function openCase(div, caseObj) {
+  shareBtn.style.display = 'none';
+  rewardImg.style.display = 'none';
+  resultDiv.innerHTML = `Открываем <b>${caseObj.name}</b>... 🎰`;
+  openSound.currentTime = 0;
+  openSound.play();
 
-  // Поделиться результатом в Telegram
-  shareBtn.onclick = () => {
-    const text = encodeURIComponent(lastResult);
-    const url = `https://t.me/share/url?url=&text=${text}`;
-    window.open(url, '_blank');
-  };
+  generateRoulette();
+
+  const trackWidth = rouletteTrack.scrollWidth;
+  const viewportWidth = rouletteTrack.parentElement.clientWidth;
+  const randomOffset = Math.floor(Math.random() * (trackWidth - viewportWidth - 100)) + 50;
+
+  animateRoulette(randomOffset);
+
+  setTimeout(() => {
+    const reward = getRandomReward();
+    lastResult = `Я открыл ${caseObj.name} (${caseObj.price}$) и получил ${reward.name}! 🎉`;
+    resultDiv.innerHTML = `<span class="${reward.rarity}">${lastResult}</span>`;
+    rewardImg.src = reward.img;
+    rewardImg.style.display = 'block';
+    shareBtn.style.display = 'inline-block';
+  }, 4200);
+}
+
+// Открыть все кейсы
+document.getElementById('openAll').onclick = () => {
+  cases.forEach((c, i) => setTimeout(()=>openCase(container.children[i], c), i*4500));
+};
+
+// Telegram share
+shareBtn.onclick = () => {
+  const shareText = lastResult + ' 🎉🔥';
+  const url = `https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`;
+  window.open(url, '_blank');
+};
 </script>
 
 </body>
