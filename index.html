@@ -31,6 +31,14 @@ body{
   font-size:22px;
   color:#facc15
 }
+#balanceBox{
+  padding:8px 14px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#facc15,#eab308);
+  color:#020617;
+  font-weight:bold;
+  box-shadow:0 0 15px rgba(250,204,21,.6)
+}
 button{
   background:#facc15;
   border:none;
@@ -56,11 +64,8 @@ button{
   margin:8px 0;
   cursor:pointer
 }
-.case img,.item img{
-  width:52px;
-  border-radius:8px;
-  background:#020617
-}
+.case:hover{background:#374151}
+.case img,.item img{width:52px;border-radius:8px}
 .small{font-size:12px;opacity:.7}
 .selected{outline:2px solid #facc15}
 
@@ -102,9 +107,9 @@ button{
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;gap:8px;align-items:center">
-    <div>Баланс: <b><span id="balance">500</span></b> 🪙</div>
-    <button onclick="openDeposit()">➕ Пополнение</button>
-    <button onclick="openWithdraw()">➖ Вывод</button>
+    <div id="balanceBox">💰 <span id="balance">500</span> 🪙</div>
+    <button onclick="openDeposit()">➕</button>
+    <button onclick="openWithdraw()">➖</button>
   </div>
 </div>
 
@@ -128,23 +133,15 @@ button{
 <div id="overlay">
 <div id="modal">
 <h3 id="caseTitle"></h3>
-<div class="roulette">
-  <div id="track" class="track"></div>
-</div>
+<div class="roulette"><div id="track" class="track"></div></div>
 <button onclick="spin()">🎰 Открыть</button>
-<button onclick="overlay.style.display='none'">Закрыть</button>
+<button onclick="closeModal()">Закрыть</button>
 </div>
 </div>
 
 <script>
-const tg=Telegram.WebApp;tg.ready();tg.expand();
-
-/* ================= EMBEDDED IMAGES ================= */
-const IMG_CASE = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iI2Y1OWUwYiIvPjx0ZXh0IHg9IjMyIiB5PSIzOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzAyMDYxNyIgZm9udC13ZWlnaHQ9ImJvbGQiPkNBU0U8L3RleHQ+PC9zdmc+";
-const IMG_GLOCK = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iIzExMTgyNyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSIzMiIgeT0iMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmYWNjMTUiPkdsb2NrPC90ZXh0Pjwvc3ZnPg==";
-const IMG_USP = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iIzExMTgyNyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSIzMiIgeT0iMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmYWNjMTUiPlVTUDwvdGV4dD48L3N2Zz4=";
-const IMG_AK = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iIzExMTgyNyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSIzMiIgeT0iMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmYWNjMTUiPkFLPC90ZXh0Pjwvc3ZnPg==";
-const IMG_AWP = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iIzExMTgyNyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSIzMiIgeT0iMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmYWNjMTUiPkFXUDwvdGV4dD48L3N2Zz4=";
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
 
 /* BALANCE */
 let balance=+localStorage.bal||500;
@@ -152,34 +149,97 @@ const balEl=document.getElementById('balance');
 function upd(){balEl.textContent=balance;localStorage.bal=balance}
 upd();
 
+/* IMAGES (EMBEDDED) */
+const IMG_CASE="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iI2ZhY2MxNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSIzMiIgeT0iMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMjA2MTciPkNBU0U8L3RleHQ+PC9zdmc+";
+const IMG_ITEM=IMG_CASE;
+
 /* ITEMS */
 const items=[
- {name:'Glock-18 | Fade',price:20,img:IMG_GLOCK},
- {name:'USP-S | Kill Confirmed',price:35,img:IMG_USP},
- {name:'AK-47 | Redline',price:60,img:IMG_AK},
- {name:'AWP | Asiimov',price:90,img:IMG_AWP}
+ {name:'Glock-18 | Fade',price:20,img:IMG_ITEM},
+ {name:'USP-S | Kill Confirmed',price:35,img:IMG_ITEM},
+ {name:'AK-47 | Redline',price:60,img:IMG_ITEM},
+ {name:'AWP | Asiimov',price:90,img:IMG_ITEM}
 ];
 
 /* CASES */
 const cases=[
- {name:'Case 50',price:50,rtp:.98,img:IMG_CASE},
- {name:'Case 100',price:100,rtp:.97,img:IMG_CASE},
- {name:'Case 150',price:150,rtp:.96,img:IMG_CASE},
- {name:'Case 200',price:200,rtp:.95,img:IMG_CASE},
- {name:'Case 250',price:250,rtp:.95,img:IMG_CASE}
+ {name:'Case 50',price:50,rtp:.98},
+ {name:'Case 100',price:100,rtp:.97},
+ {name:'Case 150',price:150,rtp:.96},
+ {name:'Case 200',price:200,rtp:.95},
+ {name:'Case 250',price:250,rtp:.95}
 ];
 
 const casesEl=document.getElementById('cases');
 cases.forEach(c=>{
  const d=document.createElement('div');
  d.className='case';
- d.innerHTML=`<img src="${c.img}"><div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div><div>${c.price} 🪙</div>`;
+ d.innerHTML=`<img src="${IMG_CASE}"><div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div><div>${c.price} 🪙</div>`;
  d.onclick=()=>openCase(c);
  casesEl.appendChild(d);
 });
 
-/* INVENTORY / ROULETTE / UPGRADE — НЕ ТРОГАЛ */
+/* INVENTORY */
+let inv=[],sel=null;
+const invEl=document.getElementById('inventory');
+function drawInv(){
+ invEl.innerHTML='';
+ inv.forEach((i,idx)=>{
+  const d=document.createElement('div');
+  d.className='item'+(sel===idx?' selected':'');
+  d.innerHTML=`<img src="${i.img}">${i.name}<div>${i.price} 🪙</div>`;
+  d.onclick=()=>{sel=idx;upgradeText.textContent=i.name;drawInv()};
+  invEl.appendChild(d);
+ });
+}
 
+/* CASE OPEN */
+let curCase,winItem;
+function openCase(c){
+ curCase=c;
+ caseTitle.textContent=c.name;
+ track.innerHTML='';
+ winItem=Math.random()<c.rtp?items[Math.floor(Math.random()*items.length)]:null;
+ for(let i=0;i<20;i++){
+  track.innerHTML+=`<div><img src="${IMG_ITEM}" width="60"></div>`;
+ }
+ overlay.style.display='flex';
+}
+function spin(){
+ if(balance<curCase.price)return alert('Недостаточно средств');
+ balance-=curCase.price;upd();
+ track.style.left='-720px';
+ setTimeout(()=>{
+  if(winItem) inv.push(winItem);
+  drawInv();
+  closeModal();
+  track.style.left='0';
+ },6000);
+}
+function closeModal(){overlay.style.display='none'}
+
+/* SELL */
+function sell(){
+ if(sel==null)return;
+ balance+=inv[sel].price;
+ inv.splice(sel,1);sel=null;upd();drawInv();
+}
+
+/* UPGRADE */
+function upgrade(){
+ if(sel==null)return alert('Выбери предмет');
+ const item=inv[sel];
+ const chance=item.price/300;
+ if(Math.random()<chance){
+  const better=items.filter(i=>i.price>item.price);
+  inv[sel]=better[Math.floor(Math.random()*better.length)];
+ }else{
+  inv.splice(sel,1);
+ }
+ sel=null;upgradeText.textContent='Выбери предмет';drawInv();
+}
+
+/* DEMO */
 function openDeposit(){alert('Пополнение (демо)')}
 function openWithdraw(){alert('Вывод (демо)')}
 </script>
