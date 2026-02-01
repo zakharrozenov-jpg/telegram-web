@@ -4,101 +4,97 @@
 <meta charset="UTF-8">
 <title>CS:GO Кейсы</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-:root{
-  --accent:#f39c12;
-  --bg1:#2c3e50;
-  --bg2:#0f1419;
-}
+:root{--accent:#f39c12}
 *{box-sizing:border-box}
 body{
-  margin:0; font-family:Arial, sans-serif;
-  background:radial-gradient(circle at top, var(--bg1), var(--bg2));
-  color:#fff; text-align:center; padding-top:80px;
+  margin:0;font-family:Arial,sans-serif;color:#fff;text-align:center;
+  background:radial-gradient(circle at top,#2c3e50,#0f1419);
+  padding-top:110px;
 }
-h1{color:var(--accent)}
+h1{color:var(--accent);margin:6px 0}
+h2{margin:10px 0}
 
 #topBar{
-  position:fixed; top:10px; right:12px; z-index:10;
-  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+  position:fixed;top:10px;left:10px;right:10px;z-index:10;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
 }
-#balance{color:#2ecc71; font-weight:bold}
+#leftTop{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#balance{color:#2ecc71;font-weight:bold}
+#online{color:#1e90ff;font-size:.9em}
 
 button{
   background:linear-gradient(135deg,#f39c12,#e67e22);
-  border:none; border-radius:12px; padding:10px 16px;
-  cursor:pointer; font-weight:bold; transition:.2s;
+  border:none;border-radius:12px;padding:10px 16px;
+  cursor:pointer;font-weight:bold;
 }
-button:hover{transform:scale(1.05)}
-button:active{transform:scale(.98)}
+button.small{padding:6px 10px;font-size:.85em}
+button.ghost{background:#1f2a35;color:#fff}
+button[disabled]{opacity:.5}
 
+.section{
+  width:min(94vw,560px);margin:14px auto;padding:14px;
+  background:#121820;border-radius:18px;
+}
+
+/* CASES */
 .case{
-  background:linear-gradient(145deg,#2c3e50,#1a252f);
-  width:min(92vw,420px); margin:16px auto; padding:16px;
-  border-radius:18px; display:flex; justify-content:space-between;
-  align-items:center; cursor:pointer;
-  box-shadow:0 0 25px rgba(243,156,18,.15);
-  transition:.25s;
+  background:#1c2630;border-radius:16px;padding:14px;margin:10px 0;
+  display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;transition:.2s;
 }
-.case:hover{transform:scale(1.04); box-shadow:0 0 35px rgba(243,156,18,.35)}
+.case:hover{transform:scale(1.03)}
+.case small{opacity:.8}
 
+/* LISTS */
+.list{font-size:.85em;text-align:left;max-height:140px;overflow:auto}
+.list div{padding:6px 0;border-bottom:1px solid #1f2a35}
+
+/* INVENTORY */
+.inv-item{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:8px;border-bottom:1px solid #1f2a35
+}
+.inv-item img{width:56px;height:38px;object-fit:contain}
+
+/* OVERLAY / MODAL */
 #overlay{
-  position:fixed; inset:0; background:rgba(0,0,0,.88);
-  display:none; align-items:center; justify-content:center; z-index:100;
-  animation:fadeIn .3s;
+  position:fixed;inset:0;background:rgba(0,0,0,.9);
+  display:none;align-items:center;justify-content:center;z-index:100;
 }
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#modal{
+  width:min(95vw,560px);background:#121820;border-radius:20px;padding:16px;
+}
 
-#rouletteModal{
-  background:#121820; width:min(94vw,520px);
-  padding:20px; border-radius:22px;
-  box-shadow:0 0 40px rgba(0,0,0,.8);
-  animation:zoomIn .3s ease-out;
-}
-@keyframes zoomIn{from{transform:scale(.7)}to{transform:scale(1)}}
-
-.roulette{
-  width:100%; height:110px; overflow:hidden;
-  border:2px solid var(--accent); border-radius:14px;
-  margin-top:16px; position:relative;
-}
+/* ROULETTE */
+.roulette{height:120px;overflow:hidden;border:2px solid var(--accent);
+  border-radius:14px;margin:10px 0;position:relative}
 .roulette::after{
-  content:''; position:absolute; left:50%; top:0; width:2px; height:100%;
-  background:var(--accent); box-shadow:0 0 10px var(--accent);
+  content:'';position:absolute;left:50%;top:0;width:2px;height:100%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent);
 }
-.roulette-track{display:flex; position:relative; left:0}
-.roulette-item{
-  min-width:120px; padding:10px; font-size:.75em; opacity:.9;
-}
+.track{display:flex;position:relative;left:0}
+.item{min-width:120px;font-size:.7em}
+.item img{width:80px;height:55px;object-fit:contain}
 
-.result{margin-top:14px; font-size:1.25em; min-height:40px}
-
-/* RARITY */
+/* RESULT */
+#rewardImg{width:180px;margin:8px auto;display:none}
 .common{color:#fff}
 .rare{color:#1e90ff}
-.epic{color:#a020f0; text-shadow:0 0 10px rgba(160,32,240,.6)}
-.legendary{
-  color:#ffa500;
-  text-shadow:0 0 14px rgba(255,165,0,.9), 0 0 28px rgba(255,165,0,.6);
-  animation:pulse 1.2s infinite alternate;
-}
-@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+.epic{color:#a020f0;text-shadow:0 0 12px rgba(160,32,240,.6)}
+.legendary{color:#ffa500;text-shadow:0 0 18px orange;animation:pulse 1.2s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.08)}}
 
-.shake{animation:shake .5s}
-@keyframes shake{
-  0%{transform:translateX(0)}
-  25%{transform:translateX(-4px)}
-  50%{transform:translateX(4px)}
-  75%{transform:translateX(-2px)}
-  100%{transform:translateX(0)}
-}
+/* UPGRADE */
+.progress{height:10px;background:#1f2a35;border-radius:8px;overflow:hidden;margin:6px 0}
+.bar{height:100%;background:#2ecc71;width:0}
 
-@media (max-width:420px){
-  .roulette{height:96px}
-  .roulette-item{min-width:104px}
+/* REF */
+.ref-box{
+  background:#1c2630;border-radius:14px;padding:10px;margin-top:8px;
+  font-size:.85em;word-break:break-all
 }
 </style>
 </head>
@@ -106,117 +102,165 @@ button:active{transform:scale(.98)}
 <body>
 
 <div id="topBar">
-  <div id="balance">Баланс: 500 💰</div>
-  <button onclick="topUp()">➕ Пополнить</button>
-</div>
-
-<h1>CS:GO Кейсы</h1>
-<div id="casesContainer"></div>
-
-<div id="overlay">
-  <div id="rouletteModal">
-    <h2 id="caseTitle"></h2>
-    <div class="roulette"><div id="rouletteTrack" class="roulette-track"></div></div>
-    <div class="result" id="result"></div>
-    <button onclick="closeRoulette()">Закрыть</button>
+  <div id="leftTop">
+    <div id="balance">Баланс: 500 💰</div>
+    <div id="online">🟢 Онлайн: 128</div>
+  </div>
+  <div>
+    <button class="small" id="bonusBtn" onclick="dailyBonus()">🎁</button>
+    <button class="small" onclick="topUp()">➕</button>
   </div>
 </div>
 
-<audio id="spinSound" src="https://www.myinstants.com/media/sounds/coin-drop-4.mp3"></audio>
-<audio id="dropSound" src="https://www.myinstants.com/media/sounds/box_open.mp3"></audio>
+<h1>CS:GO Кейсы</h1>
+
+<!-- REFERRAL -->
+<div class="section">
+  <h2>👥 Реферальная система</h2>
+  <div>Приглашено: <b id="refCount">0</b> человек</div>
+  <div class="ref-box" id="refLink"></div>
+  <button class="small" onclick="copyRef()">📋 Скопировать ссылку</button>
+  <small><br>Ты и друг получите бонус 💰</small>
+</div>
+
+<!-- CASES -->
+<div class="section">
+  <h2>Кейсы</h2>
+  <div id="cases"></div>
+</div>
+
+<!-- INVENTORY -->
+<div class="section">
+  <h2>🎒 Инвентарь</h2>
+  <div id="inventory" class="list"></div>
+</div>
+
+<!-- MODAL -->
+<div id="overlay">
+  <div id="modal">
+    <h2 id="caseTitle"></h2>
+    <div class="roulette"><div id="track" class="track"></div></div>
+    <img id="rewardImg">
+    <div id="result"></div>
+    <button class="ghost" onclick="closeModal()">Закрыть</button>
+  </div>
+</div>
 
 <script>
-const tg = Telegram.WebApp; tg.ready(); tg.expand();
+const tg=Telegram.WebApp; tg.ready(); tg.expand();
 
-/* BALANCE */
-let balance = 500;
-const balanceEl = document.getElementById('balance');
-function updateBalance(){ balanceEl.textContent = `Баланс: ${balance} 💰`; }
+/* ===== USER ID ===== */
+const userId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random()*1e9);
+
+/* ===== BALANCE ===== */
+let balance = Number(localStorage.getItem('balance')) || 500;
+const balEl=document.getElementById('balance');
+function updateBalance(){
+  balEl.textContent=`Баланс: ${balance} 💰`;
+  localStorage.setItem('balance', balance);
+}
 updateBalance();
 
-/* CASES */
-const cases = [
-  {name:'Snakebite Case', price:25},
-  {name:'Dreams & Nightmares', price:75},
-  {name:'Gamma Case', price:150},
-  {name:'Huntsman Case', price:300},
-  {name:'Operation Bravo', price:1000}
-];
+/* ===== ONLINE ===== */
+const onlineEl=document.getElementById('online');
+setInterval(()=>onlineEl.textContent='🟢 Онлайн: '+(120+Math.floor(Math.random()*40)),12000);
 
-/* DROPS (RTP ~70%) */
-const rewards = [
-  {name:'P90 | Sand Spray', rarity:'common', chance:55},
-  {name:'USP-S | Forest Leaves', rarity:'common', chance:20},
-  {name:'AK-47 | Redline', rarity:'rare', chance:15},
-  {name:'M4A4 | Howl', rarity:'epic', chance:8},
-  {name:'AWP | Dragon Lore', rarity:'legendary', chance:2}
-];
-function getReward(){
-  let roll=Math.random()*100, sum=0;
-  for(const r of rewards){ sum+=r.chance; if(roll<=sum) return r; }
+/* ===== REFERRALS ===== */
+let refCount = Number(localStorage.getItem('refCount')) || 0;
+document.getElementById('refCount').textContent = refCount;
+
+const botName = 'YOUR_BOT_NAME'; // ← ЗАМЕНИ
+const refLink = `https://t.me/${botName}?start=ref_${userId}`;
+document.getElementById('refLink').textContent = refLink;
+
+function copyRef(){
+  navigator.clipboard.writeText(refLink);
+  tg.showAlert('Реферальная ссылка скопирована');
 }
 
-/* UI CASES */
-const container=document.getElementById('casesContainer');
-cases.forEach(c=>{
-  const d=document.createElement('div');
-  d.className='case';
-  d.innerHTML=`<div>${c.name}</div><div>💰 ${c.price}</div>`;
-  d.onclick=()=>openCase(c);
-  container.appendChild(d);
-});
-
-/* ROULETTE */
-const overlay=document.getElementById('overlay');
-const track=document.getElementById('rouletteTrack');
-const resultDiv=document.getElementById('result');
-const title=document.getElementById('caseTitle');
-const spinSound=document.getElementById('spinSound');
-const dropSound=document.getElementById('dropSound');
-
-function generateRoulette(){
-  track.innerHTML='';
-  for(let i=0;i<36;i++){
-    const r=rewards[Math.floor(Math.random()*rewards.length)];
-    const it=document.createElement('div');
-    it.className='roulette-item '+r.rarity;
-    it.textContent=r.name;
-    track.appendChild(it);
+/* check incoming ref */
+const startParam = tg.initDataUnsafe?.start_param;
+if(startParam && startParam.startsWith('ref_')){
+  const inviter = startParam.replace('ref_','');
+  if(!localStorage.getItem('refUsed')){
+    balance += 200; // бонус приглашённому
+    updateBalance();
+    localStorage.setItem('refUsed', inviter);
+    tg.showAlert('Добро пожаловать! Бонус +200 💰');
   }
 }
 
-function openCase(caseObj){
-  if(balance<caseObj.price){ tg.showAlert('Недостаточно монет 💸'); return; }
-  balance-=caseObj.price; updateBalance();
+/* ===== DATA ===== */
+const casesData=[
+ {name:'Budget Case',price:20},
+ {name:'Classic Case',price:100},
+ {name:'Premium Case',price:400}
+];
 
-  title.textContent=caseObj.name;
-  resultDiv.textContent='';
-  overlay.style.display='flex';
+const rewards=[
+ {name:'P90 | Sand Spray',rarity:'common',chance:40,price:10,img:'https://i.imgur.com/0Qx0lM1.png'},
+ {name:'AK-47 | Redline',rarity:'rare',chance:25,price:80,img:'https://i.imgur.com/HZp7QpB.png'},
+ {name:'M4A4 | Howl',rarity:'epic',chance:20,price:220,img:'https://i.imgur.com/ME7YZ6m.png'},
+ {name:'AWP | Dragon Lore',rarity:'legendary',chance:15,price:600,img:'https://i.imgur.com/UhU5M1O.png'}
+];
 
-  generateRoulette();
-  track.style.transition='none'; track.style.left='0';
-
-  spinSound.currentTime=0; spinSound.play();
-  const offset=Math.floor(Math.random()*1200)+500;
-
-  setTimeout(()=>{
-    track.style.transition='left 3.2s cubic-bezier(0.08,0.9,0.18,1)';
-    track.style.left=`-${offset}px`;
-  },80);
-
-  setTimeout(()=>{
-    const reward=getReward();
-    dropSound.currentTime=0; dropSound.play();
-    resultDiv.classList.add('shake');
-    resultDiv.innerHTML=`<span class="${reward.rarity}">${reward.name}</span>`;
-    setTimeout(()=>resultDiv.classList.remove('shake'),500);
-  },3300);
+function getReward(){
+ let r=Math.random()*100,s=0;
+ for(const i of rewards){s+=i.chance;if(r<=s)return i;}
 }
 
-function closeRoulette(){ overlay.style.display='none'; }
+/* ===== CASES ===== */
+const casesEl=document.getElementById('cases');
+casesData.forEach(c=>{
+ const d=document.createElement('div');
+ d.className='case';
+ d.innerHTML=`<div>${c.name}</div><div>💰 ${c.price}</div>`;
+ d.onclick=()=>openCase(c);
+ casesEl.appendChild(d);
+});
 
-/* TOPUP (stub) */
-function topUp(){ tg.showAlert('Пополнение подключим позже 💳'); }
+/* ===== ROULETTE ===== */
+const overlay=document.getElementById('overlay');
+const track=document.getElementById('track');
+const resultEl=document.getElementById('result');
+const rewardImg=document.getElementById('rewardImg');
+const titleEl=document.getElementById('caseTitle');
+
+function openCase(c){
+ if(balance<c.price){tg.showAlert('Недостаточно монет');return;}
+ balance-=c.price;updateBalance();
+
+ overlay.style.display='flex';
+ titleEl.textContent=c.name;
+ resultEl.textContent='';
+ rewardImg.style.display='none';
+
+ track.innerHTML='';
+ for(let i=0;i<30;i++){
+  const r=rewards[Math.floor(Math.random()*rewards.length)];
+  const it=document.createElement('div');
+  it.className='item '+r.rarity;
+  it.innerHTML=`<img src="${r.img}"><div>${r.name}</div>`;
+  track.appendChild(it);
+ }
+ track.style.transition='none'; track.style.left='0';
+
+ const offset=600+Math.random()*900;
+ setTimeout(()=>{
+  track.style.transition='left 3s cubic-bezier(.1,.9,.2,1)';
+  track.style.left=`-${offset}px`;
+ },50);
+
+ setTimeout(()=>{
+  const r=getReward();
+  rewardImg.src=r.img; rewardImg.style.display='block';
+  resultEl.className=r.rarity; resultEl.textContent=r.name;
+ },3200);
+}
+
+function closeModal(){overlay.style.display='none'}
+function dailyBonus(){balance+=150;updateBalance();tg.showAlert('+150 💰')}
+function topUp(){tg.showAlert('Платежи подключим позже 💳')}
 </script>
 
 </body>
