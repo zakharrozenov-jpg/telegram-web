@@ -7,8 +7,8 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
   <style>
-    body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:100px;}
-    #topBar{position:fixed;top:0;left:0;right:0;background:#020617;padding:14px;
+    body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:120px;}
+    #topBar{position:fixed;top:40px;left:0;right:0;background:#020617;padding:14px;
       display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:10}
     #logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
     #balanceBox{padding:8px 14px;border-radius:14px;
@@ -32,9 +32,33 @@
     #upgradeModal .skin{display:flex;align-items:center;gap:12px;}
     #upgradeModal .skin img{width:60px;}
     #upgradeResult{font-size:18px;margin:10px 0;}
+    #dailyBonusBox{
+      position:fixed;
+      top:0;left:0;right:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:rgba(20,20,24,0.96);
+      padding:14px 0 8px 0;
+      z-index:100;
+      gap: 20px;
+      flex-direction:column;
+      box-shadow:0 6px 28px rgba(0,0,0,.25)
+    }
+    #bonusBtn[disabled]{
+      background:#e5e7eb;
+      color:#bdbdbd;
+      cursor:default;
+      opacity:0.85;
+    }
   </style>
 </head>
 <body>
+
+<div id="dailyBonusBox">
+  <button type="button" id="bonusBtn">🎁 Ежедневн��й бонус 1 000 000</button>
+  <div id="bonusMsg" class="small"></div>
+</div>
 
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
@@ -73,7 +97,7 @@
   </div>
 </div>
 
-<!-- Upgrade modal! -->
+<!-- Upgrade modal -->
 <div id="upgradeModal">
   <div>Три-два-икс Апгрейд</div>
   <div class="skin" id="upgradeSelected"></div>
@@ -83,39 +107,37 @@
 </div>
 
 <script>
-// TG init
-if(window.Telegram?.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
-
-// Картинки для предметов и кейсов (замени на рабочие по желанию, эти тоже публичные!).
-const skinImgs = [
-  "https://community.akamai.steamstatic.com/economy/image/QmdXm4avjRjNR6aZrsDMDpgK89xhBMPCB9wSWuaUZVc5Lt/128fx128f", // Fade
-  "https://community.akamai.steamstatic.com/economy/image/QmRa6Zd656fCWw6dzR4okNrVnCkWKCkpP6r9zbzp4Mqaxg/128fx128f", // Kill Confirmed
-  "https://community.akamai.steamstatic.com/economy/image/QmWwui1w4fdLkGbmQipx6C1MAxzfXwTW6kngHnwiueJAec/128fx128f", // Redline
-  "https://community.akamai.steamstatic.com/economy/image/QmRMJgkb9NBXcECK2D2DgdAwhm8Pb9kh6ne5Mr6FNJu3No/128fx128f"
+// --- Safe SVG icons (Telegram WebApp compatible) ---
+const svgCase = [
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#facc15"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 1</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#eab308"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 2</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#fbbf24"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 3</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#fde68a"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 4</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="64" height="64" fill="#f59e42"/><text x="32" y="39" text-anchor="middle" font-size="16" font-family="Arial" fill="#020617">CASE 5</text></svg>'
 ];
-const caseImgs = [
-  "https://i.imgur.com/kqT0IhL.png",
-  "https://i.imgur.com/7sdFvLC.png",
-  "https://i.imgur.com/px9PXZK.png",
-  "https://i.imgur.com/W5RqkuU.png",
-  "https://i.imgur.com/p8G6JbO.png"
+
+const svgItems = [
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#1e293b"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">GLOCK</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#334155"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">USP-S</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#475569"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">AK-47</text></svg>',
+  'data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><rect rx="10" width="64" height="64" fill="#64748b"/><text x="32" y="38" text-anchor="middle" font-size="12" font-family="Arial" fill="#facc15">AWP</text></svg>',
 ];
 
 const items=[
-  {name:'Glock-18 | Fade',price:20,img:skinImgs[0]},
-  {name:'USP-S | Kill Confirmed',price:35,img:skinImgs[1]},
-  {name:'AK-47 | Redline',price:60,img:skinImgs[2]},
-  {name:'AWP | Asiimov',price:90,img:skinImgs[3]}
+  {name:'Glock-18 | Fade',price:20,img:svgItems[0]},
+  {name:'USP-S | Kill Confirmed',price:35,img:svgItems[1]},
+  {name:'AK-47 | Redline',price:60,img:svgItems[2]},
+  {name:'AWP | Asiimov',price:90,img:svgItems[3]}
 ];
 const cases=[
-  {name:'Case 50',price:50,rtp:.98,img:caseImgs[0]},
-  {name:'Case 100',price:100,rtp:.97,img:caseImgs[1]},
-  {name:'Case 150',price:150,rtp:.96,img:caseImgs[2]},
-  {name:'Case 200',price:200,rtp:.95,img:caseImgs[3]},
-  {name:'Case 250',price:250,rtp:.95,img:caseImgs[4]}
+  {name:'Case 50',price:50,rtp:.98,img:svgCase[0]},
+  {name:'Case 100',price:100,rtp:.97,img:svgCase[1]},
+  {name:'Case 150',price:150,rtp:.96,img:svgCase[2]},
+  {name:'Case 200',price:200,rtp:.95,img:svgCase[3]},
+  {name:'Case 250',price:250,rtp:.95,img:svgCase[4]}
 ];
 
-// Состояния:
+// --- State ---
 let state = {
   balance: +(localStorage.bal || 500),
   inventory: [],
@@ -126,8 +148,7 @@ let state = {
   upgradeSelecting: false,
   upgradeIdx: null
 };
-
-// Элементы
+// --- Elements ---
 const balEl = document.getElementById('balance');
 const casesEl = document.getElementById('cases');
 const invEl = document.getElementById('inventory');
@@ -142,7 +163,12 @@ const upgradeResult = document.getElementById('upgradeResult');
 const doUpgradeBtn = document.getElementById('doUpgradeBtn');
 const cancelUpgradeBtn = document.getElementById('cancelUpgradeBtn');
 
-// Обновление баланса и отображение
+const dailyBonusBox = document.getElementById('dailyBonusBox');
+const bonusBtn = document.getElementById('bonusBtn');
+const bonusMsg = document.getElementById('bonusMsg');
+const BONUS_AMOUNT = 1_000_000;
+
+// ===== Баланс и инвентарь
 function updateBalance(sum) {
   if (typeof sum === 'number') state.balance = sum;
   localStorage.bal = state.balance;
@@ -154,9 +180,7 @@ function drawCases() {
   cases.forEach((c, idx) => {
     const d = document.createElement('div');
     d.className = 'case';
-    d.innerHTML =
-      `<img src="${c.img}" alt="${c.name}" loading="lazy">
-      <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
+    d.innerHTML = `<img src="${c.img}" alt="${c.name}"><div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
       <div>${c.price} 🪙</div>`;
     d.onclick = () => openCase(c);
     casesEl.appendChild(d);
@@ -171,7 +195,7 @@ function drawInventory() {
     if(state.upgradeSelecting) className += ' upgrade-candidate';
     if(state.selectedIdx === idx && !state.upgradeSelecting) className += ' selected';
     d.className = className;
-    d.innerHTML = `<img src="${item.img}" alt="${item.name}" loading="lazy">${item.name}<div>${item.price} 🪙</div>`;
+    d.innerHTML = `<img src="${item.img}" alt="${item.name}">${item.name}<div>${item.price} 🪙</div>`;
     if(state.upgradeSelecting) {
       d.onclick = () => chooseForUpgrade(idx);
     } else {
@@ -181,7 +205,6 @@ function drawInventory() {
   });
 }
 
-// --- Кейс ---
 function openCase(c) {
   state.currentCase = c;
   caseTitle.textContent = c.name;
@@ -190,7 +213,7 @@ function openCase(c) {
   for (let i = 0; i < 25; i++) {
     const it = items[Math.floor(Math.random()*items.length)];
     track.innerHTML += `<div class="roulette-item">
-      <img src="${it.img}" alt="${it.name}" loading="lazy"><div>${it.name}</div>
+      <img src="${it.img}" alt="${it.name}"><div>${it.name}</div>
     </div>`;
   }
   track.style.transition = 'none';
@@ -217,7 +240,6 @@ function spin() {
   }, 6000);
 }
 
-// --- Upgrade кнопка ---
 document.getElementById('upgradeBtn').onclick = () => {
   if(state.upgradeSelecting) return; // уже выбираем
   state.upgradeSelecting = true;
@@ -235,11 +257,8 @@ function chooseForUpgrade(idx) {
 function showUpgradeModal(idx) {
   const item = state.inventory[idx];
   upgradeModal.style.display = 'flex';
-  upgradeSelected.innerHTML = `<img src="${item.img}" alt="">
-    <div>
-      <div>${item.name}</div>
-      <div class="small">${item.price} 🪙</div>
-    </div>`;
+  upgradeSelected.innerHTML = `<img src="${item.img}" alt=""><div><div>${item.name}</div>
+    <div class="small">${item.price} 🪙</div></div>`;
   upgradeResult.textContent = '';
 }
 function hideUpgradeModal() {
@@ -252,14 +271,10 @@ function hideUpgradeModal() {
 
 doUpgradeBtn.onclick = function() {
   if(state.upgradeIdx == null) return;
-  // 3, 2, 1! Мегаапгрейд
   const item = state.inventory[state.upgradeIdx];
   doUpgradeBtn.disabled = true;
   upgradeResult.textContent = "Три... два... икс!";
   setTimeout(function() {
-    // Эффект апгрейда с мультипликацией (можно заменить на свою механику):
-    // Победа - случайный айтем лучше выбранного (если такие есть)
-    // Проигрыш - сгорает
     const chance = item.price / 300;
     if(Math.random() < chance) {
       const better = items.filter(i=>i.price>item.price);
@@ -286,7 +301,6 @@ cancelUpgradeBtn.onclick = function() {
   hideUpgradeModal();
 };
 
-// --- Прочее ---
 function sell() {
   if (state.selectedIdx==null) return;
   updateBalance(state.balance + state.inventory[state.selectedIdx].price);
@@ -308,7 +322,38 @@ document.getElementById('sellBtn').onclick = sell;
 document.getElementById('spinBtn').onclick = spin;
 document.getElementById('closeModalBtn').onclick = () => showModal(false);
 
-// init
+// =============== DAILY BONUS ===============
+function getDayKey() {
+  const now = new Date();
+  // Ключ вида "2026-02-01"
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+function canTakeBonus() {
+  const takenKey = localStorage.dailyBonusKey;
+  return takenKey !== getDayKey();
+}
+function updateBonusButton() {
+  if (canTakeBonus()) {
+    bonusBtn.disabled = false;
+    bonusBtn.textContent = "🎁 Ежедневный бонус 1 000 000";
+    bonusMsg.textContent = "";
+  } else {
+    bonusBtn.disabled = true;
+    bonusBtn.textContent = "🎁 Бонус получен";
+    bonusMsg.textContent = "Бонус уже получен, приходите завтра!";
+  }
+}
+bonusBtn.onclick = function() {
+  if (!canTakeBonus()) return;
+  localStorage.dailyBonusKey = getDayKey();
+  updateBalance(state.balance + BONUS_AMOUNT);
+  updateBonusButton();
+  bonusMsg.textContent = "Бонус получен, возвращайтесь завтра!";
+};
+// Инициализация
+updateBonusButton();
+
+// =============== INIT ===============
 drawCases();
 drawInventory();
 updateBalance(state.balance);
