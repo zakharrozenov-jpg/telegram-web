@@ -22,10 +22,10 @@
     .small{font-size:12px;opacity:.7}
     .selected{outline:2px solid #facc15}
     .upgrade-candidate{outline:3px solid #38bdf8;}
-    .roulette{overflow:hidden;border:2px solid #facc15;border-radius:14px;height:100px;margin:10px 0;}
+    .roulette{overflow:hidden;position:relative;border:2px solid #facc15;border-radius:14px;height:100px;margin:10px 0;}
     .track{display:flex;transform:translateX(0);will-change:transform;}
     .roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px}
-    .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px}
+    .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;box-shadow:0 0 6px 1px #000b}
     #overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:20}
     #modal{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
     #upgradeModal{background:#111827;padding:18px 14px;border-radius:14px;display:none;flex-direction:column;align-items:center;}
@@ -51,7 +51,17 @@
       cursor:default;
       opacity:0.85;
     }
-    /* Фейковый онлайн */
+    .roulette-marker{
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:50%;
+      width:0;
+      border-left:3px dashed #facc15;
+      z-index:9;
+      filter:drop-shadow(0 0 3px #facc15) drop-shadow(0 0 7px #020a);
+      pointer-events:none;
+    }
     #fakeOnlineBox{
       margin-top:24px;
       width:100vw;
@@ -66,7 +76,6 @@
       letter-spacing:1px;
       box-shadow:0 -1px 5px rgba(0,0,0,.25);
     }
-    /* Реферальный раздел */
     #referralBox{
       margin:10px auto 0 auto;
       background:#1e293b;
@@ -99,7 +108,7 @@
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;gap:8px;align-items:center">
-    <div id="balanceBox">💰 <span id="balance">500</span> 🪙</div>
+    <div id="balanceBox">💵 <span id="balance">500</span></div>
     <button type="button" id="depositBtn">➕</button>
     <button type="button" id="withdrawBtn">➖</button>
   </div>
@@ -116,7 +125,7 @@
   <button type="button" id="sellBtn">Продать</button>
 </div>
 
-<!-- Апгрейд-панель ПЕРЕД реферальной системой! -->
+<!-- Апгрейд -->
 <div class="section">
   <h3>⬆️ Апгрейд</h3>
   <div id="upgradeText" class="small">Нажми "Апгрейдить" и выбери предмет</div>
@@ -144,6 +153,7 @@
   <div id="modal">
     <h3 id="caseTitle"></h3>
     <div class="roulette">
+      <div class="roulette-marker"></div>
       <div id="track" class="track"></div>
     </div>
     <button type="button" id="spinBtn">🎰 Открыть</button>
@@ -159,16 +169,16 @@
 </div>
 
 <script>
-// Все картинки только data:image/png;base64
-const pngCase1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQ6AIAwDQfsT09X/f3pkgy2FkaJLIV+rsVqZ7KcK49VxELpi8r+dO7exyp3dvUSVVTknasZcJI4Lhtqb93BlBUqFv5PUM92ib3Zpsr/e3zRy/I5bIkYAAAAASUVORK5CYII=';
-const pngCase2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQ7CMAwD0FzjJl9d0UfTopLfMoYOhHoiP2U7VTLRm/8gLaxAiHzZPwl1WxcVwTRMyuVdR8D02wKUIxiCIjMQ1LU8HHlTA3RS1IrRK31Xf7GRqEyAO0uXAAAAAElFTkSuQmCC';
-const pngCase3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YOQqAIBAE0Q9wW9TE/s+cmDJSGAL3Cw7Xij0rUV2KUg8mfrfJUPkyKdp00I6qgr+hq4CvEAlaTACl9ahOAD5vFYLGKAF4zwAVyjFAMJpOVt74AzjFYWWQwUnAAAAAElFTkSuQmCC';
-const pngCase4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQoAIAwDQeP1dAfx9e9PhJmUV/BtTARyT55LBv6/ik1y4VvGS1rlfEYUg8r3Qqf2wqgDUJMGZL/ksR+1ms5wKVCpkGVSpRrs0vwwMLBd5PU7wDNJmYOtd7UaAAAAAElFTkSuQmCC';
-const pngCase5 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQqAMAgEQfRk6ff/hzIrpMRkV+hbkvb6wpQY8PkJeQh+RtWngbVkj6k9I4EqoXtGrR6GOcRpnvOzA2GG0VJKmjWCoYzm8JA5oQ9bsQbnihFuKJcbY2AAAAAElFTkSuQmCC';
-const pngSkin1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAaUlEQVR42u3SsQkAMAgDQX//pTmBAyIRzAOpPNfmoWvAx0YSXf6R7Xc8ieKe+agrCJQC2lzEuJ6R8BlQ2M4AI48hEA3kGEQgjOGkIMBAEIJDwcQAZMxeUSHoIlDwJAQZKoJeGRIC40pDHvDoRc0XZGJBdEAAAAASUVORK5CYII=';
-const pngSkin2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAWElEQVR42u3UsQ2AMAhDQafy/x/OIQJuysi2LN8d4Iq6Q2ex0JgzX0vO4tTuFTz5KPHL7MIztwKDFYLrY5WXCrAPoHaDCYBqABBicEhKCfg4MICzGChQuPVkHIrBtfky4OuQz6QveMgAAAAASUVORK5CYII=';
-const pngSkin3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAWElEQVR42u3UsQkAMAhDQc2r/flZCQXoObrJlWSHEA4kWPdiWkBWKzTxCFwryCwPAQzHpu4Iyy6w2GjziDQAhMwBiECAZCGoQAh/6ICjdWWHBHJQcbFQOersQr5AKpA/KJY4CIc+6AJZQAAAABJRU5ErkJggg==';
-const pngSkin4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAZ0lEQVR42u3YwQnAMAhAQa3/1xnYBrZAcJKoZmAWhPZEhzK7gc6XwBwkWh5d3x2Y1eR4qN0G1onQDCOxuxh3EjPZ4hh6jISSX1C5Q0twfJYhgUwiXgeD0QCNXtrIiLazihTPMQq0IDsl16goJkI25EAAAAABJRU5ErkJggg==';
+// Контрастные PNG-картинки для кейсов и айтемов
+const pngCase1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAB5klEQVRoge2Zr05DMRCFn9gdB4iAC9BhC7AIKiAHoAvQhAhpEVqgF4JfAoFJVqvXZjoZdVrGz6jIjM+P3+pEvz9qq7n+8BQH2fSi9AL3FPOqBZv2T4kRCHRxnAWoguin4fz5K1KJDdiNuIEFgAvF4V54AoqGQDzWEESVjUSQo40wvMhA8na4CwAavESL9YZW6J0PIfiC8E3b9iQ8xLwP7w3WYbelpE3gH22SJrZi3H9k8uuM1VwPyQXAdJU5AJUHeha1hx00ghSpV6b1MHpiihSlyEoTqK2i0TchniBUDcPPdReAzK7FH_okvq6Y7M3yXZjh0nPdNOA81A7XBvNWscM9adcSZR4DnZrFV5MSOA82QqowuChOorEe0Z8KiFVcshX12wGzzPIJ/r3NvZRrkJw6ALiK2hLL6/MAXOCNxXYPmrFnwOsyFTIagvAf3tTwDGe1okHk4oNnTtKCuYTxBpAj9BG4m1QwD5hM7exxcwlv6vAN0e8OqRct/VKFnrKf96Ob4N2pK2FDytKArnAAAAAASUVORK5CYII=';
+const pngCase2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABsElEQVRoge3ZwQ3CMBBF0ak4wE1QMS3GQAc0AB3QAVEAFNwAHNAAd0ADuvibQZpJpJTetQvAPjClnnv5kLwWPh2GhwjsAi5gaPLAE4AJcgmQreAbkARywbAJ/TMcg+YX6IGsAT83ZP5E4sPIYRzPIIF24il05XM0k9kM0gfqwQjac6g2iINhI/u8LLf8BRfP3XIodAgl88Z69AvTDBLVuVwGLAgPaTLmAfoLKT8W5Sn/Eg13bZC1lN7emVW34n9iEp4Adyz2Wdb5k2I8E1eopi65+uq3pP3+WNyIDgXQOEoDjQDSPTAI4m9pWqAFgzcqKsAVGkBQRWBVglQFYEUDWBVAVgVQJYCUBWAVAFYFQFYJUAVgVQJYEUDWBVoVa9Rx5FeMN/hAKIhAAAAAElFTkSuQmCC';
+const pngCase3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABuklEQVRoge2Z0Q3CMBBF34gChBAkmggkkgIokAIkIBBoSlgaXICRQC3AB3MAFzQAHQADzAA/EMY9Zf8VTs2nVrHqMl/Apyuv+jSeILRjiAIYnkgAmo5RUQoA50K4n5JBJ4AtxZzwTQKRjyw4BhDayk3AE5OrGH0EyhXXAEr3QF5kP3CLYGoCKocgDlIC3Jh/bQyjDeZVwDKwEGofSTgDueID6AJpwG7ABcwCOHgGHXnTWN2RzR/ATK6IwLi79mkW4Foew9wiB0LAUmkJjYmFeHA3ool8BegyazGkT3y8BIDo9caTtTQByZ4eo+lWxxcLGheAgkMYBNMMnY6egAkUSIAAVEiAEBRIkAAFEiAAhRIgAAVEiAEBRIkAAFEiAAhRIgAAVEiAEBRIkAAFEiAIaxu1Xw/PnT6yAAAAAASUVORK5CYII=';
+const pngCase4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABsklEQVRoge2ZrQ3CMBCFXy2QIIbIfANuIFOgAKeQA6iACKQAkjEHYgAnYA9zAAggN5jyBrjPEr9Z396zCkIXC+8D8Dhz6qz4WewEcBv5/LyccQosQQAfZdr7S2h4fjN9W4J6UEIAPDQfA58w/XhM4xDJgLuK1LO8YY+NAhqjoPtYZuswnwDdA4XIHnCg3oc3RcHQnl9kQKq4k8TwCBWIHkMbQWxgqwqwwRhF1aWUZ7heEPgPtAlqw5dcw7FTnUOvmtR9oRSKj5iwRPE+BxRaMKQVjSvgGwpDuaFMA41IM6L3p6miNhi0R8hOAjk+d1x6X/hECGLp2+9hxH8E8obEuGQJHSR8AFQWgVQFYFUBWBVApgVQFYFUBWBVAmAVAVgVQJgVQJkFf0cXzlxDXU1AAAAAElFTkSuQmCC';
+const pngCase5 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABsklEQVRoge2ZPWtCQRCFLwEhSBJICSRQAiQgCAkgYAaSAckgCjQCFwAEdwAEdgAEdAATcWTPr1Pd4nnHi+mjNpn73wB3QW/adQyswvjyd9L6xx2Q8FkgYPL9YAsil2SSCxmIqaAjMfUpDPM0hHAbxitU4iuCEpjAOvQc0VIRYAuDKTBAijhiTus0IoPgQbqgE/CnCp/Ggn9HWITkHcn4wZrQg6seYYHwP+NYBGsfgviAslsY5o9sTfEjkiDQNCowjwGe5QESW0wD1kxjArIDDEUCOw8RGapvDJXyFJjVAmgXjBKJNW5IjwJbKQwC6EAxNlTZgrBx8KrChvAtKhH/HSjKHkww/ev+I81cwjwCkpgPSv5gQfrlBrm37s7A5r2J4AgzL74X7XuDJfgcBHnv6MBIAAAAASUVORK5CYII=';
+const pngSkin1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAnUlEQVRoge3YsQ3AIAgEUW7TCC/2nQw4dFqITEacELWtoC4FhHOi5KJAEaokc0/8ogI/W8JMvfExvEN/RBKqPpCABNEDewAkvQ78UGhClm3CaxdoB2hTcQySlm9WhXSU2Dyk1ObCDFgCuROpQ2gSuQk008GbYSiUlG3OD5AKLQIugCK0CKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCGrHgF1lcW1QexW7wAAAABJRU5ErkJggg==';
+const pngSkin2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAo0lEQVRoge3YsQnAIAwEQY4mzeo1vrwIq4DiogJMgJAmYQCTEH0n/2MoV8vVrk+wlUQTVvAkgDvD1OAQDbAxQFZT8nAYQLd00pcnIlWAM0Cgdygzm3Hk2gbGQ65Jwvj3nHhoFR3tFYQf7QzPwnIBisB+Bt0nbCpkAvFAK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK7DMwBpvMXtv4G1SAAAAAElFTkSuQmCC';
+const pngSkin3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAkUlEQVRoge3YMwqAMAwD0ZpGe8mKNwFYrgRnmgRCdooskxM/04HTi4lAYiL/RsmkBaskFwLi8A1JKIruyABA6cIMaWvDnAEu8J6iqUyfELR0wFgAM9F8CVQCzQDk8w0DrgkvgDNIUYAUVYBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBXwBtmg2Zc1b3EwAAAABJRU5ErkJggg==';
+const pngSkin4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAjUlEQVRoge3YsQnAIAwDQVYg0sS2/4tJJOm/EwjiXmBjgvN/xZX0DDxpOo96gKSC+AmgKkgrgJoCpIK4CaAqSCuAmgKkgrgJoCpIK4CaAqSCuAmgKkgrgJoCpIK4CaAqSCuAmg8QCPnBe8gzIBJh7yx4Ca+InQwHAOeEAnAtAoSkBUpAFSkAVKQBUW8wBpXUA0qAAAAAElFTkSuQmCC';
 
 const items=[
   {name:'Glock-18 | Fade',price:20,img:pngSkin1},
@@ -233,7 +243,6 @@ function drawCases() {
   cases.forEach((c, idx) => {
     const d = document.createElement('div');
     d.className = 'case';
-    // Цена кейса: 💵 ставим для красоты
     d.innerHTML = `<img src="${c.img}" alt="${c.name}">
       <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
       <div>${c.price} 💵</div>`;
