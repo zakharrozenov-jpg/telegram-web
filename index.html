@@ -9,16 +9,21 @@
   <style>
     body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:120px;}
     #topBar{position:fixed;top:40px;left:0;right:0;background:#020617;padding:14px;
-      display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:10}
+      display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:20}
     #logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
     #balanceBox{padding:8px 14px;border-radius:14px;
       background:linear-gradient(135deg,#facc15,#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
-    button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;cursor:pointer}
+    #bankBtn{background:#eab308;color:#020617;font-size:26px;
+      border:none;padding:8px 15px;border-radius:13px;margin-left:12px;cursor:pointer;box-shadow:0 0 8px #000a;}
+    #bankOverlay{display:none;position:fixed;inset:0;z-index:40;justify-content:flex-end;align-items:flex-start;}
+    #bankModal{margin:50px 30px 0 0;background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;}
+    #bankOverlay.show{display:flex;}
+    #bankModal button{background:#facc15;color:#141414;border:none;border-radius:10px;padding:10px 26px;font-size:18px;margin:8px 0;font-weight:bold;}
     .section{background:#111827;border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,560px)}
     .case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;
       border-radius:12px;padding:10px;margin:8px 0;cursor:pointer;}
     .case:hover{background:#374151}
-    .case img,.item img{width:52px;height:52px;object-fit:cover;border-radius:8px;box-shadow:0 0 8px #0007;}
+    .case img,.item img{width:52px;height:52px;object-fit:cover;border-radius:8px;box-shadow:0 0 6px #0008}
     .small{font-size:12px;opacity:.7}
     .selected{outline:2px solid #facc15}
     .upgrade-candidate{outline:3px solid #38bdf8;}
@@ -34,8 +39,8 @@
       filter:drop-shadow(0 0 3px #facc15) drop-shadow(0 0 7px #020a);
       pointer-events:none;
     }
-    #overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:20}
-    #modal{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
+    #overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:30}
+    #modal{background:#020617;border-radius:18px;padding:16px 0;width:min(95vw,520px)}
     #upgradeModal{background:#111827;padding:18px 14px;border-radius:14px;display:none;flex-direction:column;align-items:center;}
     #upgradeModal .skin{display:flex;align-items:center;gap:12px;}
     #upgradeModal .skin img{width:60px;}
@@ -96,38 +101,32 @@
   </style>
 </head>
 <body>
-
 <div id="dailyBonusBox">
   <button type="button" id="bonusBtn">🎁 Ежедневный бонус 1 000 000</button>
   <div id="bonusMsg" class="small"></div>
 </div>
-
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
-  <div style="display:flex;gap:8px;align-items:center">
+  <div style="display:flex;align-items:center;">
     <div id="balanceBox"><span style="font-size:23px;">💵</span> <span id="balance">500</span></div>
-    <button type="button" id="depositBtn">➕</button>
-    <button type="button" id="withdrawBtn">➖</button>
+    <button id="bankBtn">💼</button>
   </div>
 </div>
 
-<div class="section">
-  <h3>📦 Кейсы</h3>
-  <div id="cases"></div>
+<div id="bankOverlay">
+  <div id="bankModal">
+    <button id="depositBtn">➕ Пополнить</button>
+    <button id="withdrawBtn">➖ Вывести</button>
+    <button id="closeBankBtn" style="background:#eee;color:#222;margin-top:14px;font-weight:normal;">✖</button>
+  </div>
 </div>
-
-<div class="section">
-  <h3>🎒 Инвентарь</h3>
-  <div id="inventory"></div>
-  <button type="button" id="sellBtn">Продать</button>
-</div>
-
+<div class="section"><h3>📦 Кейсы</h3><div id="cases"></div></div>
+<div class="section"><h3>🎒 Инвентарь</h3><div id="inventory"></div><button type="button" id="sellBtn">Продать</button></div>
 <div class="section">
   <h3>⬆️ Апгрейд</h3>
   <div id="upgradeText" class="small">Нажми "Апгрейдить" и выбери предмет</div>
   <button type="button" id="upgradeBtn">Апгрейдить</button>
 </div>
-
 <div id="referralBox">
   <div style="font-weight:bold;">🚀 Реферальная система</div>
   <div class="ref-row">
@@ -162,21 +161,22 @@
   <button type="button" id="doUpgradeBtn">Улучшить!</button>
   <button type="button" id="cancelUpgradeBtn">Отмена</button>
 </div>
-
 <script>
-// ЯРКИЕ КОНТРАСТНЫЕ base64-PNG картинки для Telegram WebApp
+// ===== Данные с яркими картинками (data:image/png;base64) =====
 const cases = [
   {name:'Жёлтый кейс',price:50,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABFUlEQVRoge2YUQ2DMBBF/5iUGZQyMyTInSIjcIRrZcRHipMRDX5dCP8o6Dnt8hAg92nvsJzIT/V0r0402RA8hAv5BIOrj7lEhrA3AEdDawjOAQUAxwGnEEMognAqYwQxyCuHKz/quiJN9F96HvPBpGZPAB0heA3dJHMfA3vbpY+0C3cdFd1/BnCXABc1Vsw2mQ0tgFjeQUodzcgyA1aJuyzkJK5QXb7QFP6wRjac2s3E+AXiN5sSlA4vgTxGnrwcUvwBidK6gfQCS2roBd3UQrs1BZcXEGPDDvDLy6PDn9SjJZssuQ5AAAAAElFTkSuQmCC'},
   {name:'Красный кейс',price:100,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABJ0lEQVRoge2ZsQ2DMBBFn7oQqMCdSlqC0FX0EN0A3QAtOdIXQAmBvKf8QVii/3oIlVRJ46w0nP0b+aa8DPRdoox5l3y5rRNwPWweNoFfAEqjpBeBSpVALGARpfVALGITh/FEULmQJUFkGU6fpMEI0EO2SQSe88/R6nrlxn6KBoIlAUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBxgD8oIJ2qzSm6s0nUXMgPyEDe6ED9jLDE9cRxgSY80ID+dXgzT4BWxy7AUObI2QAAAABJRU5ErkJggg=='},
   {name:'Зелёный кейс',price:200,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABAUlEQVRoge2ZQQmAIBADY/v8n5pOVJ0IahIuQw1rwCd8pE8/yPRJ5DUmkgkokQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkohY4M8Idm8BWdE2n9wbaW8Jnk8MvYG5VQAAAABJRU5ErkJggg=='},
   {name:'Синий кейс',price:300,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABDElEQVRoge2XwQ2CMBRG//8wBCEyEyEyEyEyEyEyEyE9IDAnk8eMV8khUmkkpIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIohYwrPF8glflRmZ16XgE1bpKEAAAAASUVORK5CYII='},
 ];
-
 const items = [
   {name:'Жёлтый скин',price:70,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAkElEQVRoge3XQQ2DMBBF0YeCA+4oTmm7y2k7hMC8lQUpo7GwC6A+15D59bltvygX9tA0ZIl8RW1mina7VnsEPvTeafzBQHtD/w3gDdfLwD4/Akmqm8咪4xBKnIwjCLIcQyj9BMfRWegCilpQh4EuxTC144y1E6w35QEBNR/nQhcKeTK7cDFLerQAAAABJRU5ErkJggg=='},
   {name:'Красный скин',price:90,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
   {name:'Синий скин',price:160,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
 ];
+
+// Остальной твой код: бонус, пополнение, онлайн, рефералы, рулетка, апгрейд и т. д.
+// (В целях краткости вставь свой обычно используемый JS-фреймворк нижеследующими демо-фрагментами)
 
 let state = {
   balance: 500,
@@ -199,7 +199,7 @@ const casesEl = document.getElementById('cases');
 cases.forEach(c=>{
   const d = document.createElement('div');
   d.className="case";
-  d.innerHTML = `<img src="${c.img}" width="52" height="52">
+  d.innerHTML = `<img src="${c.img}">
     <div>${c.name}</div>
     <div style="font-size:18px">${c.price} 💵</div>`;
   d.onclick = ()=>{
@@ -218,11 +218,20 @@ const invEl = document.getElementById('inventory');
 function addToInventory(item){
   const d = document.createElement('div');
   d.className="item";
-  d.innerHTML = `<img src="${item.img}" width="52" height="52"><div>${item.name}</div>
+  d.innerHTML = `<img src="${item.img}"><div>${item.name}</div>
     <div style="font-size:18px">${item.price} 💵</div>`;
   invEl.appendChild(d);
 }
 updateBalance();
+
+// Кнопка 💼 открывает пополнение/вывод
+const bankBtn = document.getElementById('bankBtn');
+const bankOverlay = document.getElementById('bankOverlay');
+const closeBankBtn = document.getElementById('closeBankBtn');
+bankBtn.onclick = ()=> bankOverlay.classList.add('show');
+closeBankBtn.onclick = ()=> bankOverlay.classList.remove('show');
+document.getElementById('depositBtn').onclick = ()=>alert('Пополнение (демо!)');
+document.getElementById('withdrawBtn').onclick = ()=>alert('Вывод (демо!)');
 
 </script>
 </body>
