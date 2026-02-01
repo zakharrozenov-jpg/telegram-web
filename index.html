@@ -7,46 +7,31 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#2c3e50,#0f1419);color:#fff;text-align:center;padding-top:110px}
-h1{color:#f39c12}
-#topBar{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;z-index:10}
-#balance{color:#2ecc71;font-weight:bold}
-#online{color:#1e90ff;font-size:.9em}
-button{background:linear-gradient(135deg,#f39c12,#e67e22);border:none;border-radius:12px;padding:8px 14px;font-weight:bold;cursor:pointer}
-.section{width:min(94vw,540px);margin:14px auto;background:#121820;border-radius:18px;padding:14px}
-.case{background:#1c2630;border-radius:16px;padding:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.case img{width:56px}
-.list{font-size:.85em;text-align:left;max-height:160px;overflow:auto}
-.list div{border-bottom:1px solid #1f2a35;padding:6px 0}
-.inv-item{display:flex;justify-content:space-between;align-items:center;gap:6px}
-.inv-item img{width:52px}
-.small{font-size:.75em;opacity:.75}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:100}
-#modal{background:#121820;width:min(94vw,540px);border-radius:20px;padding:16px}
-.roulette{height:120px;overflow:hidden;border:2px solid #f39c12;border-radius:14px;margin:12px 0;position:relative}
-.roulette::after{content:'';position:absolute;left:50%;top:0;width:2px;height:100%;background:#f39c12}
-.track{display:flex;position:relative;left:0}
-.item{min-width:120px;font-size:.7em}
-.item img{width:80px;height:55px;object-fit:contain}
-#rewardImg{width:180px;margin-top:10px;display:none}
-select{padding:6px;border-radius:8px}
+body{margin:0;font-family:Arial;background:#0d1117;color:#fff;text-align:center;padding-top:90px}
+#top{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between}
+button{background:#f39c12;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;cursor:pointer}
+.section{background:#161b22;border-radius:16px;padding:14px;margin:12px auto;width:min(95vw,540px)}
+.case,.item,.drop{display:flex;justify-content:space-between;align-items:center;background:#1f2630;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
+.case img,.item img,.drop img{width:48px}
+.selected{outline:2px solid #f39c12}
+.small{font-size:.75em;opacity:.7}
+.roulette{overflow:hidden;border:2px solid #f39c12;border-radius:12px;height:90px}
+.track{display:flex;position:relative;left:0;transition:left 2.8s cubic-bezier(.1,.8,0,1)}
+.track div{min-width:90px;margin:0 4px}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center}
+#modal{background:#161b22;border-radius:18px;padding:16px;width:min(95vw,520px)}
+.disabled{opacity:.4}
 </style>
 </head>
 
 <body>
 
-<div id="topBar">
-  <div>
-    <div id="balance">Баланс: 500 💰</div>
-    <div id="online">🟢 Онлайн: 128</div>
-  </div>
-  <div>
-    <button onclick="dailyBonus()">🎁</button>
-    <button onclick="topUp()">➕</button>
-  </div>
+<div id="top">
+  <div id="balance">Баланс: 0 💰</div>
+  <button onclick="openWithdraw()">💸</button>
 </div>
 
-<h1>Case Hunters</h1>
+<h2>Case Hunters</h2>
 
 <div class="section">
   <h3>📦 Кейсы</h3>
@@ -54,199 +39,165 @@ select{padding:6px;border-radius:8px}
 </div>
 
 <div class="section">
-  <h3>🏆 Топ дропов дня</h3>
-  <div id="topDrops" class="list"></div>
-</div>
-
-<div class="section">
   <h3>🎒 Инвентарь</h3>
-  <div id="inventory" class="list"></div>
+  <div id="inventory"></div>
+  <button onclick="sellItem()">Продать</button>
 </div>
 
 <div class="section">
-  <h3>🎯 Апгрейд</h3>
-  <div id="upgradeInfo">Выбери предмет</div>
-  <select id="upgradeTarget"></select>
-  <div id="upgradeChance" class="small"></div>
-  <button onclick="upgrade()">Апгрейдить</button>
+  <h3>⬆️ Апгрейд</h3>
+  <div id="upgradeText" class="small">Выбери предмет</div>
+  <button onclick="upgrade()">Апгрейд</button>
 </div>
 
+<div class="section">
+  <h3>📜 Последние дропы</h3>
+  <div id="drops"></div>
+</div>
+
+<!-- CASE MODAL -->
 <div id="overlay">
   <div id="modal">
     <h3 id="caseTitle"></h3>
-    <div class="roulette"><div id="track" class="track"></div></div>
-    <img id="rewardImg">
-    <div id="result"></div>
-    <button onclick="closeModal()">Закрыть</button>
+    <div class="roulette">
+      <div id="track" class="track"></div>
+    </div>
+    <button onclick="spin()">🎰 Открыть</button>
+    <button onclick="overlay.style.display='none'">Закрыть</button>
   </div>
+</div>
+
+<!-- WITHDRAW -->
+<div id="withdraw" class="section" style="display:none">
+  <h3>💸 Вывод</h3>
+  <div class="section">🔄 Продать → баланс</div>
+  <div class="section">
+    💰 CryptoBot (ручной)<br>
+    <input id="wAmt" placeholder="Сумма 💰"><br><br>
+    <button onclick="withdraw()">Создать заявку</button>
+  </div>
+  <div class="section disabled">🎮 Steam — скоро</div>
+  <button onclick="withdraw.style.display='none'">Закрыть</button>
 </div>
 
 <script>
 const tg=Telegram.WebApp;tg.ready();tg.expand();
 
-/* ===== BALANCE ===== */
-let balance=Number(localStorage.getItem('balance'))||500;
-const bal=document.getElementById('balance');
-function updateBal(){bal.textContent=`Баланс: ${balance} 💰`;localStorage.setItem('balance',balance)}
-updateBal();
+/* BALANCE */
+let balance=Number(localStorage.bal)||1500;
+let vip=localStorage.vip==="1";
+function upd(){balanceEl.textContent=`Баланс: ${balance} 💰${vip?' 💎':''}`;localStorage.bal=balance}
+const balanceEl=document.getElementById('balance');upd();
 
-/* ===== ONLINE ===== */
-const onlineEl=document.getElementById('online');
-setInterval(()=>onlineEl.textContent='🟢 Онлайн: '+(120+Math.floor(Math.random()*60)),10000);
+/* REF */
+const ref=new URLSearchParams(location.search).get('start');
+if(ref&&!localStorage.ref)localStorage.ref=ref;
 
-/* ===== DAILY BONUS + STREAK ===== */
-function dailyBonus(){
- const now=new Date().toDateString();
- const last=localStorage.getItem('dailyDate');
- let streak=Number(localStorage.getItem('streak'))||0;
-
- if(last===now){tg.showAlert('Бонус уже получен сегодня');return;}
-
- const yesterday=new Date(Date.now()-86400000).toDateString();
- streak = (last===yesterday) ? streak+1 : 1;
-
- const reward=100+streak*50;
- balance+=reward;
- updateBal();
-
- localStorage.setItem('dailyDate',now);
- localStorage.setItem('streak',streak);
- tg.showAlert(`🎁 Бонус +${reward} 💰 | Серия: ${streak}`);
-}
-
-/* ===== DATA ===== */
-const casesData=[
- {name:'Low RTP Case',price:50,rtp:.85,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapon_cases/crate_community_26.png'},
- {name:'Medium RTP Case',price:150,rtp:.95,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapon_cases/crate_community_31.png'},
- {name:'High RTP Case',price:300,rtp:1.05,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapon_cases/crate_community_33.png'}
+/* DATA */
+const items=[
+ {name:'AK-47 | Redline',img:'https://i.imgur.com/HZp7QpB.png',price:200},
+ {name:'AWP | Asiimov',img:'https://i.imgur.com/UhU5M1O.png',price:400},
+ {name:'Glock | Fade',img:'https://i.imgur.com/yTkZJ9K.png',price:150}
+];
+const cases=[
+ {name:'Low Case',price:50,rtp:.75},
+ {name:'Mid Case',price:150,rtp:.6},
+ {name:'High Case',price:300,rtp:.45}
 ];
 
-const rewards=[
- {name:'P90 | Sand Spray',price:20,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/1837'},
- {name:'AK-47 | Redline',price:120,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/282'},
- {name:'M4A4 | Howl',price:300,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/309'},
- {name:'AWP | Dragon Lore',price:800,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/344'}
-];
-
-/* ===== RTP BY BALANCE ===== */
-function balanceModifier(){
- if(balance<300) return 1.08;
- if(balance>1500) return 0.9;
- return 1;
-}
-
-/* ===== CASES ===== */
+let inventory=[],selected=null,drops=[];
 const casesEl=document.getElementById('cases');
-casesData.forEach(c=>{
- const d=document.createElement('div');
+const invEl=document.getElementById('inventory');
+const dropsEl=document.getElementById('drops');
+
+/* RENDER */
+cases.forEach(c=>{
+ let d=document.createElement('div');
  d.className='case';
- d.innerHTML=`<img src="${c.img}"><div>${c.name}<br><span class="small">💰 ${c.price} | RTP ${Math.round(c.rtp*100)}%</span></div>`;
+ d.innerHTML=`<div>${c.name}<div class="small">RTP ${c.rtp*100}%</div></div><div>${c.price} 💰</div>`;
  d.onclick=()=>openCase(c);
  casesEl.appendChild(d);
 });
-
-/* ===== INVENTORY ===== */
-let inventory=[];
-const invEl=document.getElementById('inventory');
-function updateInventory(){
+function drawInv(){
  invEl.innerHTML='';
  inventory.forEach((i,idx)=>{
-  invEl.innerHTML+=`
-   <div class="inv-item">
-    <div onclick="selectUpgrade(${idx})"><img src="${i.img}"> ${i.name} 💰${i.price}</div>
-    <button onclick="sell(${idx})">Продать</button>
-   </div>`;
+  let d=document.createElement('div');
+  d.className='item'+(selected===idx?' selected':'');
+  d.innerHTML=`<img src="${i.img}">${i.name}<div>${i.price} 💰</div>`;
+  d.onclick=()=>{selected=idx;upgradeText.textContent=i.name;drawInv()};
+  invEl.appendChild(d);
  });
 }
-function sell(i){
- balance+=inventory[i].price;
- inventory.splice(i,1);
- updateBal();updateInventory();
+function drawDrops(){
+ dropsEl.innerHTML='';
+ drops.slice(-5).reverse().forEach(d=>{
+  dropsEl.innerHTML+=`<div class="drop"><img src="${d.img}">${d.name}</div>`;
+ });
 }
 
-/* ===== TOP DROPS ===== */
-let topDrops=JSON.parse(localStorage.getItem('topDrops')||'[]');
-function updateTop(){
- topDrops=topDrops.sort((a,b)=>b.price-a.price).slice(0,5);
- document.getElementById('topDrops').innerHTML=
-  topDrops.map(d=>`<div>${d.name} 💰${d.price}</div>`).join('');
- localStorage.setItem('topDrops',JSON.stringify(topDrops));
-}
-updateTop();
-
-/* ===== ROULETTE ===== */
-const overlay=document.getElementById('overlay');
-const track=document.getElementById('track');
-const rewardImg=document.getElementById('rewardImg');
-const result=document.getElementById('result');
-
+/* CASE */
+let curCase,winItem;
 function openCase(c){
- if(balance<c.price){tg.showAlert('Недостаточно монет');return}
- balance-=c.price;updateBal();
- overlay.style.display='flex';
- track.innerHTML='';rewardImg.style.display='none';result.textContent='';
- for(let i=0;i<30;i++){
-  const r=rewards[Math.floor(Math.random()*rewards.length)];
-  track.innerHTML+=`<div class="item"><img src="${r.img}"><div>${r.name}</div></div>`;
+ curCase=c;
+ caseTitle.textContent=c.name;
+ track.innerHTML='';
+ winItem=Math.random()<c.rtp?items[Math.floor(Math.random()*items.length)]:null;
+ for(let i=0;i<20;i++){
+  let it=items[Math.floor(Math.random()*items.length)];
+  track.innerHTML+=`<div><img src="${it.img}" width="60"></div>`;
  }
- setTimeout(()=>track.style.left=`-${600+Math.random()*900}px`,50);
+ overlay.style.display='flex';
+}
+function spin(){
+ if(balance<curCase.price){tg.showAlert('Нет средств');return}
+ balance-=curCase.price;
+ if(localStorage.ref) console.log('30% уходит реферу');
+ upd();
+ track.style.left='-620px';
  setTimeout(()=>{
-  const r=spinReward(c);
-  inventory.push(r);
-  topDrops.push(r);
-  updateInventory();updateTop();
-  rewardImg.src=r.img;rewardImg.style.display='block';
-  result.textContent=r.name;
- },3200);
+  if(winItem){
+   inventory.push(winItem);
+   drops.push(winItem);
+  }
+  drawInv();drawDrops();
+  overlay.style.display='none';
+  track.style.left='0';
+ },2800);
 }
 
-function spinReward(c){
- const mod=balanceModifier();
- if(Math.random() > c.rtp*mod) return rewards[0];
- return rewards[Math.floor(Math.random()*rewards.length)];
-}
-function closeModal(){overlay.style.display='none'}
-
-/* ===== UPGRADE WITH MULTI ===== */
-let selected=null;
-const targetSel=document.getElementById('upgradeTarget');
-const chanceEl=document.getElementById('upgradeChance');
-
-function selectUpgrade(i){
- selected=i;
- const base=inventory[i];
- document.getElementById('upgradeInfo').textContent='Выбран: '+base.name;
- targetSel.innerHTML=`
-  <option value="2">x2</option>
-  <option value="3">x3</option>
-  <option value="5">x5</option>`;
- updateChance();
-}
-targetSel.onchange=updateChance;
-
-function updateChance(){
- if(selected===null)return;
- const base=inventory[selected];
- const mult=Number(targetSel.value);
- const chance=Math.max(5,Math.round((base.price/(base.price*mult))*100));
- chanceEl.textContent='Шанс: '+chance+'%';
+/* INVENTORY ACTIONS */
+function sellItem(){
+ if(selected==null)return;
+ balance+=inventory[selected].price;
+ inventory.splice(selected,1);
+ selected=null;
+ upgradeText.textContent='Выбери предмет';
+ upd();drawInv();
 }
 
+/* UPGRADE */
 function upgrade(){
- if(selected===null){tg.showAlert('Выбери предмет');return}
- const base=inventory[selected];
- const mult=Number(targetSel.value);
- const chance=(base.price/(base.price*mult))*100;
- if(Math.random()*100<chance){
-  inventory[selected]={...base,price:Math.round(base.price*mult),name:base.name+' x'+mult};
+ if(selected==null)return;
+ let item=inventory[selected];
+ let chance=item.price/600;
+ if(Math.random()<chance){
+  inventory[selected]=items[1];
  }else{
   inventory.splice(selected,1);
  }
  selected=null;
- updateInventory();
+ upgradeText.textContent='Выбери предмет';
+ drawInv();
 }
 
-function topUp(){tg.showAlert('Платежи позже 💳')}
+/* WITHDRAW */
+function openWithdraw(){withdraw.style.display='block'}
+function withdraw(){
+ let a=+wAmt.value;
+ if(a<500||a>balance)return;
+ balance-=a;upd();
+ tg.showAlert('Заявка создана (ручная выплата)');
+}
 </script>
 
 </body>
