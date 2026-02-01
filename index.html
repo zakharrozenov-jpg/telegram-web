@@ -7,26 +7,31 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
   <style>
-    body { margin:0;font-family:Arial;background:#0b0f14; color:#fff;padding-top:100px }
-    #topBar { position:fixed; top:0; left:0; right:0; background:#020617; padding:14px;
-      display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 20px rgba(0,0,0,.6); z-index:10 }
-    #logo { font-family:'Russo One',sans-serif; font-size:22px; color:#facc15 }
-    #balanceBox { padding:8px 14px; border-radius:14px;
-      background:linear-gradient(135deg,#facc15,#eab308); color:#020617; font-weight:bold; box-shadow:0 0 15px rgba(250,204,21,.6)}
-    button { background:#facc15; border:none; border-radius:10px; padding:8px 14px; font-weight:bold; cursor:pointer }
-   .section { background:#111827; border-radius:16px; padding:14px; margin:12px auto; width:min(96vw,560px) }
-    .case,.item { display:flex; justify-content:space-between; align-items:center; background:#1f2937;
-      border-radius:12px; padding:10px; margin:8px 0; cursor:pointer }
-    .case:hover { background:#374151 }
-    .case img,.item img { width:52px;border-radius:8px }
-    .small { font-size:12px;opacity:.7 }
+    body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:100px;}
+    #topBar{position:fixed;top:0;left:0;right:0;background:#020617;padding:14px;
+      display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:10}
+    #logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
+    #balanceBox{padding:8px 14px;border-radius:14px;
+      background:linear-gradient(135deg,#facc15,#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
+    button{background:#facc15;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;cursor:pointer}
+    .section{background:#111827;border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,560px)}
+    .case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;
+      border-radius:12px;padding:10px;margin:8px 0;cursor:pointer;}
+    .case:hover{background:#374151}
+    .case img,.item img{width:52px;border-radius:8px;}
+    .small{font-size:12px;opacity:.7}
     .selected{outline:2px solid #facc15}
-    .roulette{overflow:hidden; border:2px solid #facc15; border-radius:14px; height:100px; margin:10px 0}
-    .track{display:flex; transform:translateX(0); will-change:transform }
-    .roulette-item{width:90px; flex-shrink:0; text-align:center; font-size:11px }
-    .roulette-item img{width:60px; height:60px; display:block; margin:0 auto 4px; border-radius:8px}
-    #overlay{position:fixed; inset:0; background:rgba(0,0,0,.9); display:none; align-items:center; justify-content:center; z-index:20}
-    #modal{background:#020617; border-radius:18px; padding:16px; width:min(95vw,520px)}
+    .upgrade-candidate{outline:3px solid #38bdf8;}
+    .roulette{overflow:hidden;border:2px solid #facc15;border-radius:14px;height:100px;margin:10px 0;}
+    .track{display:flex;transform:translateX(0);will-change:transform;}
+    .roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px}
+    .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px}
+    #overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:20}
+    #modal{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
+    #upgradeModal{background:#111827;padding:18px 14px;border-radius:14px;display:none;flex-direction:column;align-items:center;}
+    #upgradeModal .skin{display:flex;align-items:center;gap:12px;}
+    #upgradeModal .skin img{width:60px;}
+    #upgradeResult{font-size:18px;margin:10px 0;}
   </style>
 </head>
 <body>
@@ -53,7 +58,7 @@
 
 <div class="section">
   <h3>⬆️ Апгрейд</h3>
-  <div id="upgradeText" class="small">Выбери предмет</div>
+  <div id="upgradeText" class="small">Нажми "Апгрейдить" и выбери предмет</div>
   <button type="button" id="upgradeBtn">Апгрейдить</button>
 </div>
 
@@ -68,26 +73,34 @@
   </div>
 </div>
 
+<!-- Upgrade modal! -->
+<div id="upgradeModal">
+  <div>Три-два-икс Апгрейд</div>
+  <div class="skin" id="upgradeSelected"></div>
+  <div id="upgradeResult"></div>
+  <button type="button" id="doUpgradeBtn">Улучшить!</button>
+  <button type="button" id="cancelUpgradeBtn">Отмена</button>
+</div>
+
 <script>
 // TG init
 if(window.Telegram?.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
 
-// Картинки кейсов и предметов (замени на свои при необходимости!)
+// Картинки для предметов и кейсов (замени на рабочие по желанию, эти тоже публичные!).
 const skinImgs = [
   "https://community.akamai.steamstatic.com/economy/image/QmdXm4avjRjNR6aZrsDMDpgK89xhBMPCB9wSWuaUZVc5Lt/128fx128f", // Fade
   "https://community.akamai.steamstatic.com/economy/image/QmRa6Zd656fCWw6dzR4okNrVnCkWKCkpP6r9zbzp4Mqaxg/128fx128f", // Kill Confirmed
   "https://community.akamai.steamstatic.com/economy/image/QmWwui1w4fdLkGbmQipx6C1MAxzfXwTW6kngHnwiueJAec/128fx128f", // Redline
-  "https://community.akamai.steamstatic.com/economy/image/QmRMJgkb9NBXcECK2D2DgdAwhm8Pb9kh6ne5Mr6FNJu3No/128fx128f"  // Asiimov
+  "https://community.akamai.steamstatic.com/economy/image/QmRMJgkb9NBXcECK2D2DgdAwhm8Pb9kh6ne5Mr6FNJu3No/128fx128f"
 ];
 const caseImgs = [
-  "https://i.imgur.com/kqT0IhL.png", // Case50
-  "https://i.imgur.com/7sdFvLC.png", // Case100
-  "https://i.imgur.com/px9PXZK.png", // Case150
-  "https://i.imgur.com/W5RqkuU.png", // Case200
-  "https://i.imgur.com/p8G6JbO.png"  // Case250
+  "https://i.imgur.com/kqT0IhL.png",
+  "https://i.imgur.com/7sdFvLC.png",
+  "https://i.imgur.com/px9PXZK.png",
+  "https://i.imgur.com/W5RqkuU.png",
+  "https://i.imgur.com/p8G6JbO.png"
 ];
 
-// Описания предметов и кейсов, теперь с url!
 const items=[
   {name:'Glock-18 | Fade',price:20,img:skinImgs[0]},
   {name:'USP-S | Kill Confirmed',price:35,img:skinImgs[1]},
@@ -109,7 +122,9 @@ let state = {
   selectedIdx: null,
   currentCase: null,
   rollWinItem: null,
-  modalVisible: false
+  modalVisible: false,
+  upgradeSelecting: false,
+  upgradeIdx: null
 };
 
 // Элементы
@@ -121,6 +136,11 @@ const overlay = document.getElementById('overlay');
 const modal = document.getElementById('modal');
 const caseTitle = document.getElementById('caseTitle');
 const track = document.getElementById('track');
+const upgradeModal = document.getElementById('upgradeModal');
+const upgradeSelected = document.getElementById('upgradeSelected');
+const upgradeResult = document.getElementById('upgradeResult');
+const doUpgradeBtn = document.getElementById('doUpgradeBtn');
+const cancelUpgradeBtn = document.getElementById('cancelUpgradeBtn');
 
 // Обновление баланса и отображение
 function updateBalance(sum) {
@@ -129,7 +149,6 @@ function updateBalance(sum) {
   balEl.textContent = state.balance;
 }
 
-// Рендер кейсов
 function drawCases() {
   casesEl.innerHTML = '';
   cases.forEach((c, idx) => {
@@ -144,25 +163,30 @@ function drawCases() {
   });
 }
 
-// Рендер инвентаря
 function drawInventory() {
   invEl.innerHTML = '';
   state.inventory.forEach((item, idx) => {
     const d = document.createElement('div');
-    d.className = 'item' + (state.selectedIdx === idx ? ' selected':'');
+    let className = 'item';
+    if(state.upgradeSelecting) className += ' upgrade-candidate';
+    if(state.selectedIdx === idx && !state.upgradeSelecting) className += ' selected';
+    d.className = className;
     d.innerHTML = `<img src="${item.img}" alt="${item.name}" loading="lazy">${item.name}<div>${item.price} 🪙</div>`;
-    d.onclick = () => { state.selectedIdx = idx; upgradeText.textContent = item.name; drawInventory(); };
+    if(state.upgradeSelecting) {
+      d.onclick = () => chooseForUpgrade(idx);
+    } else {
+      d.onclick = () => { state.selectedIdx = idx; upgradeText.textContent = item.name; drawInventory(); };
+    }
     invEl.appendChild(d);
   });
 }
 
-// Открытие кейса
+// --- Кейс ---
 function openCase(c) {
   state.currentCase = c;
   caseTitle.textContent = c.name;
   state.rollWinItem = Math.random() < c.rtp ? getRandom(items) : null;
   track.innerHTML = '';
-
   for (let i = 0; i < 25; i++) {
     const it = items[Math.floor(Math.random()*items.length)];
     track.innerHTML += `<div class="roulette-item">
@@ -174,7 +198,6 @@ function openCase(c) {
   showModal(true);
 }
 
-// Рулетка (spin)
 let spinInProgress = false;
 function spin() {
   if (spinInProgress) return;
@@ -182,10 +205,8 @@ function spin() {
   if (state.balance < state.currentCase.price) return alert('Недостаточно средств');
   spinInProgress = true;
   updateBalance(state.balance - state.currentCase.price);
-
   track.style.transition = 'transform 6s cubic-bezier(.05,.8,0,1)';
   track.style.transform = 'translateX(-900px)';
-
   setTimeout(() => {
     if (state.rollWinItem) state.inventory.push({...state.rollWinItem});
     drawInventory();
@@ -196,34 +217,84 @@ function spin() {
   }, 6000);
 }
 
-// Продажа
+// --- Upgrade кнопка ---
+document.getElementById('upgradeBtn').onclick = () => {
+  if(state.upgradeSelecting) return; // уже выбираем
+  state.upgradeSelecting = true;
+  state.selectedIdx = null;
+  upgradeText.textContent = "Выбери предмет для улучшения!";
+  drawInventory();
+};
+
+function chooseForUpgrade(idx) {
+  state.upgradeIdx = idx;
+  state.upgradeSelecting = false;
+  showUpgradeModal(idx);
+}
+
+function showUpgradeModal(idx) {
+  const item = state.inventory[idx];
+  upgradeModal.style.display = 'flex';
+  upgradeSelected.innerHTML = `<img src="${item.img}" alt="">
+    <div>
+      <div>${item.name}</div>
+      <div class="small">${item.price} 🪙</div>
+    </div>`;
+  upgradeResult.textContent = '';
+}
+function hideUpgradeModal() {
+  upgradeModal.style.display = 'none';
+  state.upgradeIdx = null;
+  state.selectedIdx = null;
+  drawInventory();
+  upgradeText.textContent = 'Нажми "Апгрейдить" и выбери предмет';
+}
+
+doUpgradeBtn.onclick = function() {
+  if(state.upgradeIdx == null) return;
+  // 3, 2, 1! Мегаапгрейд
+  const item = state.inventory[state.upgradeIdx];
+  doUpgradeBtn.disabled = true;
+  upgradeResult.textContent = "Три... два... икс!";
+  setTimeout(function() {
+    // Эффект апгрейда с мультипликацией (можно заменить на свою механику):
+    // Победа - случайный айтем лучше выбранного (если такие есть)
+    // Проигрыш - сгорает
+    const chance = item.price / 300;
+    if(Math.random() < chance) {
+      const better = items.filter(i=>i.price>item.price);
+      if(better.length) {
+        const newItem = {...getRandom(better)};
+        state.inventory[state.upgradeIdx] = newItem;
+        upgradeResult.textContent = `Успех! Выпал: ${newItem.name}`;
+      } else {
+        upgradeResult.textContent = "Максимальный ранг!";
+      }
+    } else {
+      state.inventory.splice(state.upgradeIdx, 1);
+      upgradeResult.textContent = "Неудача! Предмет сгорел.";
+    }
+    setTimeout(() => {
+      hideUpgradeModal();
+      drawInventory();
+      doUpgradeBtn.disabled = false;
+    }, 1500);
+  }, 1300);
+};
+
+cancelUpgradeBtn.onclick = function() {
+  hideUpgradeModal();
+};
+
+// --- Прочее ---
 function sell() {
-  if (state.selectedIdx == null) return;
+  if (state.selectedIdx==null) return;
   updateBalance(state.balance + state.inventory[state.selectedIdx].price);
   state.inventory.splice(state.selectedIdx,1);
   state.selectedIdx = null;
   upgradeText.textContent = 'Выбери предмет';
   drawInventory();
 }
-
-// Апгрейд
-function upgrade() {
-  if (state.selectedIdx == null) return alert('Выбери предмет');
-  const item = state.inventory[state.selectedIdx];
-  const chance = item.price/300;
-  if (Math.random() < chance) {
-    const better = items.filter(i => i.price > item.price);
-    if (better.length > 0)
-      state.inventory[state.selectedIdx] = {...getRandom(better)};
-  } else {
-    state.inventory.splice(state.selectedIdx,1);
-  }
-  state.selectedIdx = null;
-  upgradeText.textContent = 'Выбери предмет';
-  drawInventory();
-}
-
-// Модалка
 function showModal(vis) {
   overlay.style.display = vis ? 'flex' : 'none';
   state.modalVisible = vis;
@@ -231,20 +302,16 @@ function showModal(vis) {
 function getRandom(arr) {
   return arr[Math.floor(Math.random()*arr.length)];
 }
-
-// Демо ввод/вывод
 document.getElementById('depositBtn').onclick = () => alert('Пополнение (демо)');
 document.getElementById('withdrawBtn').onclick = () => alert('Вывод (демо)');
 document.getElementById('sellBtn').onclick = sell;
-document.getElementById('upgradeBtn').onclick = upgrade;
 document.getElementById('spinBtn').onclick = spin;
 document.getElementById('closeModalBtn').onclick = () => showModal(false);
 
-// Первичный рендер
+// init
 drawCases();
 drawInventory();
 updateBalance(state.balance);
-
 </script>
 </body>
 </html>
