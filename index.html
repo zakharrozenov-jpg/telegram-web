@@ -13,7 +13,7 @@ body{
   font-family:Arial;
   background:#0b0f14;
   color:#fff;
-  padding-top:110px
+  padding-top:100px
 }
 #topBar{
   position:fixed;
@@ -69,21 +69,34 @@ button{
 .small{font-size:12px;opacity:.7}
 .selected{outline:2px solid #facc15}
 
+/* ROULETTE */
 .roulette{
   overflow:hidden;
   border:2px solid #facc15;
-  border-radius:12px;
-  height:90px;
+  border-radius:14px;
+  height:100px;
   margin:10px 0
 }
 .track{
   display:flex;
-  position:relative;
-  left:0;
-  transition:left 6s cubic-bezier(.05,.8,0,1)
+  transform:translateX(0);
+  will-change:transform
 }
-.track div{min-width:90px;margin:0 4px}
+.roulette-item{
+  width:90px;
+  flex-shrink:0;
+  text-align:center;
+  font-size:11px
+}
+.roulette-item img{
+  width:60px;
+  height:60px;
+  display:block;
+  margin:0 auto 4px;
+  border-radius:8px
+}
 
+/* MODAL */
 #overlay{
   position:fixed;
   inset:0;
@@ -133,7 +146,9 @@ button{
 <div id="overlay">
 <div id="modal">
 <h3 id="caseTitle"></h3>
-<div class="roulette"><div id="track" class="track"></div></div>
+<div class="roulette">
+  <div id="track" class="track"></div>
+</div>
 <button onclick="spin()">🎰 Открыть</button>
 <button onclick="closeModal()">Закрыть</button>
 </div>
@@ -149,9 +164,9 @@ const balEl=document.getElementById('balance');
 function upd(){balEl.textContent=balance;localStorage.bal=balance}
 upd();
 
-/* IMAGES (EMBEDDED) */
-const IMG_CASE="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxMiIgZmlsbD0iI2ZhY2MxNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSIzMiIgeT0iMzgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMjA2MTciPkNBU0U8L3RleHQ+PC9zdmc+";
-const IMG_ITEM=IMG_CASE;
+/* SAFE IMAGES (Telegram/iOS) */
+const IMG_CASE='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="12" width="64" height="64" fill="%23facc15"/><text x="32" y="38" text-anchor="middle" font-size="14" fill="%23020617">CASE</text></svg>';
+const IMG_ITEM='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="10" width="64" height="64" fill="%231f2937"/><text x="32" y="38" text-anchor="middle" font-size="12" fill="%23facc15">SKIN</text></svg>';
 
 /* ITEMS */
 const items=[
@@ -174,7 +189,10 @@ const casesEl=document.getElementById('cases');
 cases.forEach(c=>{
  const d=document.createElement('div');
  d.className='case';
- d.innerHTML=`<img src="${IMG_CASE}"><div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div><div>${c.price} 🪙</div>`;
+ d.innerHTML=`
+   <img src="${IMG_CASE}">
+   <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
+   <div>${c.price} 🪙</div>`;
  d.onclick=()=>openCase(c);
  casesEl.appendChild(d);
 });
@@ -200,29 +218,44 @@ function openCase(c){
  caseTitle.textContent=c.name;
  track.innerHTML='';
  winItem=Math.random()<c.rtp?items[Math.floor(Math.random()*items.length)]:null;
- for(let i=0;i<20;i++){
-  track.innerHTML+=`<div><img src="${IMG_ITEM}" width="60"></div>`;
+
+ for(let i=0;i<25;i++){
+  const it=items[Math.floor(Math.random()*items.length)];
+  track.innerHTML+=`
+   <div class="roulette-item">
+     <img src="${it.img}">
+     <div>${it.name}</div>
+   </div>`;
  }
+ track.style.transition='none';
+ track.style.transform='translateX(0)';
  overlay.style.display='flex';
 }
+
 function spin(){
  if(balance<curCase.price)return alert('Недостаточно средств');
  balance-=curCase.price;upd();
- track.style.left='-720px';
+
+ track.style.transition='transform 6s cubic-bezier(.05,.8,0,1)';
+ track.style.transform='translateX(-900px)';
+
  setTimeout(()=>{
   if(winItem) inv.push(winItem);
   drawInv();
   closeModal();
-  track.style.left='0';
  },6000);
 }
-function closeModal(){overlay.style.display='none'}
+
+function closeModal(){
+ overlay.style.display='none';
+}
 
 /* SELL */
 function sell(){
  if(sel==null)return;
  balance+=inv[sel].price;
- inv.splice(sel,1);sel=null;upd();drawInv();
+ inv.splice(sel,1);
+ sel=null;upd();drawInv();
 }
 
 /* UPGRADE */
@@ -236,7 +269,9 @@ function upgrade(){
  }else{
   inv.splice(sel,1);
  }
- sel=null;upgradeText.textContent='Выбери предмет';drawInv();
+ sel=null;
+ upgradeText.textContent='Выбери предмет';
+ drawInv();
 }
 
 /* DEMO */
