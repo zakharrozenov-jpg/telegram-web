@@ -116,6 +116,7 @@
   <button type="button" id="sellBtn">Продать</button>
 </div>
 
+<!-- Апгрейд-панель ПЕРЕД реферальной системой! -->
 <div class="section">
   <h3>⬆️ Апгрейд</h3>
   <div id="upgradeText" class="small">Нажми "Апгрейдить" и выбери предмет</div>
@@ -158,7 +159,7 @@
 </div>
 
 <script>
-// PNG-картинки через base64! Можешь заменить на свои:
+// Все картинки только data:image/png;base64
 const pngCase1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQ6AIAwDQfsT09X/f3pkgy2FkaJLIV+rsVqZ7KcK49VxELpi8r+dO7exyp3dvUSVVTknasZcJI4Lhtqb93BlBUqFv5PUM92ib3Zpsr/e3zRy/I5bIkYAAAAASUVORK5CYII=';
 const pngCase2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YMQ7CMAwD0FzjJl9d0UfTopLfMoYOhHoiP2U7VTLRm/8gLaxAiHzZPwl1WxcVwTRMyuVdR8D02wKUIxiCIjMQ1LU8HHlTA3RS1IrRK31Xf7GRqEyAO0uXAAAAAElFTkSuQmCC';
 const pngCase3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVR42u3YOQqAIBAE0Q9wW9TE/s+cmDJSGAL3Cw7Xij0rUV2KUg8mfrfJUPkyKdp00I6qgr+hq4CvEAlaTACl9ahOAD5vFYLGKAF4zwAVyjFAMJpOVt74AzjFYWWQwUnAAAAAElFTkSuQmCC';
@@ -182,6 +183,7 @@ const cases=[
   {name:'Case 200',price:200,rtp:.95,img:pngCase4},
   {name:'Case 250',price:250,rtp:.95,img:pngCase5}
 ];
+
 let state = {
   balance: +(localStorage.bal || 500),
   inventory: [],
@@ -192,6 +194,7 @@ let state = {
   upgradeSelecting: false,
   upgradeIdx: null
 };
+
 const balEl = document.getElementById('balance');
 const casesEl = document.getElementById('cases');
 const invEl = document.getElementById('inventory');
@@ -230,8 +233,10 @@ function drawCases() {
   cases.forEach((c, idx) => {
     const d = document.createElement('div');
     d.className = 'case';
-    d.innerHTML = `<img src="${c.img}" alt="${c.name}"><div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
-      <div>${c.price} 🪙</div>`;
+    // Цена кейса: 💵 ставим для красоты
+    d.innerHTML = `<img src="${c.img}" alt="${c.name}">
+      <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
+      <div>${c.price} 💵</div>`;
     d.onclick = () => openCase(c);
     casesEl.appendChild(d);
   });
@@ -392,9 +397,7 @@ bonusBtn.onclick = function() {
 updateBonusButton();
 
 // =============== Рефералка =========================
-// Простой уникальный "код" для теста
 function getMyRefCode() {
-  // Можно привязать к Telegram.WebApp.initDataUnsafe.user.id, если д��ступно
   let code = localStorage.myReferralCode;
   if (!code) {
     code = Math.floor(Math.random()*900000+100000).toString();
@@ -403,7 +406,6 @@ function getMyRefCode() {
   return code;
 }
 function canGetRefBonus() {
-  // Код не введён, бонус не получен
   return localStorage.refBonusTaken !== "yes";
 }
 function getOtherReferredCode() {
@@ -434,7 +436,6 @@ refGetBtn.onclick = () => {
     refMsg.textContent = "Это ваш код!";
     return;
   }
-  // Чтоб не спамить бонусами каждому
   localStorage.refBonusTaken = "yes";
   localStorage.refReceivedFrom = inputCode;
   updateBalance(state.balance + REF_BONUS);
@@ -442,7 +443,6 @@ refGetBtn.onclick = () => {
   refGetBtn.disabled = true;
   otherRefInput.disabled = true;
 };
-// Обновление
 if(!canGetRefBonus()) {
   refGetBtn.disabled = true;
   otherRefInput.disabled = true;
