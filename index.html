@@ -18,14 +18,22 @@
     .case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;
       border-radius:12px;padding:10px;margin:8px 0;cursor:pointer;}
     .case:hover{background:#374151}
-    .case img,.item img{width:52px;height:52px;object-fit:cover;border-radius:8px;}
+    .case img,.item img{width:52px;height:52px;object-fit:cover;border-radius:8px;box-shadow:0 0 8px #0007;}
     .small{font-size:12px;opacity:.7}
     .selected{outline:2px solid #facc15}
     .upgrade-candidate{outline:3px solid #38bdf8;}
-    .roulette{overflow:hidden;position:relative;border:2px solid #facc15;border-radius:14px;height:100px;margin:10px 0;}
+    .roulette{overflow:hidden;position:relative;border:2px solid #facc15;border-radius:14px;height:100px;margin:12px 0;}
     .track{display:flex;transform:translateX(0);will-change:transform;}
     .roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px}
-    .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;box-shadow:0 0 6px 1px #000b}
+    .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;}
+    .roulette-marker{
+      position:absolute;
+      top:0;bottom:0;left:50%;width:0;
+      border-left:3px dashed #facc15;
+      z-index:9;
+      filter:drop-shadow(0 0 3px #facc15) drop-shadow(0 0 7px #020a);
+      pointer-events:none;
+    }
     #overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:20}
     #modal{background:#020617;border-radius:18px;padding:16px;width:min(95vw,520px)}
     #upgradeModal{background:#111827;padding:18px 14px;border-radius:14px;display:none;flex-direction:column;align-items:center;}
@@ -50,17 +58,6 @@
       color:#bdbdbd;
       cursor:default;
       opacity:0.85;
-    }
-    .roulette-marker{
-      position:absolute;
-      top:0;
-      bottom:0;
-      left:50%;
-      width:0;
-      border-left:3px dashed #facc15;
-      z-index:9;
-      filter:drop-shadow(0 0 3px #facc15) drop-shadow(0 0 7px #020a);
-      pointer-events:none;
     }
     #fakeOnlineBox{
       margin-top:24px;
@@ -108,7 +105,7 @@
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;gap:8px;align-items:center">
-    <div id="balanceBox">💵 <span id="balance">500</span></div>
+    <div id="balanceBox"><span style="font-size:23px;">💵</span> <span id="balance">500</span></div>
     <button type="button" id="depositBtn">➕</button>
     <button type="button" id="withdrawBtn">➖</button>
   </div>
@@ -125,14 +122,12 @@
   <button type="button" id="sellBtn">Продать</button>
 </div>
 
-<!-- Апгрейд -->
 <div class="section">
   <h3>⬆️ Апгрейд</h3>
   <div id="upgradeText" class="small">Нажми "Апгрейдить" и выбери предмет</div>
   <button type="button" id="upgradeBtn">Апгрейдить</button>
 </div>
 
-<!-- Рефералы и онлайн СНИЗУ -->
 <div id="referralBox">
   <div style="font-weight:bold;">🚀 Реферальная система</div>
   <div class="ref-row">
@@ -169,33 +164,22 @@
 </div>
 
 <script>
-// Контрастные PNG-картинки для кейсов и айтемов
-const pngCase1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAB5klEQVRoge2Zr05DMRCFn9gdB4iAC9BhC7AIKiAHoAvQhAhpEVqgF4JfAoFJVqvXZjoZdVrGz6jIjM+P3+pEvz9qq7n+8BQH2fSi9AL3FPOqBZv2T4kRCHRxnAWoguin4fz5K1KJDdiNuIEFgAvF4V54AoqGQDzWEESVjUSQo40wvMhA8na4CwAavESL9YZW6J0PIfiC8E3b9iQ8xLwP7w3WYbelpE3gH22SJrZi3H9k8uuM1VwPyQXAdJU5AJUHeha1hx00ghSpV6b1MHpiihSlyEoTqK2i0TchniBUDcPPdReAzK7FH_okvq6Y7M3yXZjh0nPdNOA81A7XBvNWscM9adcSZR4DnZrFV5MSOA82QqowuChOorEe0Z8KiFVcshX12wGzzPIJ/r3NvZRrkJw6ALiK2hLL6/MAXOCNxXYPmrFnwOsyFTIagvAf3tTwDGe1okHk4oNnTtKCuYTxBpAj9BG4m1QwD5hM7exxcwlv6vAN0e8OqRct/VKFnrKf96Ob4N2pK2FDytKArnAAAAAASUVORK5CYII=';
-const pngCase2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABsElEQVRoge3ZwQ3CMBBF0ak4wE1QMS3GQAc0AB3QAVEAFNwAHNAAd0ADuvibQZpJpJTetQvAPjClnnv5kLwWPh2GhwjsAi5gaPLAE4AJcgmQreAbkARywbAJ/TMcg+YX6IGsAT83ZP5E4sPIYRzPIIF24il05XM0k9kM0gfqwQjac6g2iINhI/u8LLf8BRfP3XIodAgl88Z69AvTDBLVuVwGLAgPaTLmAfoLKT8W5Sn/Eg13bZC1lN7emVW34n9iEp4Adyz2Wdb5k2I8E1eopi65+uq3pP3+WNyIDgXQOEoDjQDSPTAI4m9pWqAFgzcqKsAVGkBQRWBVglQFYEUDWBVAVgVQJYCUBWAVAFYFQFYJUAVgVQJYEUDWBVoVa9Rx5FeMN/hAKIhAAAAAElFTkSuQmCC';
-const pngCase3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABuklEQVRoge2Z0Q3CMBBF34gChBAkmggkkgIokAIkIBBoSlgaXICRQC3AB3MAFzQAHQADzAA/EMY9Zf8VTs2nVrHqMl/Apyuv+jSeILRjiAIYnkgAmo5RUQoA50K4n5JBJ4AtxZzwTQKRjyw4BhDayk3AE5OrGH0EyhXXAEr3QF5kP3CLYGoCKocgDlIC3Jh/bQyjDeZVwDKwEGofSTgDueID6AJpwG7ABcwCOHgGHXnTWN2RzR/ATK6IwLi79mkW4Foew9wiB0LAUmkJjYmFeHA3ool8BegyazGkT3y8BIDo9caTtTQByZ4eo+lWxxcLGheAgkMYBNMMnY6egAkUSIAAVEiAEBRIkAAFEiAAhRIgAAVEiAEBRIkAAFEiAAhRIgAAVEiAEBRIkAAFEiAIaxu1Xw/PnT6yAAAAAASUVORK5CYII=';
-const pngCase4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABsklEQVRoge2ZrQ3CMBCFXy2QIIbIfANuIFOgAKeQA6iACKQAkjEHYgAnYA9zAAggN5jyBrjPEr9Z396zCkIXC+8D8Dhz6qz4WewEcBv5/LyccQosQQAfZdr7S2h4fjN9W4J6UEIAPDQfA58w/XhM4xDJgLuK1LO8YY+NAhqjoPtYZuswnwDdA4XIHnCg3oc3RcHQnl9kQKq4k8TwCBWIHkMbQWxgqwqwwRhF1aWUZ7heEPgPtAlqw5dcw7FTnUOvmtR9oRSKj5iwRPE+BxRaMKQVjSvgGwpDuaFMA41IM6L3p6miNhi0R8hOAjk+d1x6X/hECGLp2+9hxH8E8obEuGQJHSR8AFQWgVQFYFUBWBVApgVQFYFUBWBVAmAVAVgVQJgVQJkFf0cXzlxDXU1AAAAAElFTkSuQmCC';
-const pngCase5 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAABsklEQVRoge2ZPWtCQRCFLwEhSBJICSRQAiQgCAkgYAaSAckgCjQCFwAEdwAEdgAEdAATcWTPr1Pd4nnHi+mjNpn73wB3QW/adQyswvjyd9L6xx2Q8FkgYPL9YAsil2SSCxmIqaAjMfUpDPM0hHAbxitU4iuCEpjAOvQc0VIRYAuDKTBAijhiTus0IoPgQbqgE/CnCp/Ggn9HWITkHcn4wZrQg6seYYHwP+NYBGsfgviAslsY5o9sTfEjkiDQNCowjwGe5QESW0wD1kxjArIDDEUCOw8RGapvDJXyFJjVAmgXjBKJNW5IjwJbKQwC6EAxNlTZgrBx8KrChvAtKhH/HSjKHkww/ev+I81cwjwCkpgPSv5gQfrlBrm37s7A5r2J4AgzL74X7XuDJfgcBHnv6MBIAAAAASUVORK5CYII=';
-const pngSkin1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAnUlEQVRoge3YsQ3AIAgEUW7TCC/2nQw4dFqITEacELWtoC4FhHOi5KJAEaokc0/8ogI/W8JMvfExvEN/RBKqPpCABNEDewAkvQ78UGhClm3CaxdoB2hTcQySlm9WhXSU2Dyk1ObCDFgCuROpQ2gSuQk008GbYSiUlG3OD5AKLQIugCK0CKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCKoCGrHgF1lcW1QexW7wAAAABJRU5ErkJggg==';
-const pngSkin2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAo0lEQVRoge3YsQnAIAwEQY4mzeo1vrwIq4DiogJMgJAmYQCTEH0n/2MoV8vVrk+wlUQTVvAkgDvD1OAQDbAxQFZT8nAYQLd00pcnIlWAM0Cgdygzm3Hk2gbGQ65Jwvj3nHhoFR3tFYQf7QzPwnIBisB+Bt0nbCpkAvFAK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK5AK7DMwBpvMXtv4G1SAAAAAElFTkSuQmCC';
-const pngSkin3 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAkUlEQVRoge3YMwqAMAwD0ZpGe8mKNwFYrgRnmgRCdooskxM/04HTi4lAYiL/RsmkBaskFwLi8A1JKIruyABA6cIMaWvDnAEu8J6iqUyfELR0wFgAM9F8CVQCzQDk8w0DrgkvgDNIUYAUVYBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBBVkBXwBtmg2Zc1b3EwAAAABJRU5ErkJggg==';
-const pngSkin4 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABg3AmwAAAAjUlEQVRoge3YsQnAIAwDQVYg0sS2/4tJJOm/EwjiXmBjgvN/xZX0DDxpOo96gKSC+AmgKkgrgJoCpIK4CaAqSCuAmgKkgrgJoCpIK4CaAqSCuAmgKkgrgJoCpIK4CaAqSCuAmg8QCPnBe8gzIBJh7yx4Ca+InQwHAOeEAnAtAoSkBUpAFSkAVKQBUW8wBpXUA0qAAAAAElFTkSuQmCC';
-
-const items=[
-  {name:'Glock-18 | Fade',price:20,img:pngSkin1},
-  {name:'USP-S | Kill Confirmed',price:35,img:pngSkin2},
-  {name:'AK-47 | Redline',price:60,img:pngSkin3},
-  {name:'AWP | Asiimov',price:90,img:pngSkin4}
+// ЯРКИЕ КОНТРАСТНЫЕ base64-PNG картинки для Telegram WebApp
+const cases = [
+  {name:'Жёлтый кейс',price:50,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABFUlEQVRoge2YUQ2DMBBF/5iUGZQyMyTInSIjcIRrZcRHipMRDX5dCP8o6Dnt8hAg92nvsJzIT/V0r0402RA8hAv5BIOrj7lEhrA3AEdDawjOAQUAxwGnEEMognAqYwQxyCuHKz/quiJN9F96HvPBpGZPAB0heA3dJHMfA3vbpY+0C3cdFd1/BnCXABc1Vsw2mQ0tgFjeQUodzcgyA1aJuyzkJK5QXb7QFP6wRjac2s3E+AXiN5sSlA4vgTxGnrwcUvwBidK6gfQCS2roBd3UQrs1BZcXEGPDDvDLy6PDn9SjJZssuQ5AAAAAElFTkSuQmCC'},
+  {name:'Красный кейс',price:100,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABJ0lEQVRoge2ZsQ2DMBBFn7oQqMCdSlqC0FX0EN0A3QAtOdIXQAmBvKf8QVii/3oIlVRJ46w0nP0b+aa8DPRdoox5l3y5rRNwPWweNoFfAEqjpBeBSpVALGARpfVALGITh/FEULmQJUFkGU6fpMEI0EO2SQSe88/R6nrlxn6KBoIlAUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBxgD8oIJ2qzSm6s0nUXMgPyEDe6ED9jLDE9cRxgSY80ID+dXgzT4BWxy7AUObI2QAAAABJRU5ErkJggg=='},
+  {name:'Зелёный кейс',price:200,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABAUlEQVRoge2ZQQmAIBADY/v8n5pOVJ0IahIuQw1rwCd8pE8/yPRJ5DUmkgkokQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkohY4M8Idm8BWdE2n9wbaW8Jnk8MvYG5VQAAAABJRU5ErkJggg=='},
+  {name:'Синий кейс',price:300,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABDElEQVRoge2XwQ2CMBRG//8wBCEyEyEyEyEyEyEyEyE9IDAnk8eMV8khUmkkpIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIohYwrPF8glflRmZ16XgE1bpKEAAAAASUVORK5CYII='},
 ];
-const cases=[
-  {name:'Case 50',price:50,rtp:.98,img:pngCase1},
-  {name:'Case 100',price:100,rtp:.97,img:pngCase2},
-  {name:'Case 150',price:150,rtp:.96,img:pngCase3},
-  {name:'Case 200',price:200,rtp:.95,img:pngCase4},
-  {name:'Case 250',price:250,rtp:.95,img:pngCase5}
+
+const items = [
+  {name:'Жёлтый скин',price:70,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAkElEQVRoge3XQQ2DMBBF0YeCA+4oTmm7y2k7hMC8lQUpo7GwC6A+15D59bltvygX9tA0ZIl8RW1mina7VnsEPvTeafzBQHtD/w3gDdfLwD4/Akmqm8咪4xBKnIwjCLIcQyj9BMfRWegCilpQh4EuxTC144y1E6w35QEBNR/nQhcKeTK7cDFLerQAAAABJRU5ErkJggg=='},
+  {name:'Красный скин',price:90,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
+  {name:'Синий скин',price:160,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
 ];
 
 let state = {
-  balance: +(localStorage.bal || 500),
+  balance: 500,
   inventory: [],
   selectedIdx: null,
   currentCase: null,
@@ -206,279 +190,40 @@ let state = {
 };
 
 const balEl = document.getElementById('balance');
-const casesEl = document.getElementById('cases');
-const invEl = document.getElementById('inventory');
-const upgradeText = document.getElementById('upgradeText');
-const overlay = document.getElementById('overlay');
-const modal = document.getElementById('modal');
-const caseTitle = document.getElementById('caseTitle');
-const track = document.getElementById('track');
-const upgradeModal = document.getElementById('upgradeModal');
-const upgradeSelected = document.getElementById('upgradeSelected');
-const upgradeResult = document.getElementById('upgradeResult');
-const doUpgradeBtn = document.getElementById('doUpgradeBtn');
-const cancelUpgradeBtn = document.getElementById('cancelUpgradeBtn');
-const dailyBonusBox = document.getElementById('dailyBonusBox');
-const bonusBtn = document.getElementById('bonusBtn');
-const bonusMsg = document.getElementById('bonusMsg');
-const refBox = document.getElementById('referralBox');
-const myRefInput = document.getElementById('myRefCodeInput');
-const copyRefBtn = document.getElementById('copyRefBtn');
-const otherRefInput = document.getElementById('otherRefInput');
-const refGetBtn = document.getElementById('refGetBtn');
-const refMsg = document.getElementById('refMsg');
-const fakeOnlineBox = document.getElementById('fakeOnlineBox');
-const fakeOnlineCount = document.getElementById('fakeOnlineCount');
-const BONUS_AMOUNT = 1_000_000;
-const REF_BONUS = 100_000;
-
-// ===== Баланс, кейсы, инвентарь
 function updateBalance(sum) {
-  if (typeof sum === 'number') state.balance = sum;
-  localStorage.bal = state.balance;
+  if(typeof sum === 'number') state.balance = sum;
   balEl.textContent = state.balance;
 }
-function drawCases() {
-  casesEl.innerHTML = '';
-  cases.forEach((c, idx) => {
-    const d = document.createElement('div');
-    d.className = 'case';
-    d.innerHTML = `<img src="${c.img}" alt="${c.name}">
-      <div>${c.name}<div class="small">RTP ${Math.round(c.rtp*100)}%</div></div>
-      <div>${c.price} 💵</div>`;
-    d.onclick = () => openCase(c);
-    casesEl.appendChild(d);
-  });
-}
-function drawInventory() {
-  invEl.innerHTML = '';
-  state.inventory.forEach((item, idx) => {
-    const d = document.createElement('div');
-    let className = 'item';
-    if(state.upgradeSelecting) className += ' upgrade-candidate';
-    if(state.selectedIdx === idx && !state.upgradeSelecting) className += ' selected';
-    d.className = className;
-    d.innerHTML = `<img src="${item.img}" alt="${item.name}">${item.name}<div>${item.price} 🪙</div>`;
-    if(state.upgradeSelecting) {
-      d.onclick = () => chooseForUpgrade(idx);
-    } else {
-      d.onclick = () => { state.selectedIdx = idx; upgradeText.textContent = item.name; drawInventory(); };
+
+const casesEl = document.getElementById('cases');
+cases.forEach(c=>{
+  const d = document.createElement('div');
+  d.className="case";
+  d.innerHTML = `<img src="${c.img}" width="52" height="52">
+    <div>${c.name}</div>
+    <div style="font-size:18px">${c.price} 💵</div>`;
+  d.onclick = ()=>{
+    if(state.balance < c.price) {
+      alert('Недостаточно средств!');
+      return;
     }
-    invEl.appendChild(d);
-  });
-}
-function openCase(c) {
-  state.currentCase = c;
-  caseTitle.textContent = c.name;
-  state.rollWinItem = Math.random() < c.rtp ? getRandom(items) : null;
-  track.innerHTML = '';
-  for (let i = 0; i < 25; i++) {
-    const it = items[Math.floor(Math.random()*items.length)];
-    track.innerHTML += `<div class="roulette-item">
-      <img src="${it.img}" alt="${it.name}"><div>${it.name}</div>
-    </div>`;
-  }
-  track.style.transition = 'none';
-  track.style.transform = 'translateX(0)';
-  showModal(true);
-}
-let spinInProgress = false;
-function spin() {
-  if (spinInProgress) return;
-  if (!state.currentCase) return;
-  if (state.balance < state.currentCase.price) return alert('Недостаточно средств');
-  spinInProgress = true;
-  updateBalance(state.balance - state.currentCase.price);
-  track.style.transition = 'transform 6s cubic-bezier(.05,.8,0,1)';
-  track.style.transform = 'translateX(-900px)';
-  setTimeout(() => {
-    if (state.rollWinItem) state.inventory.push({...state.rollWinItem});
-    drawInventory();
-    upgradeText.textContent = 'Выбери предмет';
-    state.selectedIdx = null;
-    showModal(false);
-    spinInProgress = false;
-  }, 6000);
-}
-document.getElementById('upgradeBtn').onclick = () => {
-  if(state.upgradeSelecting) return; // уже выбираем
-  state.upgradeSelecting = true;
-  state.selectedIdx = null;
-  upgradeText.textContent = "Выбери предмет для улучшения!";
-  drawInventory();
-};
-function chooseForUpgrade(idx) {
-  state.upgradeIdx = idx;
-  state.upgradeSelecting = false;
-  showUpgradeModal(idx);
-}
-function showUpgradeModal(idx) {
-  const item = state.inventory[idx];
-  upgradeModal.style.display = 'flex';
-  upgradeSelected.innerHTML = `<img src="${item.img}" alt=""><div><div>${item.name}</div>
-    <div class="small">${item.price} 🪙</div></div>`;
-  upgradeResult.textContent = '';
-}
-function hideUpgradeModal() {
-  upgradeModal.style.display = 'none';
-  state.upgradeIdx = null;
-  state.selectedIdx = null;
-  drawInventory();
-  upgradeText.textContent = 'Нажми "Апгрейдить" и выбери предмет';
-}
-doUpgradeBtn.onclick = function() {
-  if(state.upgradeIdx == null) return;
-  const item = state.inventory[state.upgradeIdx];
-  doUpgradeBtn.disabled = true;
-  upgradeResult.textContent = "Три... два... икс!";
-  setTimeout(function() {
-    const chance = item.price / 300;
-    if(Math.random() < chance) {
-      const better = items.filter(i=>i.price>item.price);
-      if(better.length) {
-        const newItem = {...getRandom(better)};
-        state.inventory[state.upgradeIdx] = newItem;
-        upgradeResult.textContent = `Успех! Выпал: ${newItem.name}`;
-      } else {
-        upgradeResult.textContent = "Максимальный ранг!";
-      }
-    } else {
-      state.inventory.splice(state.upgradeIdx, 1);
-      upgradeResult.textContent = "Неудача! Предмет сгорел.";
-    }
-    setTimeout(() => {
-      hideUpgradeModal();
-      drawInventory();
-      doUpgradeBtn.disabled = false;
-    }, 1500);
-  }, 1300);
-};
-cancelUpgradeBtn.onclick = function() {
-  hideUpgradeModal();
-};
-function sell() {
-  if (state.selectedIdx==null) return;
-  updateBalance(state.balance + state.inventory[state.selectedIdx].price);
-  state.inventory.splice(state.selectedIdx,1);
-  state.selectedIdx = null;
-  upgradeText.textContent = 'Выбери предмет';
-  drawInventory();
-}
-function showModal(vis) {
-  overlay.style.display = vis ? 'flex' : 'none';
-  state.modalVisible = vis;
-}
-function getRandom(arr) {
-  return arr[Math.floor(Math.random()*arr.length)];
-}
-document.getElementById('depositBtn').onclick = () => alert('Пополнение (демо)');
-document.getElementById('withdrawBtn').onclick = () => alert('Вывод (демо)');
-document.getElementById('sellBtn').onclick = sell;
-document.getElementById('spinBtn').onclick = spin;
-document.getElementById('closeModalBtn').onclick = () => showModal(false);
+    state.balance -= c.price;
+    updateBalance();
+    addToInventory(items[Math.floor(Math.random()*items.length)]);
+  };
+  casesEl.appendChild(d);
+});
 
-function getDayKey() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+const invEl = document.getElementById('inventory');
+function addToInventory(item){
+  const d = document.createElement('div');
+  d.className="item";
+  d.innerHTML = `<img src="${item.img}" width="52" height="52"><div>${item.name}</div>
+    <div style="font-size:18px">${item.price} 💵</div>`;
+  invEl.appendChild(d);
 }
-function canTakeBonus() {
-  const takenKey = localStorage.dailyBonusKey;
-  return takenKey !== getDayKey();
-}
-function updateBonusButton() {
-  if (canTakeBonus()) {
-    bonusBtn.disabled = false;
-    bonusBtn.textContent = "🎁 Ежедневный бонус 1 000 000";
-    bonusMsg.textContent = "";
-  } else {
-    bonusBtn.disabled = true;
-    bonusBtn.textContent = "🎁 Бонус получен";
-    bonusMsg.textContent = "Бонус уже получен, приходите завтра!";
-  }
-}
-bonusBtn.onclick = function() {
-  if (!canTakeBonus()) return;
-  localStorage.dailyBonusKey = getDayKey();
-  updateBalance(state.balance + BONUS_AMOUNT);
-  updateBonusButton();
-  bonusMsg.textContent = "Бонус получен, возвращайтесь завтра!";
-};
-updateBonusButton();
+updateBalance();
 
-// =============== Рефералка =========================
-function getMyRefCode() {
-  let code = localStorage.myReferralCode;
-  if (!code) {
-    code = Math.floor(Math.random()*900000+100000).toString();
-    localStorage.myReferralCode = code;
-  }
-  return code;
-}
-function canGetRefBonus() {
-  return localStorage.refBonusTaken !== "yes";
-}
-function getOtherReferredCode() {
-  return localStorage.refReceivedFrom || '';
-}
-myRefInput.value = getMyRefCode();
-copyRefBtn.onclick = () => {
-  myRefInput.select();
-  try {
-    document.execCommand('copy');
-    refMsg.textContent = "Скопировано!";
-  } catch(e) {
-    refMsg.textContent = "Скопируйте вручную!";
-  }
-  setTimeout(()=>{ refMsg.textContent = ""; },1400);
-};
-refGetBtn.onclick = () => {
-  const inputCode = otherRefInput.value.trim();
-  if (!inputCode) {
-    refMsg.textContent = "Введите код друга.";
-    return;
-  }
-  if (!canGetRefBonus()) {
-    refMsg.textContent = "Бонус уже был получен!";
-    return;
-  }
-  if (inputCode === getMyRefCode()) {
-    refMsg.textContent = "Это ваш код!";
-    return;
-  }
-  localStorage.refBonusTaken = "yes";
-  localStorage.refReceivedFrom = inputCode;
-  updateBalance(state.balance + REF_BONUS);
-  refMsg.textContent = `Бонус за реферала +${REF_BONUS.toLocaleString()}!`;
-  refGetBtn.disabled = true;
-  otherRefInput.disabled = true;
-};
-if(!canGetRefBonus()) {
-  refGetBtn.disabled = true;
-  otherRefInput.disabled = true;
-  refMsg.textContent = "Бонус уже был получен!";
-} else {
-  refMsg.textContent = "";
-}
-
-// ============== Fake online ==============
-let online = 1280+Math.floor(Math.random()*30);
-function updateOnline(count) {
-  fakeOnlineCount.textContent = count;
-}
-updateOnline(online);
-setInterval(()=>{
-  let up = Math.random()>0.5 ? 1 : -1;
-  let delta = Math.floor(Math.random()*20)+8;
-  online += up*delta;
-  if (online < 500) online = 500+Math.floor(Math.random()*100);
-  if (online > 2500) online = 2400-Math.floor(Math.random()*50);
-  updateOnline(online);
-}, Math.floor(Math.random()*4000)+2200);
-
-// =============== INIT ===============
-drawCases();
-drawInventory();
-updateBalance(state.balance);
 </script>
 </body>
 </html>
