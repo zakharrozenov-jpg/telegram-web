@@ -2,211 +2,137 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>CS:GO Кейсы</title>
+<title>Case Hunters</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-:root{--accent:#f39c12}
-*{box-sizing:border-box}
-body{
-  margin:0;font-family:Arial,sans-serif;color:#fff;text-align:center;
-  background:radial-gradient(circle at top,#2c3e50,#0f1419);
-  padding-top:110px;
-}
-h1{color:var(--accent);margin:6px 0}
-h2{margin:10px 0}
-
-#topBar{
-  position:fixed;top:10px;left:10px;right:10px;z-index:10;
-  display:flex;justify-content:space-between;align-items:center;gap:8px;
-}
-#leftTop{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#2c3e50,#0f1419);color:#fff;text-align:center;padding-top:110px}
+h1{color:#f39c12}
+#topBar{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;z-index:10}
 #balance{color:#2ecc71;font-weight:bold}
 #online{color:#1e90ff;font-size:.9em}
-
-button{
-  background:linear-gradient(135deg,#f39c12,#e67e22);
-  border:none;border-radius:12px;padding:10px 16px;
-  cursor:pointer;font-weight:bold;
-}
-button.small{padding:6px 10px;font-size:.85em}
-button.ghost{background:#1f2a35;color:#fff}
-button[disabled]{opacity:.5}
-
-.section{
-  width:min(94vw,560px);margin:14px auto;padding:14px;
-  background:#121820;border-radius:18px;
-}
-
-/* CASES */
-.case{
-  background:#1c2630;border-radius:16px;padding:14px;margin:10px 0;
-  display:flex;justify-content:space-between;align-items:center;
-  cursor:pointer;transition:.2s;
-}
-.case:hover{transform:scale(1.03)}
-.case small{opacity:.8}
-
-/* LISTS */
-.list{font-size:.85em;text-align:left;max-height:140px;overflow:auto}
-.list div{padding:6px 0;border-bottom:1px solid #1f2a35}
-
-/* INVENTORY */
-.inv-item{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:8px;padding:8px;border-bottom:1px solid #1f2a35
-}
-.inv-item img{width:56px;height:38px;object-fit:contain}
-
-/* OVERLAY / MODAL */
-#overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.9);
-  display:none;align-items:center;justify-content:center;z-index:100;
-}
-#modal{
-  width:min(95vw,560px);background:#121820;border-radius:20px;padding:16px;
-}
-
-/* ROULETTE */
-.roulette{height:120px;overflow:hidden;border:2px solid var(--accent);
-  border-radius:14px;margin:10px 0;position:relative}
-.roulette::after{
-  content:'';position:absolute;left:50%;top:0;width:2px;height:100%;
-  background:var(--accent);box-shadow:0 0 10px var(--accent);
-}
+button{background:linear-gradient(135deg,#f39c12,#e67e22);border:none;border-radius:12px;padding:8px 14px;font-weight:bold;cursor:pointer}
+.section{width:min(94vw,540px);margin:14px auto;background:#121820;border-radius:18px;padding:14px}
+.case{background:#1c2630;border-radius:16px;padding:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.case img{width:56px}
+.list{font-size:.85em;text-align:left;max-height:160px;overflow:auto}
+.list div{border-bottom:1px solid #1f2a35;padding:6px 0}
+.inv-item{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.inv-item img{width:52px}
+.small{font-size:.75em;opacity:.75}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:100}
+#modal{background:#121820;width:min(94vw,540px);border-radius:20px;padding:16px}
+.roulette{height:120px;overflow:hidden;border:2px solid #f39c12;border-radius:14px;margin:12px 0;position:relative}
+.roulette::after{content:'';position:absolute;left:50%;top:0;width:2px;height:100%;background:#f39c12}
 .track{display:flex;position:relative;left:0}
 .item{min-width:120px;font-size:.7em}
 .item img{width:80px;height:55px;object-fit:contain}
-
-/* RESULT */
-#rewardImg{width:180px;margin:8px auto;display:none}
-.common{color:#fff}
-.rare{color:#1e90ff}
-.epic{color:#a020f0;text-shadow:0 0 12px rgba(160,32,240,.6)}
-.legendary{color:#ffa500;text-shadow:0 0 18px orange;animation:pulse 1.2s infinite alternate}
-@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.08)}}
-
-/* UPGRADE */
-.progress{height:10px;background:#1f2a35;border-radius:8px;overflow:hidden;margin:6px 0}
-.bar{height:100%;background:#2ecc71;width:0}
-
-/* REF */
-.ref-box{
-  background:#1c2630;border-radius:14px;padding:10px;margin-top:8px;
-  font-size:.85em;word-break:break-all
-}
+#rewardImg{width:180px;margin-top:10px;display:none}
+select{padding:6px;border-radius:8px}
 </style>
 </head>
 
 <body>
 
 <div id="topBar">
-  <div id="leftTop">
+  <div>
     <div id="balance">Баланс: 500 💰</div>
     <div id="online">🟢 Онлайн: 128</div>
   </div>
   <div>
-    <button class="small" id="bonusBtn" onclick="dailyBonus()">🎁</button>
-    <button class="small" onclick="topUp()">➕</button>
+    <button onclick="dailyBonus()">🎁</button>
+    <button onclick="topUp()">➕</button>
   </div>
 </div>
 
-<h1>CS:GO Кейсы</h1>
+<h1>Case Hunters</h1>
 
-<!-- REFERRAL -->
 <div class="section">
-  <h2>👥 Реферальная система</h2>
-  <div>Приглашено: <b id="refCount">0</b> человек</div>
-  <div class="ref-box" id="refLink"></div>
-  <button class="small" onclick="copyRef()">📋 Скопировать ссылку</button>
-  <small><br>Ты и друг получите бонус 💰</small>
-</div>
-
-<!-- CASES -->
-<div class="section">
-  <h2>Кейсы</h2>
+  <h3>📦 Кейсы</h3>
   <div id="cases"></div>
 </div>
 
-<!-- INVENTORY -->
 <div class="section">
-  <h2>🎒 Инвентарь</h2>
+  <h3>🏆 Топ дропов дня</h3>
+  <div id="topDrops" class="list"></div>
+</div>
+
+<div class="section">
+  <h3>🎒 Инвентарь</h3>
   <div id="inventory" class="list"></div>
 </div>
 
-<!-- MODAL -->
+<div class="section">
+  <h3>🎯 Апгрейд</h3>
+  <div id="upgradeInfo">Выбери предмет</div>
+  <select id="upgradeTarget"></select>
+  <div id="upgradeChance" class="small"></div>
+  <button onclick="upgrade()">Апгрейдить</button>
+</div>
+
 <div id="overlay">
   <div id="modal">
-    <h2 id="caseTitle"></h2>
+    <h3 id="caseTitle"></h3>
     <div class="roulette"><div id="track" class="track"></div></div>
     <img id="rewardImg">
     <div id="result"></div>
-    <button class="ghost" onclick="closeModal()">Закрыть</button>
+    <button onclick="closeModal()">Закрыть</button>
   </div>
 </div>
 
 <script>
-const tg=Telegram.WebApp; tg.ready(); tg.expand();
-
-/* ===== USER ID ===== */
-const userId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random()*1e9);
+const tg=Telegram.WebApp;tg.ready();tg.expand();
 
 /* ===== BALANCE ===== */
-let balance = Number(localStorage.getItem('balance')) || 500;
-const balEl=document.getElementById('balance');
-function updateBalance(){
-  balEl.textContent=`Баланс: ${balance} 💰`;
-  localStorage.setItem('balance', balance);
-}
-updateBalance();
+let balance=Number(localStorage.getItem('balance'))||500;
+const bal=document.getElementById('balance');
+function updateBal(){bal.textContent=`Баланс: ${balance} 💰`;localStorage.setItem('balance',balance)}
+updateBal();
 
 /* ===== ONLINE ===== */
 const onlineEl=document.getElementById('online');
-setInterval(()=>onlineEl.textContent='🟢 Онлайн: '+(120+Math.floor(Math.random()*40)),12000);
+setInterval(()=>onlineEl.textContent='🟢 Онлайн: '+(120+Math.floor(Math.random()*60)),10000);
 
-/* ===== REFERRALS ===== */
-let refCount = Number(localStorage.getItem('refCount')) || 0;
-document.getElementById('refCount').textContent = refCount;
+/* ===== DAILY BONUS + STREAK ===== */
+function dailyBonus(){
+ const now=new Date().toDateString();
+ const last=localStorage.getItem('dailyDate');
+ let streak=Number(localStorage.getItem('streak'))||0;
 
-const botName = 'YOUR_BOT_NAME'; // ← ЗАМЕНИ
-const refLink = `https://t.me/${botName}?start=ref_${userId}`;
-document.getElementById('refLink').textContent = refLink;
+ if(last===now){tg.showAlert('Бонус уже получен сегодня');return;}
 
-function copyRef(){
-  navigator.clipboard.writeText(refLink);
-  tg.showAlert('Реферальная ссылка скопирована');
-}
+ const yesterday=new Date(Date.now()-86400000).toDateString();
+ streak = (last===yesterday) ? streak+1 : 1;
 
-/* check incoming ref */
-const startParam = tg.initDataUnsafe?.start_param;
-if(startParam && startParam.startsWith('ref_')){
-  const inviter = startParam.replace('ref_','');
-  if(!localStorage.getItem('refUsed')){
-    balance += 200; // бонус приглашённому
-    updateBalance();
-    localStorage.setItem('refUsed', inviter);
-    tg.showAlert('Добро пожаловать! Бонус +200 💰');
-  }
+ const reward=100+streak*50;
+ balance+=reward;
+ updateBal();
+
+ localStorage.setItem('dailyDate',now);
+ localStorage.setItem('streak',streak);
+ tg.showAlert(`🎁 Бонус +${reward} 💰 | Серия: ${streak}`);
 }
 
 /* ===== DATA ===== */
 const casesData=[
- {name:'Budget Case',price:20},
- {name:'Classic Case',price:100},
- {name:'Premium Case',price:400}
+ {name:'Low RTP Case',price:50,rtp:.85,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapon_cases/crate_community_26.png'},
+ {name:'Medium RTP Case',price:150,rtp:.95,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapon_cases/crate_community_31.png'},
+ {name:'High RTP Case',price:300,rtp:1.05,img:'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapon_cases/crate_community_33.png'}
 ];
 
 const rewards=[
- {name:'P90 | Sand Spray',rarity:'common',chance:40,price:10,img:'https://i.imgur.com/0Qx0lM1.png'},
- {name:'AK-47 | Redline',rarity:'rare',chance:25,price:80,img:'https://i.imgur.com/HZp7QpB.png'},
- {name:'M4A4 | Howl',rarity:'epic',chance:20,price:220,img:'https://i.imgur.com/ME7YZ6m.png'},
- {name:'AWP | Dragon Lore',rarity:'legendary',chance:15,price:600,img:'https://i.imgur.com/UhU5M1O.png'}
+ {name:'P90 | Sand Spray',price:20,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/1837'},
+ {name:'AK-47 | Redline',price:120,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/282'},
+ {name:'M4A4 | Howl',price:300,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/309'},
+ {name:'AWP | Dragon Lore',price:800,img:'https://community.cloudflare.steamstatic.com/economy/image/class/730/344'}
 ];
 
-function getReward(){
- let r=Math.random()*100,s=0;
- for(const i of rewards){s+=i.chance;if(r<=s)return i;}
+/* ===== RTP BY BALANCE ===== */
+function balanceModifier(){
+ if(balance<300) return 1.08;
+ if(balance>1500) return 0.9;
+ return 1;
 }
 
 /* ===== CASES ===== */
@@ -214,53 +140,113 @@ const casesEl=document.getElementById('cases');
 casesData.forEach(c=>{
  const d=document.createElement('div');
  d.className='case';
- d.innerHTML=`<div>${c.name}</div><div>💰 ${c.price}</div>`;
+ d.innerHTML=`<img src="${c.img}"><div>${c.name}<br><span class="small">💰 ${c.price} | RTP ${Math.round(c.rtp*100)}%</span></div>`;
  d.onclick=()=>openCase(c);
  casesEl.appendChild(d);
 });
 
+/* ===== INVENTORY ===== */
+let inventory=[];
+const invEl=document.getElementById('inventory');
+function updateInventory(){
+ invEl.innerHTML='';
+ inventory.forEach((i,idx)=>{
+  invEl.innerHTML+=`
+   <div class="inv-item">
+    <div onclick="selectUpgrade(${idx})"><img src="${i.img}"> ${i.name} 💰${i.price}</div>
+    <button onclick="sell(${idx})">Продать</button>
+   </div>`;
+ });
+}
+function sell(i){
+ balance+=inventory[i].price;
+ inventory.splice(i,1);
+ updateBal();updateInventory();
+}
+
+/* ===== TOP DROPS ===== */
+let topDrops=JSON.parse(localStorage.getItem('topDrops')||'[]');
+function updateTop(){
+ topDrops=topDrops.sort((a,b)=>b.price-a.price).slice(0,5);
+ document.getElementById('topDrops').innerHTML=
+  topDrops.map(d=>`<div>${d.name} 💰${d.price}</div>`).join('');
+ localStorage.setItem('topDrops',JSON.stringify(topDrops));
+}
+updateTop();
+
 /* ===== ROULETTE ===== */
 const overlay=document.getElementById('overlay');
 const track=document.getElementById('track');
-const resultEl=document.getElementById('result');
 const rewardImg=document.getElementById('rewardImg');
-const titleEl=document.getElementById('caseTitle');
+const result=document.getElementById('result');
 
 function openCase(c){
- if(balance<c.price){tg.showAlert('Недостаточно монет');return;}
- balance-=c.price;updateBalance();
-
+ if(balance<c.price){tg.showAlert('Недостаточно монет');return}
+ balance-=c.price;updateBal();
  overlay.style.display='flex';
- titleEl.textContent=c.name;
- resultEl.textContent='';
- rewardImg.style.display='none';
-
- track.innerHTML='';
+ track.innerHTML='';rewardImg.style.display='none';result.textContent='';
  for(let i=0;i<30;i++){
   const r=rewards[Math.floor(Math.random()*rewards.length)];
-  const it=document.createElement('div');
-  it.className='item '+r.rarity;
-  it.innerHTML=`<img src="${r.img}"><div>${r.name}</div>`;
-  track.appendChild(it);
+  track.innerHTML+=`<div class="item"><img src="${r.img}"><div>${r.name}</div></div>`;
  }
- track.style.transition='none'; track.style.left='0';
-
- const offset=600+Math.random()*900;
+ setTimeout(()=>track.style.left=`-${600+Math.random()*900}px`,50);
  setTimeout(()=>{
-  track.style.transition='left 3s cubic-bezier(.1,.9,.2,1)';
-  track.style.left=`-${offset}px`;
- },50);
-
- setTimeout(()=>{
-  const r=getReward();
-  rewardImg.src=r.img; rewardImg.style.display='block';
-  resultEl.className=r.rarity; resultEl.textContent=r.name;
+  const r=spinReward(c);
+  inventory.push(r);
+  topDrops.push(r);
+  updateInventory();updateTop();
+  rewardImg.src=r.img;rewardImg.style.display='block';
+  result.textContent=r.name;
  },3200);
 }
 
+function spinReward(c){
+ const mod=balanceModifier();
+ if(Math.random() > c.rtp*mod) return rewards[0];
+ return rewards[Math.floor(Math.random()*rewards.length)];
+}
 function closeModal(){overlay.style.display='none'}
-function dailyBonus(){balance+=150;updateBalance();tg.showAlert('+150 💰')}
-function topUp(){tg.showAlert('Платежи подключим позже 💳')}
+
+/* ===== UPGRADE WITH MULTI ===== */
+let selected=null;
+const targetSel=document.getElementById('upgradeTarget');
+const chanceEl=document.getElementById('upgradeChance');
+
+function selectUpgrade(i){
+ selected=i;
+ const base=inventory[i];
+ document.getElementById('upgradeInfo').textContent='Выбран: '+base.name;
+ targetSel.innerHTML=`
+  <option value="2">x2</option>
+  <option value="3">x3</option>
+  <option value="5">x5</option>`;
+ updateChance();
+}
+targetSel.onchange=updateChance;
+
+function updateChance(){
+ if(selected===null)return;
+ const base=inventory[selected];
+ const mult=Number(targetSel.value);
+ const chance=Math.max(5,Math.round((base.price/(base.price*mult))*100));
+ chanceEl.textContent='Шанс: '+chance+'%';
+}
+
+function upgrade(){
+ if(selected===null){tg.showAlert('Выбери предмет');return}
+ const base=inventory[selected];
+ const mult=Number(targetSel.value);
+ const chance=(base.price/(base.price*mult))*100;
+ if(Math.random()*100<chance){
+  inventory[selected]={...base,price:Math.round(base.price*mult),name:base.name+' x'+mult};
+ }else{
+  inventory.splice(selected,1);
+ }
+ selected=null;
+ updateInventory();
+}
+
+function topUp(){tg.showAlert('Платежи позже 💳')}
 </script>
 
 </body>
