@@ -7,15 +7,29 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
   <style>
-    body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:120px;}
-    #topBar{position:fixed;top:40px;left:0;right:0;background:#020617;padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:20}
+    body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:180px;}
+    #dailyBonusBox{
+      position:fixed;
+      top:0;left:0;right:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:rgba(20,20,24,0.96);
+      padding:10px 0 8px 0;
+      z-index:5;
+      gap: 15px;
+      flex-direction:column;
+      box-shadow:0 6px 28px rgba(0,0,0,.25);
+      max-height:70px;
+    }
+    #topBar{position:fixed;top:70px;left:0;right:0;background:#020617;padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:20}
     #logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
     #balanceBox{padding:8px 14px;border-radius:14px;
       background:linear-gradient(135deg,#facc15,#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
     #bankBtn{background:#eab308;color:#020617;font-size:26px;
       border:none;padding:8px 15px;border-radius:13px;margin-left:12px;cursor:pointer;box-shadow:0 0 8px #000a;}
     #bankOverlay{display:none;position:fixed;inset:0;z-index:40;justify-content:flex-end;align-items:flex-start;}
-    #bankModal{margin:50px 30px 0 0;background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;}
+    #bankModal{margin:110px 30px 0 0;background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;}
     #bankOverlay.show{display:flex;}
     #bankModal button{background:#facc15;color:#2b230b;border:none;border-radius:10px;padding:10px 26px;font-size:18px;margin:8px 0;font-weight:bold;}
     .section{background:#111827;border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,560px)}
@@ -48,26 +62,14 @@
     .wheel-text{font-size:28px;font-weight:bold;color:#fff;text-shadow:0 0 8px #000;z-index:10;}
     @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(1080deg);}}
     .wheel.stopped{animation:none;}
-    #dailyBonusBox{
-      position:fixed;
-      top:0;left:0;right:0;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      background:rgba(20,20,24,0.96);
-      padding:14px 0 8px 0;
-      z-index:100;
-      gap: 20px;
-      flex-direction:column;
-      box-shadow:0 6px 28px rgba(0,0,0,.25)
-    }
-    #bonusBtn{background:#facc15;color:#2b230b;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;}
+    #bonusBtn{background:#facc15;color:#2b230b;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;font-size:14px;}
     #bonusBtn[disabled]{
       background:#e5e7eb;
       color:#bdbdbd;
       cursor:default;
       opacity:0.85;
     }
+    #bonusMsg{font-size:11px;color:#facc15;height:18px;}
     #fakeOnlineBox{
       margin-top:24px;
       width:100vw;
@@ -107,8 +109,9 @@
 <body>
 <div id="dailyBonusBox">
   <button type="button" id="bonusBtn">🎁 Ежедневный бонус 1 000 000</button>
-  <div id="bonusMsg" class="small"></div>
+  <div id="bonusMsg"></div>
 </div>
+
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;align-items:center;">
@@ -116,6 +119,7 @@
     <button id="bankBtn">💼</button>
   </div>
 </div>
+
 <div id="bankOverlay">
   <div id="bankModal">
     <button id="depositBtn">➕ Пополнить</button>
@@ -133,7 +137,7 @@
 <div id="referralBox">
   <div style="font-weight:bold;">🚀 Реферальная система</div>
   <div class="ref-row">
-    <span class="small">Твой код:</span>
+    <span class="small">Твой к��д:</span>
     <input id="myRefCodeInput" readonly>
     <button type="button" id="copyRefBtn">Скопировать</button>
   </div>
@@ -177,7 +181,7 @@
 const cases = [
   {name:'Жёлтый кейс',price:50,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABFUlEQVRoge2YUQ2DMBBF/5iUGZQyMyTInSIjcIRrZcRHipMRDX5dCP8o6Dnt8hAg92nvsJzIT/V0r0402RA8hAv5BIOrj7lEhrA3AEdDawjOAQUAxwGnEEMognAqYwQxyCuHKz/quiJN9F96HvPBpGZPAB0heA3dJHMfA3vbpY+0C3cdFd1/BnCXABc1Vsw2mQ0tgFjeQUodzcgyA1aJuyzkJK5QXb7QFP6wRjac2s3E+AXiN5sSlA4vgTxGnrwcUvwBidK6gfQCS2roBd3UQrs1BZcXEGPDDvDLy6PDn9SjJZssuQ5AAAAAElFTkSuQmCC'},
   {name:'Красный кейс',price:100,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABJ0lEQVRoge2ZsQ2DMBBFn7oQqMCdSlqC0FX0EN0A3QAtOdIXQAmBvKf8QVii/3oIlVRJ46w0nP0b+aa8DPRdoox5l3y5rRNwPWweNoFfAEqjpBeBSpVALGARpfVALGITh/FEULmQJUFkGU6fpMEI0EO2SQSe88/R6nrlxn6KBoIlAUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBxgD8oIJ2qzSm6s0nUXMgPyEDe6ED9jLDE9cRxgSY80ID+dXgzT4BWxy7AUObI2QAAAABJRU5ErkJggg=='},
-  {name:'Зелёный кейс',price:200,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABAUlEQVRoge2ZQQmAIBADY/v8n5pOVJ0IahIuQw1rwCd8pE8/yPRJ5DUmkgkokQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkohY4M8Idm8BWdE2n9wbaW8Jnk8MvYG5VQAAAABJRU5ErkJggg=='},
+  {name:'Зелёный кейс',price:200,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABAUlEQVRoge2ZQQmAIBADY/v8n5pOVJ0IahIuQw1rwCd8pE8/yPRJ5DUmkgkokQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkohY4M8Idm8BWdE2n9wbaW8Jnk8MvYG5VQAAAABJRU5ErkJggg=='},
   {name:'Синий кейс',price:300,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABDElEQVRoge2XwQ2CMBRG//8wBCEyEyEyEyEyEyEyEyE9IDAnk8eMV8khUmkkpIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIohYwrPF8glflRmZ16XgE1bpKEAAAAASUVORK5CYII='},
   {name:'Фиолетовый кейс',price:400,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABMUlEQVRoge2ZwQ3CMBBF+xB5AAdwQAewBAewBBdcxilLJIjWJNc8ovNkVkZf97zVHoznuvRvlV4hXcAI2PgBtBBgAXAJnOIKw3rHMSpIDeSFgHkg2dCQs4N3A2swWHh6E1nhFlugJA2cMAJiGYAkvRzx1FRoiJoAiIIiAAiCIgAIgiIACIImofC3wFvusWqMY5XIapDYzQOvcmkCpoH6nACM9OcjKAFspO0MgBNW5JrFuw7jZ/hg5A9CZrtNYHvI9j/ewB+Vro6LyvscfbQAAAABJRU5ErkJggg=='},
 ];
@@ -186,9 +190,13 @@ const items = [
   {name:'Красный скин',price:90,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
   {name:'Синий скин',price:160,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
 ];
+
+// === RTP 78% ===
+const RTP = 0.78;
+
 let state = {
-  balance: 500,
-  inventory: [],
+  balance: parseInt(localStorage.getItem('casehunters_balance')) || 500,
+  inventory: JSON.parse(localStorage.getItem('casehunters_inventory')) || [],
   selectedIdx: null,
   currentCase: null,
   rollWinItem: null,
@@ -196,13 +204,22 @@ let state = {
   upgradeSelecting: false,
   upgradeIdx: null
 };
-// === Баланс
+
+// === Функция сохранения в localStorage ===
+function saveState() {
+  localStorage.setItem('casehunters_balance', state.balance);
+  localStorage.setItem('casehunters_inventory', JSON.stringify(state.inventory));
+}
+
+// === Баланс ===ща
 const balEl = document.getElementById('balance');
 function updateBalance(sum) { 
-  if(typeof sum === 'number') state.balance = sum; 
-  balEl.textContent = state.balance; 
+  if(typeof sum === 'number') state.balance = sum;
+  balEl.textContent = state.balance;
+  saveState();
 }
-// === Пополнение/вывод
+
+// === Пополнение/вывод ===
 const bankBtn = document.getElementById('bankBtn');
 const bankOverlay = document.getElementById('bankOverlay');
 const closeBankBtn = document.getElementById('closeBankBtn');
@@ -211,17 +228,17 @@ closeBankBtn.onclick = () => bankOverlay.classList.remove('show');
 document.getElementById('depositBtn').onclick = () => alert('Пополнение (демо!)');
 document.getElementById('withdrawBtn').onclick = () => alert('Вывод (демо!)');
 
-// === Кейсы
+// === Кейсы ===
 const casesEl = document.getElementById('cases');
 cases.forEach(c => {
   const d = document.createElement('div');
   d.className = 'case';
-  d.innerHTML = `<img src="${c.img}"><div>${c.name}</div><div class="small">${c.price} 💵</div>`;
+  d.innerHTML = `<img src="${c.img}"><div>${c.name}<div class="small">RTP 78%</div></div><div class="small">${c.price} 💵</div>`;
   d.onclick = () => openCase(c);
   casesEl.appendChild(d);
 });
 
-// === Рулетка (модалка)
+// === Рулетка (модалка) ===
 let curCase, winItem;
 const overlay = document.getElementById('overlay');
 const modal = document.getElementById('modal');
@@ -232,9 +249,10 @@ function openCase(c) {
   curCase = c;
   caseTitle.textContent = c.name;
   track.innerHTML = '';
-  winItem = items[Math.floor(Math.random() * items.length)];
+  // RTP 78% для выигрыша
+  winItem = Math.random() < RTP ? items[Math.floor(Math.random() * items.length)] : null;
   for(let i = 0; i < 25; i++) {
-    let it = (i === 12) ? winItem : items[Math.floor(Math.random() * items.length)];
+    let it = (i === 12) ? (winItem || items[Math.floor(Math.random() * items.length)]) : items[Math.floor(Math.random() * items.length)];
     track.innerHTML += `<div class="roulette-item"><img src="${it.img}"><div>${it.name}</div></div>`;
   }
   track.style.transition = "none";
@@ -252,17 +270,18 @@ document.getElementById('spinBtn').onclick = function() {
   track.style.transition = 'transform 6s cubic-bezier(.05,.8,0,1)';
   track.style.transform = 'translateX(-540px)';
   setTimeout(() => {
-    state.inventory.push({...winItem});
+    if(winItem) state.inventory.push({...winItem});
     drawInventory();
     closeModal();
     spinInProgress = false;
+    saveState();
   }, 6000);
 };
 
 document.getElementById('closeModalBtn').onclick = closeModal;
 function closeModal() { overlay.style.display = 'none'; }
 
-// === Инвентарь
+// === Инв��нтарь ===
 const invEl = document.getElementById('inventory');
 function drawInventory() {
   invEl.innerHTML = '';
@@ -286,7 +305,7 @@ function drawInventory() {
   });
 }
 
-// === Продажа
+// === Продажа ===
 document.getElementById('sellBtn').onclick = function() {
   if(state.selectedIdx == null) return;
   state.balance += state.inventory[state.selectedIdx].price;
@@ -297,7 +316,7 @@ document.getElementById('sellBtn').onclick = function() {
   document.getElementById('upgradeText').textContent = 'Нажми "Апгрейдить" и выбери предмет';
 };
 
-// === Апгрейд с колесом
+// === Апгрейд с колесом ===
 const upgradeBtn = document.getElementById('upgradeBtn');
 const upgradeText = document.getElementById('upgradeText');
 upgradeBtn.onclick = function() {
@@ -377,6 +396,7 @@ function performUpgrade(multiplier) {
     setTimeout(() => {
       hideUpgradeModal();
       drawInventory();
+      saveState();
     }, 2000);
   }, 3100);
 }
@@ -385,7 +405,7 @@ upgrade3xBtn.onclick = () => performUpgrade(3);
 upgrade2xBtn.onclick = () => performUpgrade(2);
 cancelUpgradeBtn.onclick = hideUpgradeModal;
 
-// === Бонус
+// === Бонус ===
 const BONUS_AMOUNT = 1_000_000;
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusMsg = document.getElementById('bonusMsg');
@@ -407,7 +427,7 @@ function updateBonusButton() {
   } else {
     bonusBtn.disabled = true;
     bonusBtn.textContent = "🎁 Бонус получен";
-    bonusMsg.textContent = "Бонус уже получен, приходите завтра!";
+    bonusMsg.textContent = "Приходите завтра!";
   }
 }
 
@@ -417,12 +437,12 @@ bonusBtn.onclick = function() {
   state.balance += BONUS_AMOUNT;
   updateBalance();
   updateBonusButton();
-  bonusMsg.textContent = "✅ Бонус получен, возвращайтесь завтра!";
+  bonusMsg.textContent = "✅ Бонус получен!";
 };
 
 updateBonusButton();
 
-// === Рефералка
+// === Рефералка ===
 function getMyRefCode() {
   let code = localStorage.myReferralCode;
   if(!code) {
@@ -482,7 +502,7 @@ if(!canGetRefBonus()) {
   refMsg.textContent = "❌ Бонус уже был получен!";
 }
 
-// === Онлайн
+// === Онлайн ===
 const fakeOnlineCount = document.getElementById('fakeOnlineCount');
 let online = 1280 + Math.floor(Math.random()*30);
 
@@ -500,7 +520,7 @@ setInterval(() => {
   updateOnline(online);
 }, Math.floor(Math.random()*4000)+2200);
 
-// === Инициализация
+// === Инициализация ===
 updateBalance();
 drawInventory();
 </script>
