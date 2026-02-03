@@ -126,7 +126,7 @@
 </head>
 <body>
 <div id="dailyBonusBox">
-  <button type="button" id="bonusBtn">🎁 Ежедневный бонус 2 500 000 ₽</button>
+  <button type="button" id="bonusBtn">🎁 Ежедневный бонус 100 000 ₽</button>
   <div id="bonusMsg"></div>
 </div>
 
@@ -496,7 +496,7 @@ upgrade2xBtn.onclick = () => performUpgrade(2);
 cancelUpgradeBtn.onclick = hideUpgradeModal;
 
 // === Бонус ===
-const BONUS_AMOUNT = 2500000;
+const BONUS_AMOUNT = 100000; // 100 000 рублей
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusMsg = document.getElementById('bonusMsg');
 
@@ -512,7 +512,7 @@ function canTakeBonus() {
 function updateBonusButton() {
   if (canTakeBonus()) {
     bonusBtn.disabled = false;
-    bonusBtn.textContent = "🎁 Ежедневный бонус 2 500 000 ₽";
+    bonusBtn.textContent = "🎁 Ежедневный бонус 100 000 ₽";
     bonusMsg.textContent = "";
   } else {
     bonusBtn.disabled = true;
