@@ -12,6 +12,7 @@
   --accent:#facc15;
   --muted:#9ca3af;
   --green:#10b981;
+  --yellow-line: #facc15;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue";background:var(--bg);color:#fff;padding-top:180px}
@@ -31,9 +32,9 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 .openBtn{background:var(--green);border:none;padding:12px 18px;border-radius:12px;color:#fff;font-weight:bold;font-size:16px;cursor:pointer}
 .openBtn:disabled{opacity:.5;cursor:not-allowed}
 .weapon-img{width:64px;height:64px;border-radius:8px;object-fit:cover;box-shadow:0 0 8px #0008;background:#0b0f14;display:block}
-.case-badge{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#facc15,#eab308);color:#0b0f14;font-weight:900;font-family:'Russo One',sans-serif;box-shadow:0 6px 18px rgba(250,204,21,.18);font-size:14px;letter-spacing:1px;position:relative}
+.case-badge{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#facc15,#eab308);color:#000;font-weight:900;font-family:'Russo One',sans-serif;box-shadow:0 6px 18px rgba(250,204,21,.18);font-size:14px;letter-spacing:1px;position:relative}
 .case-badge .label{transform:translateY(1px)}
-.roulette{overflow:hidden;position:relative;border:2px solid var(--accent);border-radius:14px;height:100px;margin:13px 0;background:linear-gradient(180deg,#071018, #071018)}
+.roulette{overflow:hidden;position:relative;border:2px solid var(--accent);border-radius:14px;height:100px;margin:13px 0;background:linear-gradient(180deg,#071018, #071018);width:100%}
 .track{display:flex;transform:translateX(0);will-change:transform}
 .roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px;padding:6px}
 .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;box-shadow:0 0 7px #000b}
@@ -44,15 +45,24 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 #winResultBox img{width:80px;height:80px;border-radius:10px;margin:0 auto 10px;box-shadow:0 0 20px var(--accent)}
 #winResultBox .winTitle{font-size:20px;font-weight:bold;color:var(--accent);margin-bottom:5px}
 #winResultBox .winPrice{font-size:16px;color:#4ecdc4}
-.upgrade-wheel{width:320px;height:320px;border-radius:50%;position:relative;margin:12px auto;background:conic-gradient(#0b1220 0 25%, #071018 25% 50%, #0b1220 50% 75%, #071018 75% 100%);box-shadow:0 8px 40px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.upgrade-wheel .pointer{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:18px solid var(--accent);z-index:20}
-.upgrade-wheel .inner{width:70%;height:70%;border-radius:50%;background:rgba(2,6,11,.8);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#cbd5e1}
-.spin-btn{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:#020617;font-weight:bold;cursor:pointer}
-.upgrade-result{margin-top:10px;font-weight:bold}
-.footerNote{font-size:12px;color:var(--muted);text-align:center;margin:18px 0}
-.row{display:flex;gap:8px;align-items:center}
-.label{font-size:13px;color:#cbd5e1;margin-bottom:6px}
-.rtpInfo{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* Upgrade panel fixed at bottom with yellow top line */
+#upgradePanel{
+  position:fixed;left:0;right:0;bottom:0;background:#071018;border-top:6px solid var(--yellow-line);padding:12px 18px;z-index:80;
+  display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;
+}
+#upgradePanel .panel-inner{max-width:980px;width:100%;display:flex;gap:12px;align-items:center;justify-content:space-between}
+#upgradePanel .left{display:flex;gap:12px;align-items:center}
+#upgradePanel .small{color:#cbd5e1}
+.upgrade-wheel{width:180px;height:180px;border-radius:50%;position:relative;margin:0;background:conic-gradient(#0b1220 0 25%, #071018 25% 50%, #0b1220 50% 75%, #071018 75% 100%);box-shadow:0 8px 40px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.upgrade-wheel .pointer{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid var(--accent);z-index:20}
+.upgrade-wheel .inner{width:60%;height:60%;border-radius:50%;background:rgba(2,6,11,.8);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#cbd5e1;font-size:13px;text-align:center;padding:6px}
+
+/* responsive */
+@media (max-width:640px){
+  #upgradePanel .panel-inner{flex-direction:column;align-items:center}
+  .roulette-item{width:80px}
+}
 .referral{margin-top:18px;text-align:center;color:#cbd5e1;font-size:13px}
 .referral a{color:var(--accent);text-decoration:none;font-weight:bold}
 </style>
@@ -71,35 +81,13 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
-<div style="padding:20px 12px 160px;">
+<div style="padding:20px 12px 260px;">
   <div class="section" id="casesSection">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="font-weight:bold">Доступные кейсы</div>
       <div class="small">Нажмите на кейс, чтобы открыть</div>
     </div>
     <div id="casesList"></div>
-  </div>
-
-  <div class="section" id="openSection">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-weight:bold">Открыть кейс</div>
-      <div class="small">Баланс: <span id="balanceSmall">1250</span> ₽</div>
-    </div>
-
-    <div id="selectedCaseBox" style="margin-top:12px;display:flex;gap:12px;align-items:center;">
-      <div id="selectedCaseInfo" style="flex:1"><div class="small">Выберите кейс слева</div></div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;">
-        <div style="margin-bottom:8px"><button id="openOnce" class="openBtn" disabled>Открыть 1</button></div>
-        <div><button id="openTen" class="openBtn" disabled>Открыть 10</button></div>
-      </div>
-    </div>
-
-    <div class="roulette" id="roulette" style="margin-top:16px;">
-      <div class="track" id="track"></div>
-      <div class="roulette-marker"></div>
-    </div>
-
-    <div id="openLog" style="margin-top:12px;font-size:13px;opacity:.9"></div>
   </div>
 
   <div class="section" id="inventorySection">
@@ -127,12 +115,10 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
       <button id="depositBtn" class="smallBtn">Пополнить (демо)</button>
       <button id="withdrawBtn" class="smallBtn">Вывести</button>
     </div>
-
     <div style="width:100%;margin-top:8px;border-top:1px solid #222;padding-top:10px">
       <div class="label">RTP и тонкая настройка отключены в демо-режиме.</div>
       <div class="rtpInfo">В рабочей версии RTP настраивается администратором; в демо управление скрыто.</div>
     </div>
-
     <button id="closeBank" style="background:#111827;color:#fff;border-radius:10px;padding:8px 16px;border:none;cursor:pointer;margin-top:12px">Закрыть</button>
   </div>
 </div>
@@ -157,27 +143,41 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
-<script>
-/*
-  Изменения в этой сборке:
-  - Пополнение: кнопка демонстрационная, не изменяет баланс (пользователь просит "пока не работает").
-  - RTP по умолчанию снижен (house edge выше) — в демо значение 0.70, но управление скрыто.
-  - Цены предметов снижены в разумных пределах.
-  - В кейсах предметы уникальны (никаких повторов между кейсами).
-  - Бонус: 10 ₽ в день; антиабуз — можно получить один раз в сутки (localStorage хранит дату).
-  - Реферальная строка внизу с ботом @casehunters_bot.
-  - Убраны отображения RTP/EV возле кейсов и в банке.
-  - Картинки: если файл недоступен, показывается SVG-заглушка с названием.
-*/
+<!-- Upgrade panel fixed at bottom -->
+<div id="upgradePanel" aria-hidden="false">
+  <div class="panel-inner">
+    <div class="left">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div id="upgradeSelectedPreview" style="width:64px;height:64px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1">—</div>
+        <div>
+          <div id="upgradeSelectedName" style="font-weight:bold">Выберите предмет для апгрейда</div>
+          <div class="small" id="upgradeSelectedPrice">—</div>
+        </div>
+      </div>
+    </div>
 
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="upgrade-wheel" id="upgradeWheelSmall">
+        <div class="pointer"></div>
+        <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div style="display:flex;gap:8px">
+          <button id="upgrade2xBtn" class="spin-btn">Попытка 2x</button>
+          <button id="upgrade3xBtn" class="spin-btn">Попытка 3x</button>
+        </div>
+        <div id="upgradeResultSmall" class="small" style="min-width:220px;text-align:right"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
 /* --- Конфигурация изображений --- */
 const IMAGE_BASE = '/assets/cs/'; // замените на ваш CDN/путь с легальными изображениями
+function imgPath(name){ return IMAGE_BASE + name; }
 
-function imgPath(name){
-  return IMAGE_BASE + name;
-}
-
-/* --- Кейсы с уникальными предметами и пониженной ценой --- */
+/* --- Кейсы с уникальными предметами, добавлен кейс с перчатками (gloves) --- */
 const BASE_CASES = [
   { id:'case0', name:'Starter Case', price:50, imgBadge:true, baseItems:[
     { id:'s1', name:'P250 | Sand Dune', price:35, img: imgPath('p250_sanddune.png'), baseChance:60 },
@@ -203,6 +203,12 @@ const BASE_CASES = [
     { id:'l1', name:'AWP | Medusa', price:60000, img: imgPath('awp_medusa.png'), baseChance:5 },
     { id:'l2', name:'AK-47 | Fire Serpent (StatTrak)', price:25000, img: imgPath('ak_serpent_st.png'), baseChance:25 },
     { id:'l3', name:'M4A4 | Howl (StatTrak)', price:12000, img: imgPath('m4_howl_st.png'), baseChance:70 }
+  ]},
+  // новый кейс с перчатками, цена кейса 300
+  { id:'gloveCase', name:'Glove Case', price:300, imgBadge:true, baseItems:[
+    { id:'gl1', name:'Sport Gloves | Pandora\'s Box', price:12000, img: imgPath('gloves_pandora.png'), baseChance:40 },
+    { id:'gl2', name:'Driver Gloves | King Snake', price:25000, img: imgPath('gloves_kingsnake.png'), baseChance:35 },
+    { id:'gl3', name:'Specialist Gloves | Crimson Kimono', price:45000, img: imgPath('gloves_crimson.png'), baseChance:25 }
   ]}
 ];
 
@@ -215,10 +221,9 @@ const WORK_CASES = BASE_CASES.map(c => {
 /* --- Состояние --- */
 let state = {
   balance: 1250,
-  selectedCase: null,
+  selectedCaseId: null,
   inventory: [],
-  // бонус: хранится дата последнего получения в localStorage 'lastBonusDate' в формате YYYY-MM-DD
-  currentRtp: 0.70 // пониженный RTP (house edge выше) — управление скрыто в демо
+  currentRtp: 0.70
 };
 
 /* --- DOM --- */
@@ -228,8 +233,6 @@ const casesListEl = document.getElementById('casesList');
 const selectedCaseInfoEl = document.getElementById('selectedCaseInfo');
 const openOnceBtn = document.getElementById('openOnce');
 const openTenBtn = document.getElementById('openTen');
-const rouletteTrack = document.getElementById('track');
-const rouletteEl = document.getElementById('roulette');
 const openLogEl = document.getElementById('openLog');
 const inventoryListEl = document.getElementById('inventoryList');
 const bankBtn = document.getElementById('bankBtn');
@@ -247,7 +250,16 @@ const closeModal = document.getElementById('closeModal');
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusMsg = document.getElementById('bonusMsg');
 
-/* --- Утилиты --- */
+/* Upgrade panel elements */
+const upgradeSelectedPreview = document.getElementById('upgradeSelectedPreview');
+const upgradeSelectedName = document.getElementById('upgradeSelectedName');
+const upgradeSelectedPrice = document.getElementById('upgradeSelectedPrice');
+const upgrade2xBtn = document.getElementById('upgrade2xBtn');
+const upgrade3xBtn = document.getElementById('upgrade3xBtn');
+const upgradeResultSmall = document.getElementById('upgradeResultSmall');
+const upgradeInnerSmall = document.getElementById('upgradeInnerSmall');
+
+/* --- Utilities --- */
 function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
 function updateBalanceUI(){ balanceEl.textContent = state.balance; balanceSmallEl.textContent = state.balance; }
 
@@ -264,17 +276,12 @@ function placeholderDataUrl(name){
   </svg>`;
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
-
-/* --- Безопасная установка src для <img> с fallback --- */
 function safeSetImg(imgEl, src, name){
   imgEl.src = src;
-  imgEl.onerror = function(){
-    imgEl.onerror = null;
-    imgEl.src = placeholderDataUrl(name);
-  };
+  imgEl.onerror = function(){ imgEl.onerror = null; imgEl.src = placeholderDataUrl(name); };
 }
 
-/* --- Рендер кейсов (без RTP/EV рядом) --- */
+/* --- Render cases: each case contains its own roulette block --- */
 function renderCases(){
   casesListEl.innerHTML = '';
   WORK_CASES.forEach(c => {
@@ -291,41 +298,73 @@ function renderCases(){
     const right = document.createElement('div'); right.style.display='flex'; right.style.flexDirection='column'; right.style.alignItems='flex-end';
     right.innerHTML = `<div class="small">Предметов: ${c.items.length}</div><div style="margin-top:6px"><button class="smallBtn" data-open="${c.id}">Открыть</button></div>`;
 
-    el.appendChild(left); el.appendChild(right);
+    // roulette container inside the case
+    const rouletteWrap = document.createElement('div');
+    rouletteWrap.className = 'roulette';
+    rouletteWrap.style.marginTop = '12px';
+    rouletteWrap.style.display = 'none'; // hidden until case selected/opened
+    const track = document.createElement('div'); track.className = 'track';
+    rouletteWrap.appendChild(track);
 
-    el.addEventListener('click', (e)=>{ if(e.target && e.target.dataset && e.target.dataset.open) return; selectCase(c.id); });
+    el.appendChild(left);
+    // place roulette below left/meta inside a column layout
+    const centerCol = document.createElement('div');
+    centerCol.style.flex = '1';
+    centerCol.style.display = 'flex';
+    centerCol.style.flexDirection = 'column';
+    centerCol.appendChild(meta.cloneNode(true));
+    centerCol.appendChild(rouletteWrap);
+
+    // assemble final layout: left + centerCol + right
+    el.innerHTML = ''; // clear
+    el.appendChild(left);
+    el.appendChild(centerCol);
+    el.appendChild(right);
+
+    // prepare roulette content for this case
+    prepareRouletteForCase(c, track);
+
+    // click handlers
+    el.addEventListener('click', (e)=>{
+      if(e.target && e.target.dataset && e.target.dataset.open) return;
+      toggleCaseRoulette(c.id);
+    });
     const openBtn = el.querySelector('button[data-open]');
-    openBtn.addEventListener('click',(ev)=>{ ev.stopPropagation(); selectCase(c.id); openCase(1); });
+    openBtn.addEventListener('click',(ev)=>{
+      ev.stopPropagation();
+      // show roulette and open once
+      showCaseRoulette(c.id);
+      openCaseInContainer(c.id, track);
+    });
 
     casesListEl.appendChild(el);
   });
 }
 
-/* --- Выбор кейса --- */
-function selectCase(caseId){
-  const c = WORK_CASES.find(x=>x.id===caseId);
-  state.selectedCase = c;
-  document.querySelectorAll('.case').forEach(el=> el.classList.toggle('selected', el.dataset.id === caseId));
-  selectedCaseInfoEl.innerHTML = `
-    <div style="display:flex;gap:12px;align-items:center">
-      <div class="case-badge" style="width:64px;height:64px"><div class="label">КЕЙС</div></div>
-      <div>
-        <div style="font-weight:bold">${c.name}</div>
-        <div class="small">Цена открытия: ${c.price} ₽</div>
-        <div class="small">Предметов: ${c.items.length}</div>
-      </div>
-    </div>
-  `;
-  openOnceBtn.disabled = false;
-  openTenBtn.disabled = false;
-  prepareRoulette(c);
+/* --- Show/hide roulette for a case --- */
+function toggleCaseRoulette(caseId){
+  const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
+  if(!caseEl) return;
+  const roulette = caseEl.querySelector('.roulette');
+  if(!roulette) return;
+  // hide other cases' roulettes
+  document.querySelectorAll('.case .roulette').forEach(r => { if(r !== roulette) r.style.display = 'none'; });
+  roulette.style.display = (roulette.style.display === 'none' || roulette.style.display === '') ? 'block' : 'none';
+}
+function showCaseRoulette(caseId){
+  const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
+  if(!caseEl) return;
+  const roulette = caseEl.querySelector('.roulette');
+  if(!roulette) return;
+  document.querySelectorAll('.case .roulette').forEach(r => { if(r !== roulette) r.style.display = 'none'; });
+  roulette.style.display = 'block';
 }
 
-/* --- Подготовка линейной рулетки --- */
-function prepareRoulette(c){
-  rouletteTrack.innerHTML = '';
+/* --- Prepare roulette items for a specific case into provided track element --- */
+function prepareRouletteForCase(caseObj, trackEl){
+  trackEl.innerHTML = '';
   const items = [];
-  for(let i=0;i<30;i++) c.items.forEach(it => items.push(it));
+  for(let i=0;i<30;i++) caseObj.items.forEach(it => items.push(it));
   items.forEach(it=>{
     const el = document.createElement('div'); el.className = 'roulette-item';
     const img = document.createElement('img'); img.className='weapon-img';
@@ -334,36 +373,30 @@ function prepareRoulette(c){
     const name = document.createElement('div'); name.style.fontSize='11px'; name.style.marginTop='4px'; name.textContent = it.name;
     const price = document.createElement('div'); price.className='small'; price.textContent = it.price + ' ₽';
     el.appendChild(name); el.appendChild(price);
-    rouletteTrack.appendChild(el);
+    trackEl.appendChild(el);
   });
-  rouletteTrack.style.transform = 'translateX(0)';
+  trackEl.style.transform = 'translateX(0)';
 }
 
-/* --- Открытие кейса --- */
-function openCase(count=1){
-  if(!state.selectedCase) return;
-  const totalCost = state.selectedCase.price * count;
+/* --- Open case: animate roulette inside that case's track --- */
+function openCaseInContainer(caseId, trackEl){
+  const c = WORK_CASES.find(x=>x.id===caseId);
+  if(!c) return;
+  const totalCost = c.price;
   if(state.balance < totalCost){ showModal(`Недостаточно средств. Нужно ${totalCost} ₽`, false); return; }
   state.balance -= totalCost; updateBalanceUI();
 
-  const results = [];
-  let seq = Promise.resolve();
-  for(let i=0;i<count;i++){
-    seq = seq.then(()=> new Promise(res=>{
-      const win = pickRandomItem(state.selectedCase.items);
-      results.push(win);
-      animateRouletteTo(win).then(()=> {
-        const inv = { uid: uid('it'), id: win.id, name: win.name, price: win.price, img: win.img, upgraded: null };
-        state.inventory.push(inv);
-        showWin(inv);
-        res();
-      });
-    }));
-  }
-  seq.then(()=>{ renderInventory(); logOpen(results); });
+  const win = pickRandomItem(c.items);
+  animateRouletteToInTrack(win, trackEl).then(()=> {
+    const inv = { uid: uid('it'), id: win.id, name: win.name, price: win.price, img: win.img, upgraded: null };
+    state.inventory.push(inv);
+    showWin(inv);
+    renderInventory();
+    logOpen([win]);
+  });
 }
 
-/* --- Выбор предмета по шансам --- */
+/* --- pickRandomItem --- */
 function pickRandomItem(items){
   const total = items.reduce((s,it)=>s + (it.chance || 1),0);
   let r = Math.random()*total;
@@ -374,25 +407,25 @@ function pickRandomItem(items){
   return JSON.parse(JSON.stringify(items[items.length-1]));
 }
 
-/* --- Анимация линейной рулетки --- */
-function animateRouletteTo(item){
+/* --- animateRouletteToInTrack --- */
+function animateRouletteToInTrack(item, trackEl){
   return new Promise(res=>{
-    const nodes = Array.from(rouletteTrack.children);
+    const nodes = Array.from(trackEl.children);
     let targetIndex = nodes.findIndex(n => n.textContent.includes(item.name));
     if(targetIndex === -1) targetIndex = Math.floor(nodes.length/2);
     const itemWidth = nodes[0].offsetWidth || 90;
-    const visibleWidth = rouletteEl.offsetWidth || 300;
+    const visibleWidth = trackEl.parentElement.offsetWidth || 300;
     const centerOffset = Math.floor(visibleWidth/2);
     const targetCenter = targetIndex * itemWidth + itemWidth/2;
     const translateX = centerOffset - targetCenter;
     const duration = 1600 + Math.random()*800;
-    rouletteTrack.style.transition = `transform ${duration}ms cubic-bezier(.2,.9,.2,1)`;
-    requestAnimationFrame(()=> rouletteTrack.style.transform = `translateX(${translateX}px)`);
-    setTimeout(()=>{ rouletteTrack.style.transition = ''; res(); }, duration + 50);
+    trackEl.style.transition = `transform ${duration}ms cubic-bezier(.2,.9,.2,1)`;
+    requestAnimationFrame(()=> trackEl.style.transform = `translateX(${translateX}px)`);
+    setTimeout(()=>{ trackEl.style.transition = ''; res(); }, duration + 50);
   });
 }
 
-/* --- Показ результата --- */
+/* --- showWin --- */
 function showWin(inv){
   safeSetImg(winImg, inv.img, inv.name);
   winTitle.textContent = inv.name;
@@ -402,13 +435,13 @@ function showWin(inv){
   setTimeout(()=> { winResultBox.style.display = 'none'; }, 2500);
 }
 
-/* --- Лог открытия --- */
+/* --- logOpen --- */
 function logOpen(results){
   const lines = results.map(r=>`Вы получили: <b>${r.name}</b> — ${r.price} ₽`).join('<br>');
   openLogEl.innerHTML = lines;
 }
 
-/* --- Рендер инвентаря (с апгрейдом) --- */
+/* --- Inventory render with upgrade button that opens bottom panel --- */
 function renderInventory(){
   inventoryListEl.innerHTML = '';
   if(state.inventory.length === 0){ inventoryListEl.innerHTML = '<div class="small">Пусто</div>'; return; }
@@ -432,7 +465,7 @@ function renderInventory(){
     });
 
     const upgBtn = document.createElement('button'); upgBtn.className='smallBtn'; upgBtn.style.marginTop='8px'; upgBtn.textContent='Апгрейд';
-    upgBtn.addEventListener('click', ()=> openUpgradeModal(it));
+    upgBtn.addEventListener('click', ()=> openUpgradePanelForItem(it));
 
     right.appendChild(sellBtn); right.appendChild(upgBtn);
 
@@ -441,161 +474,123 @@ function renderInventory(){
   });
 }
 
-/* --- Модал апгрейда (как раньше) --- */
-function openUpgradeModal(item){
-  const modalContent = document.getElementById('modalContent');
-  modalContent.innerHTML = '';
-  const title = document.createElement('div'); title.style.fontWeight='700'; title.style.marginBottom='8px'; title.textContent = `Апгрейд: ${item.name}`;
-  modalContent.appendChild(title);
-
-  const wheelWrap = document.createElement('div'); wheelWrap.style.textAlign='center';
-  const wheel = document.createElement('div'); wheel.className='upgrade-wheel'; wheel.id='upgradeWheel';
-  const pointer = document.createElement('div'); pointer.className='pointer';
-  const inner = document.createElement('div'); inner.className='inner';
-  inner.innerHTML = `<div style="font-weight:bold">${item.name}</div><div class="small">Цена: ${item.price} ₽</div>`;
-  wheel.appendChild(pointer); wheel.appendChild(inner);
-  wheelWrap.appendChild(wheel);
-
-  const controls = document.createElement('div'); controls.style.marginTop='12px'; controls.style.display='flex'; controls.style.justifyContent='center'; controls.style.gap='12px';
-  const spin2 = document.createElement('button'); spin2.className='spin-btn'; spin2.textContent='Попытка 2x';
-  const spin3 = document.createElement('button'); spin3.className='spin-btn'; spin3.textContent='Попытка 3x';
-  controls.appendChild(spin2); controls.appendChild(spin3);
-
-  const info = document.createElement('div'); info.className='upgrade-result'; info.style.marginTop='10px';
-  modalContent.appendChild(wheelWrap); modalContent.appendChild(controls); modalContent.appendChild(info);
-
-  const cost2 = Math.max(100, Math.round(item.price * 0.18));
-  const cost3 = Math.max(200, Math.round(item.price * 0.35));
-  const prob2 = 0.60;
-  const prob3 = 0.30;
-
-  let spinning = false;
-  function spinWheel(multiplier){
-    if(spinning) return;
-    const cost = multiplier === 2 ? cost2 : cost3;
-    if(state.balance < cost){ showModal('Недостаточно средств для попытки', false); return; }
-    state.balance -= cost; updateBalanceUI();
-    spinning = true;
-    info.textContent = 'Крутим...';
-    const success = Math.random() < (multiplier === 2 ? prob2 : prob3);
-    const baseSpins = 4 + Math.floor(Math.random()*3);
-    let finalAngle;
-    if(success){
-      finalAngle = 360 * baseSpins + (Math.random()*50 + 5);
-    } else {
-      finalAngle = 360 * baseSpins + (Math.random()*180 + 120);
-    }
-    wheel.style.transition = 'transform 2200ms cubic-bezier(.2,.9,.2,1)';
-    wheel.style.transform = `rotate(${finalAngle}deg)`;
-    setTimeout(()=>{
-      wheel.style.transition = '';
-      wheel.style.transform = `rotate(${finalAngle % 360}deg)`;
-      spinning = false;
-      if(success){
-        item.price = Math.round(item.price * multiplier);
-        item.upgraded = item.upgraded || { times:0, multiplier:1 };
-        item.upgraded.times += 1;
-        item.upgraded.multiplier *= multiplier;
-        info.textContent = `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${item.price} ₽`;
-      } else {
-        info.textContent = `Неудача. Попробуйте снова или продайте предмет.`;
-      }
-      renderInventory();
-    }, 2300);
-  }
-
-  spin2.addEventListener('click', ()=> spinWheel(2));
-  spin3.addEventListener('click', ()=> spinWheel(3));
-
-  winResultBox.style.display = 'none';
-  overlay.style.display = 'flex';
+/* --- Upgrade panel logic (bottom) --- */
+let upgradeSelectedItem = null;
+function openUpgradePanelForItem(item){
+  upgradeSelectedItem = item;
+  // preview
+  upgradeSelectedPreview.innerHTML = '';
+  const img = document.createElement('img'); img.style.width='64px'; img.style.height='64px'; img.style.borderRadius='8px';
+  safeSetImg(img, item.img, item.name);
+  upgradeSelectedPreview.appendChild(img);
+  upgradeSelectedName.textContent = item.name;
+  upgradeSelectedPrice.textContent = `${item.price} ₽`;
+  upgradeResultSmall.textContent = '';
+  upgradeInnerSmall.textContent = 'Апгрейд';
+  // scroll to bottom so user sees panel (mobile)
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
-/* --- События UI: банк, депозит (демо), вывод --- */
+/* --- Upgrade spin handlers (use same logic as modal) --- */
+function performUpgrade(multiplier){
+  if(!upgradeSelectedItem) { upgradeResultSmall.textContent = 'Выберите предмет в инвентаре'; return; }
+  const cost = multiplier === 2 ? Math.max(100, Math.round(upgradeSelectedItem.price * 0.18)) : Math.max(200, Math.round(upgradeSelectedItem.price * 0.35));
+  if(state.balance < cost){ upgradeResultSmall.textContent = 'Недостаточно средств для попытки'; return; }
+  state.balance -= cost; updateBalanceUI();
+  upgradeResultSmall.textContent = 'Крутим...';
+  const prob = multiplier === 2 ? 0.60 : 0.30;
+  const success = Math.random() < prob;
+  const wheel = document.getElementById('upgradeWheelSmall');
+  const baseSpins = 3 + Math.floor(Math.random()*3);
+  let finalAngle;
+  if(success) finalAngle = 360 * baseSpins + (Math.random()*50 + 5);
+  else finalAngle = 360 * baseSpins + (Math.random()*180 + 120);
+  wheel.style.transition = 'transform 2000ms cubic-bezier(.2,.9,.2,1)';
+  wheel.style.transform = `rotate(${finalAngle}deg)`;
+  setTimeout(()=> {
+    wheel.style.transition = '';
+    wheel.style.transform = `rotate(${finalAngle % 360}deg)`;
+    if(success){
+      upgradeSelectedItem.price = Math.round(upgradeSelectedItem.price * multiplier);
+      upgradeSelectedItem.upgraded = upgradeSelectedItem.upgraded || { times:0, multiplier:1 };
+      upgradeSelectedItem.upgraded.times += 1;
+      upgradeSelectedItem.upgraded.multiplier *= multiplier;
+      upgradeResultSmall.textContent = `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${upgradeSelectedItem.price} ₽`;
+      upgradeSelectedPrice.textContent = `${upgradeSelectedItem.price} ₽`;
+    } else {
+      upgradeResultSmall.textContent = 'Неудача. Попробуйте снова или продайте предмет.';
+    }
+    renderInventory();
+  }, 2050);
+}
+upgrade2xBtn.addEventListener('click', ()=> performUpgrade(2));
+upgrade3xBtn.addEventListener('click', ()=> performUpgrade(3));
+
+/* --- Bank / demo deposit/withdraw --- */
 bankBtn.addEventListener('click', ()=> bankOverlay.style.display = 'flex');
 closeBank.addEventListener('click', ()=> bankOverlay.style.display = 'none');
-
 depositBtn.addEventListener('click', ()=> {
-  // Демонстрационная кнопка: не изменяет баланс, показывает сообщение
   showModal('Демо: пополнение временно отключено. В рабочей версии минимальный депозит — 100 ₽.', false);
 });
-
 withdrawBtn.addEventListener('click', ()=> {
   const val = Number(amountInput.value) || 0;
   if(val < 500) return showModal('Минимальная сумма вывода — 500 ₽', false);
   if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
-  // В демо позволим выводить (симуляция)
   state.balance -= val; updateBalanceUI(); bankOverlay.style.display = 'none'; showModal(`Выведено ${val} ₽ (демо)`, false);
 });
 
-/* --- Кнопки открытия --- */
-openOnceBtn.addEventListener('click', ()=> openCase(1));
-openTenBtn.addEventListener('click', ()=> openCase(10));
-closeModal.addEventListener('click', ()=> overlay.style.display = 'none');
-
-/* --- Бонус: 10 ₽ в день, антиабуз по дате --- */
-function todayKey(){
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
+/* --- Bonus 10 ₽ per day (anti-abuse by date) --- */
+function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 bonusBtn.addEventListener('click', ()=>{
   const last = localStorage.getItem('lastBonusDate');
   const today = todayKey();
-  if(last === today){
-    bonusMsg.textContent = 'Бонус уже получен сегодня';
-    setTimeout(()=> bonusMsg.textContent = '', 2500);
-    return;
-  }
-  // выдаём 10 ₽
-  state.balance += 10;
-  updateBalanceUI();
-  localStorage.setItem('lastBonusDate', today);
-  bonusMsg.textContent = 'Бонус 10 ₽ за сегодня зачислен';
-  setTimeout(()=> bonusMsg.textContent = '', 3000);
+  if(last === today){ bonusMsg.textContent = 'Бонус уже получен сегодня'; setTimeout(()=> bonusMsg.textContent = '', 2500); return; }
+  state.balance += 10; updateBalanceUI(); localStorage.setItem('lastBonusDate', today);
+  bonusMsg.textContent = 'Бонус 10 ₽ за сегодня зачислен'; setTimeout(()=> bonusMsg.textContent = '', 3000);
 });
 
-/* --- Инициализация --- */
-function init(){
-  renderCases(); updateBalanceUI(); renderInventory();
-  // применяем внутренний RTP (скрыто) — корректируем шансы, но не показываем их
-  applyHiddenRtp(state.currentRtp);
-  try { if(window.TelegramWebApp && window.TelegramWebApp.MainButton) window.TelegramWebApp.MainButton.hide(); } catch(e){}
-}
-init();
-
-/* --- Вспомогательные: скрытая корректировка шансов (RTP) --- */
-function applyHiddenRtp(targetRtp){
-  // упрощённый подход: уменьшаем шансы дорогих предметов, чтобы EV < price
-  WORK_CASES.forEach(c => {
-    const items = c.items;
-    const avgPrice = items.reduce((s,i)=>s+i.price,0)/items.length;
-    const baseChances = items.map(i => i.baseChance || 1);
-    // простая линейная корректировка: чем дороже предмет относительно среднего, тем меньше его вес
-    const factor = Math.max(0.2, targetRtp); // не ниже 0.2
-    const newChances = items.map((it, idx) => {
-      const rel = it.price / avgPrice;
-      // дорогие items получают меньший вес
-      const val = baseChances[idx] * (1 / (1 + (rel - 1) * (1.2 - factor)));
-      return Math.max(val, 0.01);
-    });
-    const total = newChances.reduce((s,v)=>s+v,0);
-    items.forEach((it, idx) => it.chance = newChances[idx]);
-  });
-}
-
-/* --- Модалки и утилиты --- */
+/* --- Helper: showModal --- */
 function showModal(text, showWinBox=true){
   document.getElementById('modalContent').innerHTML = text;
   if(showWinBox) winResultBox.style.display = 'none';
   overlay.style.display = 'flex';
 }
 overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.style.display = 'none'; });
+closeModal.addEventListener('click', ()=> overlay.style.display = 'none');
 
-/* --- Клавиши для тестирования --- */
+/* --- Init: apply hidden RTP adjustments (keeps house edge) and render --- */
+function applyHiddenRtp(targetRtp){
+  WORK_CASES.forEach(c => {
+    const items = c.items;
+    const avgPrice = items.reduce((s,i)=>s+i.price,0)/items.length;
+    const baseChances = items.map(i => i.baseChance || 1);
+    const factor = Math.max(0.2, targetRtp);
+    const newChances = items.map((it, idx) => {
+      const rel = it.price / avgPrice;
+      const val = baseChances[idx] * (1 / (1 + (rel - 1) * (1.2 - factor)));
+      return Math.max(val, 0.01);
+    });
+    items.forEach((it, idx) => it.chance = newChances[idx]);
+  });
+}
+
+function init(){
+  applyHiddenRtp(state.currentRtp);
+  renderCases();
+  updateBalanceUI();
+  renderInventory();
+  try { if(window.TelegramWebApp && window.TelegramWebApp.MainButton) window.TelegramWebApp.MainButton.hide(); } catch(e){}
+}
+init();
+
+/* --- Keyboard shortcuts for testing --- */
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'b') bonusBtn.click();
-  if(e.key === 'o' && !openOnceBtn.disabled) openOnceBtn.click();
-  if(e.key === '1') selectCase(WORK_CASES[0].id);
+  if(e.key === 'o') {
+    // open first visible case's roulette and open once
+    const firstOpenBtn = document.querySelector('.case button[data-open]');
+    if(firstOpenBtn) firstOpenBtn.click();
+  }
 });
 </script>
 </body>
