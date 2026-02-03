@@ -1,146 +1,102 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Case Hunters</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="utf-8" />
+<title>Case Hunters — CS:GO Style</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 <style>
-/* Общие стили */
-body{margin:0;font-family:Arial;background:#0b0f14;color:#fff;padding-top:180px;}
-#dailyBonusBox{
-  position:fixed; top:0;left:0;right:0;
-  display:flex; justify-content:center; align-items:center;
-  background:rgba(20,20,24,0.96); padding:10px 0 8px 0; z-index:5;
-  gap: 15px; flex-direction:column; box-shadow:0 6px 28px rgba(0,0,0,.25); max-height:70px;
+/* --- Базовые стили --- */
+:root{
+  --bg:#0b0f14;
+  --card:#111827;
+  --accent:#facc15;
+  --muted:#9ca3af;
+  --green:#10b981;
 }
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue";background:var(--bg);color:#fff;padding-top:180px}
+#dailyBonusBox{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:center;background:rgba(20,20,24,0.96);padding:10px 0 8px 0;z-index:5;gap:15px;flex-direction:column;box-shadow:0 6px 28px rgba(0,0,0,.25);max-height:70px}
 #topBar{position:fixed;top:70px;left:0;right:0;background:#020617;padding:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:20}
-#logo{font-family:'Russo One',sans-serif;font-size:22px;color:#facc15}
-#balanceBox{padding:8px 14px;border-radius:14px; background:linear-gradient(135deg,#facc15,#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
-#bankBtn{background:#eab308;color:#020617;font-size:26px; border:none;padding:8px 15px;border-radius:13px;margin-left:12px;cursor:pointer;box-shadow:0 0 8px #000a;}
-#bankOverlay{display:none;position:fixed;inset:0;z-index:40;justify-content:flex-end;align-items:flex-start;}
-#bankModal{margin:110px 30px 0 0;background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;}
-#bankOverlay.show{display:flex;}
-#bankModal button{background:#facc15;color:#2b230b;border:none;border-radius:10px;padding:10px 26px;font-size:18px;margin:8px 0;font-weight:bold;}
-.section{background:#111827;border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,560px)}
-.case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937; border-radius:12px;padding:10px;margin:8px 0;cursor:pointer;}
+#logo{font-family:'Russo One',sans-serif;font-size:22px;color:var(--accent)}
+#balanceBox{padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
+.small{font-size:12px;opacity:.85;color:#d1d5db}
+.section{background:var(--card);border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,760px)}
+.case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
 .case:hover{background:#374151}
-.case img,.item img{width:52px;height:52px;object-fit:cover;border-radius:8px;box-shadow:0 0 6px #0008}
-.small{font-size:12px;opacity:.7}
-.selected{outline:2px solid #facc15}
-.upgrade-candidate{outline:3px solid #38bdf8;}
-.roulette{overflow:hidden;position:relative;border:2px solid #facc15;border-radius:14px;height:100px;margin:13px 0;}
-.track{display:flex;transform:translateX(0);will-change:transform;}
-.roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px}
-.roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;box-shadow:0 0 7px #000b;}
-.roulette-marker{ position:absolute;top:0;bottom:0;left:50%;width:0; border-left:5px solid #facc15; z-index:9; pointer-events:none; filter:drop-shadow(0 0 8px #facc15) drop-shadow(0 0 8px #facc151a); }
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:90}
-#modal{background:#020617;border-radius:18px;padding:16px 0 14px 0;width:min(95vw,520px)}
-#winResultBox{ margin-top:20px; padding:20px; background:#1a3a3a; border-radius:14px; border:2px solid #facc15; text-align:center; display:none; animation:winPulse 0.6s ease-in-out; }
-@keyframes winPulse{ 0%{transform:scale(0.8);opacity:0;} 50%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
-#winResultBox img{width:80px;height:80px;border-radius:10px;margin:0 auto 10px;box-shadow:0 0 20px #facc15;}
-#winResultBox .winTitle{font-size:20px;font-weight:bold;color:#facc15;margin-bottom:5px;}
-#winResultBox .winPrice{font-size:16px;color:#4ecdc4;}
-.openBtn{background:#10b981;border:none;padding:12px 18px;border-radius:12px;color:#fff;font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 6px 18px rgba(16,185,129,.12)}
-.openBtn:disabled{opacity:.5;cursor:not-allowed}
-.footerNote{font-size:12px;color:#9ca3af;text-align:center;margin:18px 0}
-input[type="number"]{padding:8px;border-radius:8px;border:none;background:#0b1220;color:#fff;width:120px;text-align:center}
+.case .left, .item .left{display:flex;gap:12px;align-items:center}
+.case .meta, .item .meta{display:flex;flex-direction:column}
+.case .meta .title, .item .meta .title{font-weight:bold}
+.case .meta .sub, .item .meta .sub{font-size:12px;color:var(--muted)}
 .smallBtn{background:#111827;border:1px solid #2b3440;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-.hidden{display:none}
-.label{font-size:13px;color:#cbd5e1;margin-bottom:6px}
+.openBtn{background:var(--green);border:none;padding:12px 18px;border-radius:12px;color:#fff;font-weight:bold;font-size:16px;cursor:pointer}
+.openBtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* --- Изображения оружия --- */
+.weapon-img{width:64px;height:64px;border-radius:8px;object-fit:cover;box-shadow:0 0 8px #0008;background:#0b0f14;display:block}
+
+/* --- Стиль для "кейса" (жёлтый, с надписью) --- */
+.case-badge{
+  width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#facc15,#eab308);color:#0b0f14;font-weight:900;font-family:'Russo One',sans-serif;
+  box-shadow:0 6px 18px rgba(250,204,21,.18);font-size:14px;letter-spacing:1px;
+  position:relative;
+}
+.case-badge .label{transform:translateY(1px);}
+
+/* --- Рулетка (линейная) --- */
+.roulette{overflow:hidden;position:relative;border:2px solid var(--accent);border-radius:14px;height:100px;margin:13px 0;background:linear-gradient(180deg,#071018, #071018)}
+.track{display:flex;transform:translateX(0);will-change:transform}
+.roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px;padding:6px}
+.roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;box-shadow:0 0 7px #000b}
+
+/* --- Модалки --- */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:90}
+#modal{background:#020617;border-radius:18px;padding:16px 0 14px 0;width:min(95vw,720px)}
+#winResultBox{margin-top:20px;padding:20px;background:#1a3a3a;border-radius:14px;border:2px solid var(--accent);text-align:center;display:none;animation:winPulse 0.6s ease-in-out}
+@keyframes winPulse{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+#winResultBox img{width:80px;height:80px;border-radius:10px;margin:0 auto 10px;box-shadow:0 0 20px var(--accent)}
+#winResultBox .winTitle{font-size:20px;font-weight:bold;color:var(--accent);margin-bottom:5px}
+#winResultBox .winPrice{font-size:16px;color:#4ecdc4}
+
+/* --- Круглая рулетка для апгрейда --- */
+.upgrade-wheel{
+  width:320px;height:320px;border-radius:50%;position:relative;margin:12px auto;background:conic-gradient(#0b1220 0 25%, #071018 25% 50%, #0b1220 50% 75%, #071018 75% 100%);box-shadow:0 8px 40px rgba(0,0,0,.6);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.upgrade-wheel .pointer{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:18px solid var(--accent);z-index:20}
+.upgrade-wheel .inner{width:70%;height:70%;border-radius:50%;background:rgba(2,6,11,.8);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#cbd5e1}
+.spin-btn{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:#020617;font-weight:bold;cursor:pointer}
+.upgrade-result{margin-top:10px;font-weight:bold}
+
+/* --- Прочее --- */
+.footerNote{font-size:12px;color:var(--muted);text-align:center;margin:18px 0}
 .row{display:flex;gap:8px;align-items:center}
-.rtpInfo{font-size:12px;color:#9ca3af;margin-top:6px}
+.label{font-size:13px;color:#cbd5e1;margin-bottom:6px}
+.rtpInfo{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
-
-<!-- Скрипт, который "починит" внешние картинки, подставляя прокси для загрузки.
-     Это не меняет исходные URL в коде — он динамически переписывает src у <img>,
-     а также отслеживает динамически добавляемые элементы, чтобы картинки отображались. -->
-<script>
-(function(){
-  function proxifyUrl(url){
-    if(!url) return url;
-    if(url.startsWith('data:')) return url;
-    if(url.includes('images.weserv.nl')) return url;
-    try {
-      const cleaned = url.replace(/^https?:\/\//i,'');
-      return 'https://images.weserv.nl/?url=' + encodeURIComponent(cleaned);
-    } catch(e){
-      return url;
-    }
-  }
-
-  function fixImgElement(img){
-    try {
-      const s = img.getAttribute && img.getAttribute('src');
-      if(!s) return;
-      if(s.startsWith('data:') || s.includes('images.weserv.nl')) return;
-      img.src = proxifyUrl(s);
-      img.referrerPolicy = 'no-referrer';
-      img.crossOrigin = 'anonymous';
-    } catch(e){}
-  }
-
-  function fixExistingImgs(){
-    document.querySelectorAll('img').forEach(fixImgElement);
-  }
-
-  const mo = new MutationObserver(muts=>{
-    muts.forEach(m=>{
-      m.addedNodes.forEach(node=>{
-        if(node.nodeType !== 1) return;
-        if(node.tagName === 'IMG') fixImgElement(node);
-        node.querySelectorAll && node.querySelectorAll('img').forEach(fixImgElement);
-      });
-      if(m.type === 'attributes' && m.target && m.target.tagName === 'IMG'){
-        fixImgElement(m.target);
-      }
-    });
-  });
-
-  mo.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', ()=>{ fixExistingImgs(); setTimeout(fixExistingImgs, 400); });
-  } else {
-    fixExistingImgs();
-    setTimeout(fixExistingImgs, 400);
-  }
-
-  const origInsert = Element.prototype.insertAdjacentHTML;
-  Element.prototype.insertAdjacentHTML = function(position, text){
-    const res = origInsert.call(this, position, text);
-    setTimeout(fixExistingImgs, 50);
-    return res;
-  };
-})();
-</script>
 </head>
 <body>
 <div id="dailyBonusBox">
   <button type="button" id="bonusBtn">🎁 Ежедневный бонус 100 000 ₽</button>
   <div id="bonusMsg"></div>
 </div>
+
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;align-items:center;">
     <div id="balanceBox"><span style="font-size:23px;">💵</span> <span id="balance">1250</span> ₽</div>
-    <button id="bankBtn">💼</button>
+    <button id="bankBtn" class="smallBtn" style="margin-left:12px">💼</button>
   </div>
 </div>
 
-<!-- Основной контент -->
-<div style="padding:20px 12px 80px;">
+<div style="padding:20px 12px 120px;">
   <div class="section" id="casesSection">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="font-weight:bold">Доступные кейсы</div>
       <div class="small">Нажмите на кейс, чтобы открыть</div>
     </div>
-
-    <!-- Пример кейсов (динамически заполняется JS) -->
-    <div id="casesList">
-      <!-- кейсы будут вставлены сюда -->
-    </div>
+    <div id="casesList"></div>
   </div>
 
   <div class="section" id="openSection">
@@ -150,16 +106,10 @@ input[type="number"]{padding:8px;border-radius:8px;border:none;background:#0b122
     </div>
 
     <div id="selectedCaseBox" style="margin-top:12px;display:flex;gap:12px;align-items:center;">
-      <div id="selectedCaseInfo" style="flex:1">
-        <div class="small">Выберите кейс слева</div>
-      </div>
+      <div id="selectedCaseInfo" style="flex:1"><div class="small">Выберите кейс слева</div></div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;">
-        <div style="margin-bottom:8px">
-          <button id="openOnce" class="openBtn" disabled>Открыть 1</button>
-        </div>
-        <div>
-          <button id="openTen" class="openBtn" disabled>Открыть 10</button>
-        </div>
+        <div style="margin-bottom:8px"><button id="openOnce" class="openBtn" disabled>Открыть 1</button></div>
+        <div><button id="openTen" class="openBtn" disabled>Открыть 10</button></div>
       </div>
     </div>
 
@@ -179,12 +129,12 @@ input[type="number"]{padding:8px;border-radius:8px;border:none;background:#0b122
     <div id="inventoryList" style="margin-top:12px"></div>
   </div>
 
-  <div class="footerNote">Это демо-страница. Все суммы условные.</div>
+  <div class="footerNote">Демо-страница: изображения оружия предполагаются из игры (нужны реальные файлы в папке <code>/assets/cs/</code> или внешние ссылки).</div>
 </div>
 
-<!-- Банк / пополнение -->
-<div id="bankOverlay">
-  <div id="bankModal">
+<!-- Банк / пополнение / вывод / RTP -->
+<div id="bankOverlay" style="display:none;position:fixed;inset:0;z-index:40;justify-content:flex-end;align-items:flex-start;">
+  <div id="bankModal" style="margin:110px 30px 0 0;background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;">
     <div style="font-weight:bold;font-size:18px;margin-bottom:8px">Банк</div>
     <div style="margin-bottom:10px;color:#9ca3af">Пополните баланс или выведите средства. Также можно настроить RTP (ожидаемый возврат) для кейсов.</div>
     <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
@@ -203,7 +153,7 @@ input[type="number"]{padding:8px;border-radius:8px;border:none;background:#0b122
       <div class="rtpInfo">RTP влияет на распределение шансов внутри кейсов — чем выше RTP, тем выше средний выигрыш относительно цены кейса.</div>
     </div>
 
-    <button id="closeBank" style="background:#111827;color:#fff;border-radius:10px;padding:8px 16px;border:none;cursor:pointer">Закрыть</button>
+    <button id="closeBank" style="background:#111827;color:#fff;border-radius:10px;padding:8px 16px;border:none;cursor:pointer;margin-top:12px">Закрыть</button>
   </div>
 </div>
 
@@ -215,66 +165,99 @@ input[type="number"]{padding:8px;border-radius:8px;border:none;background:#0b122
         <div style="font-weight:bold">Результат</div>
         <button id="closeModal" class="smallBtn">Закрыть</button>
       </div>
+
       <div id="winResultBox">
         <img id="winImg" src="" alt="win">
         <div class="winTitle" id="winTitle">Вы выиграли</div>
         <div class="winPrice" id="winPrice">0 ₽</div>
       </div>
+
       <div id="modalContent" style="margin-top:12px;padding:8px 6px;text-align:center;color:#cbd5e1"></div>
     </div>
   </div>
 </div>
 
+<!-- Скрипты -->
 <script>
 /*
-  Обновлённая логика:
-  - В кейсах добавлены названия оружия в стиле CS:GO (только названия, изображения — генерация через picsum).
-  - Добавлена глобальная настройка RTP: при применении RTP перераспределяются шансы внутри каждого кейса,
-    чтобы средний ожидаемый выигрыш приближался к цене * RTP.
-  - Добавлена кнопка "Вывести" рядом с "Пополнить".
-  - Остальная логика сохранена.
+  Обновлённый фронтенд:
+  - Использует реальные названия оружия (CS:GO-стиль).
+  - Для корректного отображения "реальных" картинок предполагается наличие файлов в /assets/cs/
+    или можно заменить ссылки на внешние CDN с правами использования.
+  - Кейсы теперь визуально — жёлтые бейджи с надписью "КЕЙС".
+  - Добавлены 2 новых кейса: 50 ₽ и 200 ₽.
+  - Добавлен механизм апгрейда: для каждого предмета в инвентаре есть кнопка "Апгрейд".
+    Апгрейд открывает круговую рулетку; пользователь платит небольшую комиссию и может попытаться
+    умножить цену предмета на 2x или 3x. Успех определяется вероятностями.
+  - Сохранение/бэкенд отсутствует — всё в памяти страницы.
 */
 
-/* --- Данные (демо) ---
-   Здесь заменены предметы на оружие/скины, похожие по названиям на CS:GO-стиль.
-   Изображения по-прежнему берутся с picsum (seed) — прокси-скрипт выше обеспечивает загрузку.
+/* --- Конфигурация изображений ---
+   Здесь указаны пути к изображениям оружия. Замените на реальные URL/пути к файлам игры.
+   Пример: '/assets/cs/awp_asiimov.png' или 'https://your.cdn/awp_asiimov.png'
 */
-const CASES = [
-  { id: 'case1', name: 'Dust II Case', price: 100, img: 'https://picsum.photos/seed/cs_case1/80/80', baseItems: [
-    { id:'g1', name:'AK-47 | Redline', price:120, img:'https://picsum.photos/seed/ak_redline/80/80', baseChance: 40 },
-    { id:'g2', name:'M4A1-S | Guardian', price:300, img:'https://picsum.photos/seed/m4_guardian/80/80', baseChance: 30 },
-    { id:'g3', name:'AWP | Asiimov', price:2500, img:'https://picsum.photos/seed/awp_asiimov/80/80', baseChance: 5 },
-    { id:'g4', name:'Desert Eagle | Blaze', price:800, img:'https://picsum.photos/seed/deagle_blaze/80/80', baseChance: 25 }
+const IMAGE_BASE = '/assets/cs/'; // при деплое положите реальные файлы в эту папку или замените на CDN
+
+function imgPath(name){
+  // безопасный путь: если файл не существует, прокси-скрипт/браузер покажет заглушку
+  return IMAGE_BASE + name;
+}
+
+/* --- Кейсы и предметы (названия соответствуют картинкам) --- */
+const BASE_CASES = [
+  // новый дешёвый кейс 50 ₽
+  { id:'case0', name:'Starter Case', price:50, imgBadge:true, baseItems:[
+    { id:'s1', name:'P250 | Sand Dune', price:40, img: imgPath('p250_sanddune.png'), baseChance:60 },
+    { id:'s2', name:'USP-S | Torque', price:120, img: imgPath('usp_torque.png'), baseChance:30 },
+    { id:'s3', name:'Nova | Ranger', price:400, img: imgPath('nova_ranger.png'), baseChance:10 }
   ]},
-  { id: 'case2', name: 'Inferno Case', price: 500, img: 'https://picsum.photos/seed/cs_case2/80/80', baseItems: [
-    { id:'p1', name:'AK-47 | Vulcan', price:1200, img:'https://picsum.photos/seed/ak_vulcan/80/80', baseChance: 35 },
-    { id:'p2', name:'M4A4 | Howl', price:8000, img:'https://picsum.photos/seed/m4_howl/80/80', baseChance: 10 },
-    { id:'p3', name:'AWP | Dragon Lore', price:50000, img:'https://picsum.photos/seed/awp_dlore/80/80', baseChance: 1 },
-    { id:'p4', name:'Glock-18 | Fade', price:1500, img:'https://picsum.photos/seed/glock_fade/80/80', baseChance: 54 }
+
+  // существующие кейсы (обновлены названия/картинки)
+  { id:'case1', name:'Dust II Case', price:100, imgBadge:true, baseItems:[
+    { id:'g1', name:'AK-47 | Redline', price:120, img: imgPath('ak_redline.png'), baseChance:40 },
+    { id:'g2', name:'M4A1-S | Guardian', price:300, img: imgPath('m4_guardian.png'), baseChance:30 },
+    { id:'g3', name:'AWP | Asiimov', price:2500, img: imgPath('awp_asiimov.png'), baseChance:5 },
+    { id:'g4', name:'Desert Eagle | Blaze', price:800, img: imgPath('deagle_blaze.png'), baseChance:25 }
   ]},
-  { id: 'case3', name: 'Mirage Case', price: 2000, img: 'https://picsum.photos/seed/cs_case3/80/80', baseItems: [
-    { id:'l1', name:'AK-47 | Fire Serpent', price:20000, img:'https://picsum.photos/seed/ak_serpent/80/80', baseChance: 30 },
-    { id:'l2', name:'M4A1-S | Hot Rod', price:12000, img:'https://picsum.photos/seed/m4_hotrod/80/80', baseChance: 50 },
-    { id:'l3', name:'AWP | Medusa', price:90000, img:'https://picsum.photos/seed/awp_medusa/80/80', baseChance: 20 }
+
+  // новый кейс 200 ₽
+  { id:'case1b', name:'Classic Case', price:200, imgBadge:true, baseItems:[
+    { id:'c1', name:'AK-47 | Vulcan', price:1200, img: imgPath('ak_vulcan.png'), baseChance:45 },
+    { id:'c2', name:'M4A4 | Howl', price:8000, img: imgPath('m4_howl.png'), baseChance:10 },
+    { id:'c3', name:'AWP | Asiimov (StatTrak)', price:3000, img: imgPath('awp_asiimov_st.png'), baseChance:5 },
+    { id:'c4', name:'Glock-18 | Fade', price:1500, img: imgPath('glock_fade.png'), baseChance:40 }
+  ]},
+
+  { id:'case2', name:'Inferno Case', price:500, imgBadge:true, baseItems:[
+    { id:'p1', name:'AK-47 | Vulcan', price:1200, img: imgPath('ak_vulcan.png'), baseChance:35 },
+    { id:'p2', name:'M4A4 | Howl', price:8000, img: imgPath('m4_howl.png'), baseChance:10 },
+    { id:'p3', name:'AWP | Dragon Lore', price:50000, img: imgPath('awp_dragonlore.png'), baseChance:1 },
+    { id:'p4', name:'Glock-18 | Fade', price:1500, img: imgPath('glock_fade.png'), baseChance:54 }
+  ]},
+
+  { id:'case3', name:'Mirage Case', price:2000, imgBadge:true, baseItems:[
+    { id:'l1', name:'AK-47 | Fire Serpent', price:20000, img: imgPath('ak_serpent.png'), baseChance:30 },
+    { id:'l2', name:'M4A1-S | Hot Rod', price:12000, img: imgPath('m4_hotrod.png'), baseChance:50 },
+    { id:'l3', name:'AWP | Medusa', price:90000, img: imgPath('awp_medusa.png'), baseChance:20 }
   ]}
 ];
 
-// Копии для работы (items будут содержать текущие шансы)
-const WORK_CASES = CASES.map(c => {
+/* --- Подготовка рабочих кейсов (копии) --- */
+const WORK_CASES = BASE_CASES.map(c => {
   const items = c.baseItems.map(it => ({ ...it, chance: it.baseChance }));
   return { ...c, items, baseTotalChance: items.reduce((s,i)=>s+i.baseChance,0) };
 });
 
+/* --- Состояние приложения --- */
 let state = {
   balance: 1250,
   selectedCase: null,
-  inventory: [],
-  lastWin: null,
+  inventory: [], // { id, name, price, img, upgraded: {multiplier, times}, uid }
   bonusTaken: false,
-  currentRtp: 1.00 // глобальный целевой RTP
+  currentRtp: 1.00
 };
 
-/* --- Элементы DOM --- */
+/* --- DOM элементы --- */
 const balanceEl = document.getElementById('balance');
 const balanceSmallEl = document.getElementById('balanceSmall');
 const casesListEl = document.getElementById('casesList');
@@ -303,28 +286,37 @@ const rtpInput = document.getElementById('rtpInput');
 const applyRtpBtn = document.getElementById('applyRtpBtn');
 const currentRtpEl = document.getElementById('currentRtp');
 
-/* --- Инициализация UI --- */
+/* --- Утилиты --- */
+function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function updateBalanceUI(){ balanceEl.textContent = state.balance; balanceSmallEl.textContent = state.balance; }
+
+/* --- Рендер кейсов --- */
 function renderCases(){
   casesListEl.innerHTML = '';
   WORK_CASES.forEach(c => {
+    const ev = computeCaseEV(c);
+    const rtp = (ev / c.price).toFixed(3);
     const el = document.createElement('div');
     el.className = 'case';
     el.dataset.id = c.id;
-    const ev = computeCaseEV(c);
-    const rtp = (ev / c.price).toFixed(3);
-    el.innerHTML = `
-      <div style="display:flex;gap:12px;align-items:center">
-        <img src="${c.img}" alt="${c.name}">
-        <div>
-          <div style="font-weight:bold">${c.name}</div>
-          <div class="small">Цена: ${c.price} ₽ • EV: ${Math.round(ev)} ₽ • RTP: ${rtp}</div>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end">
-        <div class="small">Предметов: ${c.items.length}</div>
-        <div style="margin-top:6px"><button class="smallBtn" data-open="${c.id}">Открыть</button></div>
-      </div>
-    `;
+
+    // левый блок: бейдж кейса (жёлтый) или картинка
+    const left = document.createElement('div'); left.className = 'left';
+    const badge = document.createElement('div');
+    badge.className = 'case-badge';
+    badge.innerHTML = `<div class="label">КЕЙС</div>`;
+    left.appendChild(badge);
+
+    const meta = document.createElement('div'); meta.className = 'meta';
+    meta.innerHTML = `<div class="title">${c.name}</div><div class="sub">Цена: ${c.price} ₽ • EV: ${Math.round(ev)} ₽ • RTP: ${rtp}</div>`;
+    left.appendChild(meta);
+
+    const right = document.createElement('div');
+    right.style.display = 'flex'; right.style.flexDirection = 'column'; right.style.alignItems = 'flex-end';
+    right.innerHTML = `<div class="small">Предметов: ${c.items.length}</div><div style="margin-top:6px"><button class="smallBtn" data-open="${c.id}">Открыть</button></div>`;
+
+    el.appendChild(left); el.appendChild(right);
+
     el.addEventListener('click', (e)=>{
       if(e.target && e.target.dataset && e.target.dataset.open) return;
       selectCase(c.id);
@@ -335,27 +327,21 @@ function renderCases(){
       selectCase(c.id);
       openCase(1);
     });
+
     casesListEl.appendChild(el);
   });
-}
-
-function updateBalanceUI(){
-  balanceEl.textContent = state.balance;
-  balanceSmallEl.textContent = state.balance;
 }
 
 /* --- Выбор кейса --- */
 function selectCase(caseId){
   const c = WORK_CASES.find(x=>x.id===caseId);
   state.selectedCase = c;
-  document.querySelectorAll('.case').forEach(el=>{
-    el.classList.toggle('selected', el.dataset.id === caseId);
-  });
+  document.querySelectorAll('.case').forEach(el=> el.classList.toggle('selected', el.dataset.id === caseId));
   const ev = computeCaseEV(c);
   const rtp = (ev / c.price).toFixed(3);
   selectedCaseInfoEl.innerHTML = `
     <div style="display:flex;gap:12px;align-items:center">
-      <img src="${c.img}" style="width:64px;height:64px;border-radius:10px">
+      <div class="case-badge" style="width:64px;height:64px"><div class="label">КЕЙС</div></div>
       <div>
         <div style="font-weight:bold">${c.name}</div>
         <div class="small">Цена открытия: ${c.price} ₽</div>
@@ -369,17 +355,19 @@ function selectCase(caseId){
   prepareRoulette(c);
 }
 
-/* --- Рулетка --- */
+/* --- Подготовка линейной рулетки --- */
 function prepareRoulette(c){
   rouletteTrack.innerHTML = '';
   const items = [];
-  for(let i=0;i<30;i++){
-    c.items.forEach(it => items.push(it));
-  }
+  for(let i=0;i<30;i++) c.items.forEach(it => items.push(it));
   items.forEach(it=>{
-    const el = document.createElement('div');
-    el.className = 'roulette-item';
-    el.innerHTML = `<img src="${it.img}" alt="${it.name}"><div>${it.name}</div><div class="small">${it.price} ₽</div>`;
+    const el = document.createElement('div'); el.className = 'roulette-item';
+    const img = document.createElement('img'); img.className='weapon-img';
+    img.src = it.img; img.alt = it.name;
+    el.appendChild(img);
+    const name = document.createElement('div'); name.style.fontSize='11px'; name.style.marginTop='4px'; name.textContent = it.name;
+    const price = document.createElement('div'); price.className='small'; price.textContent = it.price + ' ₽';
+    el.appendChild(name); el.appendChild(price);
     rouletteTrack.appendChild(el);
   });
   rouletteTrack.style.transform = 'translateX(0)';
@@ -389,12 +377,8 @@ function prepareRoulette(c){
 function openCase(count=1){
   if(!state.selectedCase) return;
   const totalCost = state.selectedCase.price * count;
-  if(state.balance < totalCost){
-    showModal(`Недостаточно средств. Нужно ${totalCost} ₽`, false);
-    return;
-  }
-  state.balance -= totalCost;
-  updateBalanceUI();
+  if(state.balance < totalCost){ showModal(`Недостаточно средств. Нужно ${totalCost} ₽`, false); return; }
+  state.balance -= totalCost; updateBalanceUI();
 
   const results = [];
   let seq = Promise.resolve();
@@ -403,17 +387,15 @@ function openCase(count=1){
       const win = pickRandomItem(state.selectedCase.items);
       results.push(win);
       animateRouletteTo(win).then(()=> {
-        state.inventory.push(win);
-        state.lastWin = win;
-        showWin(win);
+        // добавляем в инвентарь: создаём уникальный объект
+        const inv = { uid: uid('it'), id: win.id, name: win.name, price: win.price, img: win.img, upgraded: null };
+        state.inventory.push(inv);
+        showWin(inv);
         res();
       });
     }));
   }
-  seq.then(()=>{
-    renderInventory();
-    logOpen(results);
-  });
+  seq.then(()=>{ renderInventory(); logOpen(results); });
 }
 
 /* --- Выбор предмета по шансам --- */
@@ -427,7 +409,7 @@ function pickRandomItem(items){
   return JSON.parse(JSON.stringify(items[items.length-1]));
 }
 
-/* --- Анимация рулетки --- */
+/* --- Анимация линейной рулетки --- */
 function animateRouletteTo(item){
   return new Promise(res=>{
     const nodes = Array.from(rouletteTrack.children);
@@ -440,26 +422,19 @@ function animateRouletteTo(item){
     const translateX = centerOffset - targetCenter;
     const duration = 1600 + Math.random()*800;
     rouletteTrack.style.transition = `transform ${duration}ms cubic-bezier(.2,.9,.2,1)`;
-    requestAnimationFrame(()=> {
-      rouletteTrack.style.transform = `translateX(${translateX}px)`;
-    });
-    setTimeout(()=>{
-      rouletteTrack.style.transition = '';
-      res();
-    }, duration + 50);
+    requestAnimationFrame(()=> rouletteTrack.style.transform = `translateX(${translateX}px)`);
+    setTimeout(()=>{ rouletteTrack.style.transition = ''; res(); }, duration + 50);
   });
 }
 
 /* --- Показ результата --- */
-function showWin(win){
-  winImg.src = win.img;
-  winTitle.textContent = win.name;
-  winPrice.textContent = `${win.price} ₽`;
+function showWin(inv){
+  winImg.src = inv.img;
+  winTitle.textContent = inv.name;
+  winPrice.textContent = `${inv.price} ₽`;
   winResultBox.style.display = 'block';
   overlay.style.display = 'flex';
-  setTimeout(()=> {
-    winResultBox.style.display = 'none';
-  }, 2500);
+  setTimeout(()=> { winResultBox.style.display = 'none'; }, 2500);
 }
 
 /* --- Лог открытия --- */
@@ -468,76 +443,122 @@ function logOpen(results){
   openLogEl.innerHTML = lines;
 }
 
-/* --- Инвентарь --- */
+/* --- Рендер инвентаря (с апгрейдом) --- */
 function renderInventory(){
   inventoryListEl.innerHTML = '';
-  if(state.inventory.length === 0){
-    inventoryListEl.innerHTML = '<div class="small">Пусто</div>';
-    return;
-  }
+  if(state.inventory.length === 0){ inventoryListEl.innerHTML = '<div class="small">Пусто</div>'; return; }
   state.inventory.slice().reverse().forEach(it=>{
-    const el = document.createElement('div');
-    el.className = 'item';
-    el.innerHTML = `
-      <div style="display:flex;gap:12px;align-items:center">
-        <img src="${it.img}" alt="${it.name}">
-        <div>
-          <div style="font-weight:bold">${it.name}</div>
-          <div class="small">${it.price} ₽</div>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end">
-        <button class="smallBtn" data-sell="${it.name}">Продать</button>
-      </div>
-    `;
-    const sellBtn = el.querySelector('button[data-sell]');
+    const el = document.createElement('div'); el.className = 'item';
+    const left = document.createElement('div'); left.className='left';
+    const img = document.createElement('img'); img.className='weapon-img'; img.src = it.img; img.alt = it.name;
+    const meta = document.createElement('div'); meta.className='meta';
+    const title = document.createElement('div'); title.className='title'; title.textContent = it.name + (it.upgraded ? ` • ${it.upgraded.multiplier}x` : '');
+    const sub = document.createElement('div'); sub.className='sub'; sub.textContent = `${it.price} ₽`;
+    meta.appendChild(title); meta.appendChild(sub);
+    left.appendChild(img); left.appendChild(meta);
+
+    const right = document.createElement('div'); right.style.display='flex'; right.style.flexDirection='column'; right.style.alignItems='flex-end';
+    const sellBtn = document.createElement('button'); sellBtn.className='smallBtn'; sellBtn.textContent='Продать';
     sellBtn.addEventListener('click', ()=>{
       state.balance += it.price;
-      const idx = state.inventory.findIndex(x=>x.name === it.name);
+      const idx = state.inventory.findIndex(x=>x.uid === it.uid);
       if(idx !== -1) state.inventory.splice(idx,1);
-      updateBalanceUI();
-      renderInventory();
+      updateBalanceUI(); renderInventory();
     });
+
+    const upgBtn = document.createElement('button'); upgBtn.className='smallBtn'; upgBtn.style.marginTop='8px'; upgBtn.textContent='Апгрейд';
+    upgBtn.addEventListener('click', ()=> openUpgradeModal(it));
+
+    right.appendChild(sellBtn); right.appendChild(upgBtn);
+
+    el.appendChild(left); el.appendChild(right);
     inventoryListEl.appendChild(el);
   });
 }
 
-/* --- Модалки и банк --- */
-bankBtn.addEventListener('click', ()=> {
-  bankOverlay.classList.add('show');
-});
-closeBank.addEventListener('click', ()=> {
-  bankOverlay.classList.remove('show');
-});
-depositBtn.addEventListener('click', ()=> {
-  const val = Number(amountInput.value) || 0;
-  if(val <= 0) return;
-  state.balance += val;
-  updateBalanceUI();
-  bankOverlay.classList.remove('show');
-});
-withdrawBtn.addEventListener('click', ()=> {
-  const val = Number(amountInput.value) || 0;
-  if(val <= 0) return showModal('Введите сумму для вывода', false);
-  if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
-  state.balance -= val;
-  updateBalanceUI();
-  bankOverlay.classList.remove('show');
-  showModal(`Выведено ${val} ₽`, false);
-});
+/* --- Модал апгрейда --- */
+function openUpgradeModal(item){
+  // Создаём содержимое модалки с круглой рулеткой
+  const modalContent = document.getElementById('modalContent');
+  modalContent.innerHTML = '';
+  const title = document.createElement('div'); title.style.fontWeight='700'; title.style.marginBottom='8px'; title.textContent = `Апгрейд: ${item.name}`;
+  modalContent.appendChild(title);
 
-/* --- RTP: вычисления и применение --- */
-/*
-  Подход:
-  - Для каждого кейса есть набор предметов с ценами и базовыми шансами (baseChance).
-  - Вычисляем текущий EV = sum(price_i * (chance_i / totalChance)).
-  - Пользователь задаёт целевой RTP (например 1.05 = 105%).
-  - Мы хотим скорректировать шансы так, чтобы EV' ≈ price * RTP.
-  - Для этого используем параметр k, который усиливает шансы дорогих предметов:
-      newChance_i = baseChance_i * (1 + k * (price_i / avgPrice - 1))
-    и ищем k методом бинарного поиска, чтобы EV' достиг целевого значения.
-  - Ограничения: newChance_i >= 0.1 (минимум), k в разумных пределах.
-*/
+  const wheelWrap = document.createElement('div'); wheelWrap.style.textAlign='center';
+  const wheel = document.createElement('div'); wheel.className='upgrade-wheel'; wheel.id='upgradeWheel';
+  const pointer = document.createElement('div'); pointer.className='pointer';
+  const inner = document.createElement('div'); inner.className='inner';
+  inner.innerHTML = `<div style="font-weight:bold">${item.name}</div><div class="small">Цена: ${item.price} ₽</div>`;
+  wheel.appendChild(pointer); wheel.appendChild(inner);
+  wheelWrap.appendChild(wheel);
+
+  // Опции: 2x и 3x
+  const controls = document.createElement('div'); controls.style.marginTop='12px'; controls.style.display='flex'; controls.style.justifyContent='center'; controls.style.gap='12px';
+  const spin2 = document.createElement('button'); spin2.className='spin-btn'; spin2.textContent='Попытка 2x';
+  const spin3 = document.createElement('button'); spin3.className='spin-btn'; spin3.textContent='Попытка 3x';
+  controls.appendChild(spin2); controls.appendChild(spin3);
+
+  const info = document.createElement('div'); info.className='upgrade-result'; info.style.marginTop='10px';
+  modalContent.appendChild(wheelWrap); modalContent.appendChild(controls); modalContent.appendChild(info);
+
+  // Стоимость попытки: процент от цены предмета
+  const cost2 = Math.max(1, Math.round(item.price * 0.18)); // 18%
+  const cost3 = Math.max(1, Math.round(item.price * 0.35)); // 35%
+
+  // Вероятности успеха (можно регулировать)
+  const prob2 = 0.65; // 65% шанс получить 2x
+  const prob3 = 0.35; // 35% шанс получить 3x
+
+  let spinning = false;
+
+  function spinWheel(multiplier){
+    if(spinning) return;
+    const cost = multiplier === 2 ? cost2 : cost3;
+    if(state.balance < cost){ showModal('Недостаточно средств для попытки', false); return; }
+    state.balance -= cost; updateBalanceUI();
+    spinning = true;
+    info.textContent = 'Крутим...';
+    // Анимация: вращаем wheel на случайный угол, но с финалом, зависящим от успеха
+    const success = Math.random() < (multiplier === 2 ? prob2 : prob3);
+    // Вычислим финальный угол: если успех — попадём в сектор "успех", иначе — в сектор "провал"
+    // Для простоты: успех — угол в диапазоне [0, 60), провал — [120, 300)
+    const baseSpins = 4 + Math.floor(Math.random()*3); // полных оборотов
+    let finalAngle;
+    if(success){
+      finalAngle = 360 * baseSpins + (Math.random()*50 + 5); // небольшой сектор успеха
+    } else {
+      finalAngle = 360 * baseSpins + (Math.random()*180 + 120);
+    }
+    wheel.style.transition = 'transform 2200ms cubic-bezier(.2,.9,.2,1)';
+    wheel.style.transform = `rotate(${finalAngle}deg)`;
+    setTimeout(()=>{
+      wheel.style.transition = '';
+      wheel.style.transform = `rotate(${finalAngle % 360}deg)`; // нормализуем
+      spinning = false;
+      if(success){
+        // Успех: умножаем цену предмета и помечаем апгрейд
+        item.price = Math.round(item.price * multiplier);
+        item.upgraded = item.upgraded || { times:0, multiplier:1 };
+        item.upgraded.times += 1;
+        item.upgraded.multiplier *= multiplier;
+        info.textContent = `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${item.price} ₽`;
+      } else {
+        // Провал: можно оставить без изменений или уменьшить цену — оставим без изменений
+        info.textContent = `Неудача. Попробуйте снова или продайте предмет.`;
+      }
+      renderInventory();
+    }, 2300);
+  }
+
+  spin2.addEventListener('click', ()=> spinWheel(2));
+  spin3.addEventListener('click', ()=> spinWheel(3));
+
+  // Показываем модалку
+  winResultBox.style.display = 'none';
+  overlay.style.display = 'flex';
+}
+
+/* --- RTP: вычисления и применение (как раньше) --- */
 function computeCaseEV(caseObj){
   const total = caseObj.items.reduce((s,it)=>s + (it.chance || 0),0);
   if(total <= 0) return 0;
@@ -545,10 +566,7 @@ function computeCaseEV(caseObj){
 }
 
 function applyGlobalRtp(targetRtp){
-  // применяем к каждому кейсу
-  WORK_CASES.forEach(c => {
-    adjustCaseRtp(c, targetRtp);
-  });
+  WORK_CASES.forEach(c => adjustCaseRtp(c, targetRtp));
   state.currentRtp = targetRtp;
   currentRtpEl.textContent = targetRtp.toFixed(2);
   renderCases();
@@ -556,121 +574,94 @@ function applyGlobalRtp(targetRtp){
 }
 
 function adjustCaseRtp(caseObj, targetRtp){
-  // подготовка
   const items = caseObj.items;
   const avgPrice = items.reduce((s,i)=>s+i.price,0)/items.length;
   const baseChances = items.map(i => i.baseChance || 1);
-
-  // функция, которая по k возвращает EV
   function evForK(k){
     const newChances = items.map((it, idx) => {
       const val = (baseChances[idx] * (1 + k * (it.price / avgPrice - 1)));
-      return Math.max(val, 0.01); // минимум
+      return Math.max(val, 0.01);
     });
     const total = newChances.reduce((s,v)=>s+v,0);
     return items.reduce((s,it,idx)=> s + it.price * (newChances[idx]/total), 0);
   }
-
-  // целевой EV
   const targetEV = caseObj.price * targetRtp;
-
-  // бинарный поиск по k
   let low = -0.99, high = 10, mid;
-  let evLow = evForK(low), evHigh = evForK(high);
-  // если даже при high EV меньше target, просто применим high
-  if(evHigh < targetEV){
-    mid = high;
-  } else {
+  let evHigh = evForK(high);
+  if(evHigh < targetEV){ mid = high; } else {
     for(let iter=0; iter<40; iter++){
       mid = (low + high)/2;
       const evMid = evForK(mid);
       if(evMid < targetEV) low = mid; else high = mid;
     }
   }
-  // применяем найденный k
   const k = mid;
   const newChances = items.map((it, idx) => {
     const val = (baseChances[idx] * (1 + k * (it.price / avgPrice - 1)));
     return Math.max(val, 0.01);
   });
-  // нормализуем и записываем в caseObj.items[].chance
-  const total = newChances.reduce((s,v)=>s+v,0);
-  items.forEach((it, idx) => {
-    it.chance = newChances[idx]; // хранится как относительный вес
-  });
+  items.forEach((it, idx) => it.chance = newChances[idx]);
 }
 
-/* --- Применение RTP по кнопке --- */
-applyRtpBtn.addEventListener('click', ()=>{
+/* --- События UI --- */
+bankBtn.addEventListener('click', ()=> bankOverlay.style.display = 'flex');
+closeBank.addEventListener('click', ()=> bankOverlay.style.display = 'none');
+depositBtn.addEventListener('click', ()=> {
+  const val = Number(amountInput.value) || 0;
+  if(val <= 0) return;
+  state.balance += val; updateBalanceUI(); bankOverlay.style.display = 'none';
+});
+withdrawBtn.addEventListener('click', ()=> {
+  const val = Number(amountInput.value) || 0;
+  if(val <= 0) return showModal('Введите сумму для вывода', false);
+  if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
+  state.balance -= val; updateBalanceUI(); bankOverlay.style.display = 'none'; showModal(`Выведено ${val} ₽`, false);
+});
+applyRtpBtn.addEventListener('click', ()=> {
   const val = Number(rtpInput.value) || 1.0;
   if(val <= 0) return showModal('RTP должен быть положительным числом', false);
   applyGlobalRtp(val);
   showModal(`RTP применён: ${val.toFixed(2)}`, false);
 });
 
-/* --- Открытие кнопки --- */
 openOnceBtn.addEventListener('click', ()=> openCase(1));
 openTenBtn.addEventListener('click', ()=> openCase(10));
+closeModal.addEventListener('click', ()=> overlay.style.display = 'none');
 
-/* --- Закрытие модалки результата --- */
-closeModal.addEventListener('click', ()=> {
-  overlay.style.display = 'none';
-});
-
-/* --- Бонус --- */
 bonusBtn.addEventListener('click', ()=>{
-  if(state.bonusTaken){
-    bonusMsg.textContent = 'Бонус уже получен сегодня';
-    return;
-  }
-  state.balance += 100000;
-  state.bonusTaken = true;
-  updateBalanceUI();
-  bonusMsg.textContent = 'Бонус зачислен!';
+  if(state.bonusTaken){ bonusMsg.textContent = 'Бонус уже получен сегодня'; return; }
+  state.balance += 100000; state.bonusTaken = true; updateBalanceUI(); bonusMsg.textContent = 'Бонус зачислен!';
   setTimeout(()=> bonusMsg.textContent = '', 3000);
 });
 
-/* --- Инициализация страницы --- */
+/* --- Инициализация --- */
 function init(){
-  // скопируем базовые шансы в рабочие items (уже сделано при создании WORK_CASES)
-  renderCases();
-  updateBalanceUI();
-  renderInventory();
-  currentRtpEl.textContent = state.currentRtp.toFixed(2);
-
-  try {
-    if(window.TelegramWebApp){
-      const tg = window.TelegramWebApp;
-      if(tg.MainButton){
-        tg.MainButton.hide();
-      }
+  // скопируем базовые шансы в рабочие items (если ещё не скопированы)
+  WORK_CASES.forEach(c => {
+    if(!c.items || c.items.length === 0){
+      c.items = c.baseItems.map(it => ({ ...it, chance: it.baseChance }));
     }
-  } catch(e){}
+  });
+  renderCases(); updateBalanceUI(); renderInventory();
+  currentRtpEl.textContent = state.currentRtp.toFixed(2);
+  // Telegram WebApp integration (если доступна)
+  try { if(window.TelegramWebApp && window.TelegramWebApp.MainButton) window.TelegramWebApp.MainButton.hide(); } catch(e){}
 }
 init();
 
-/* --- Утилиты --- */
+/* --- Модалки и утилиты --- */
 function showModal(text, showWinBox=true){
   document.getElementById('modalContent').innerHTML = text;
-  if(showWinBox){
-    winResultBox.style.display = 'none';
-  }
+  if(showWinBox) winResultBox.style.display = 'none';
   overlay.style.display = 'flex';
 }
+overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.style.display = 'none'; });
 
-/* --- Обработка кликов вне модалки для закрытия --- */
-overlay.addEventListener('click', (e)=>{
-  if(e.target === overlay){
-    overlay.style.display = 'none';
-  }
-});
-
-/* --- Поддержка клавиш (для удобства тестирования) --- */
+/* --- Клавиши для тестирования --- */
 document.addEventListener('keydown', (e)=>{
-  if(e.key === 'b'){ bonusBtn.click();
-  } else if(e.key === 'o'){ if(!openOnceBtn.disabled) openOnceBtn.click();
-  } else if(e.key === '1'){ selectCase(WORK_CASES[0].id);
-  }
+  if(e.key === 'b') bonusBtn.click();
+  if(e.key === 'o' && !openOnceBtn.disabled) openOnceBtn.click();
+  if(e.key === '1') selectCase(WORK_CASES[0].id);
 });
 </script>
 </body>
