@@ -108,14 +108,14 @@
 </head>
 <body>
 <div id="dailyBonusBox">
-  <button type="button" id="bonusBtn">🎁 Ежедневный бонус 1 000 000</button>
+  <button type="button" id="bonusBtn">🎁 Ежедневный бонус 2 500 000 ₽</button>
   <div id="bonusMsg"></div>
 </div>
 
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;align-items:center;">
-    <div id="balanceBox"><span style="font-size:23px;">💵</span> <span id="balance">500</span></div>
+    <div id="balanceBox"><span style="font-size:23px;">💵</span> <span id="balance">1250</span> ₽</div>
     <button id="bankBtn">💼</button>
   </div>
 </div>
@@ -131,13 +131,13 @@
 <div class="section"><h3>🎒 Инвентарь</h3><div id="inventory"></div><button type="button" id="sellBtn">Продать</button></div>
 <div class="section">
   <h3>⬆️ Апгрейд</h3>
-  <div id="upgradeText" class="small">Нажми "Апгрейдить" и выбери предмет</div>
+  <div id="upgradeText" class="small">Нажми "Апг��ейдить" и выбери предмет</div>
   <button type="button" id="upgradeBtn">Апгрейдить</button>
 </div>
 <div id="referralBox">
   <div style="font-weight:bold;">🚀 Реферальная система</div>
   <div class="ref-row">
-    <span class="small">Твой к��д:</span>
+    <span class="small">Твой код:</span>
     <input id="myRefCodeInput" readonly>
     <button type="button" id="copyRefBtn">Скопировать</button>
   </div>
@@ -179,23 +179,43 @@
 <script>
 // === ДАННЫЕ (контрастные png) ===
 const cases = [
-  {name:'Жёлтый кейс',price:50,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABFUlEQVRoge2YUQ2DMBBF/5iUGZQyMyTInSIjcIRrZcRHipMRDX5dCP8o6Dnt8hAg92nvsJzIT/V0r0402RA8hAv5BIOrj7lEhrA3AEdDawjOAQUAxwGnEEMognAqYwQxyCuHKz/quiJN9F96HvPBpGZPAB0heA3dJHMfA3vbpY+0C3cdFd1/BnCXABc1Vsw2mQ0tgFjeQUodzcgyA1aJuyzkJK5QXb7QFP6wRjac2s3E+AXiN5sSlA4vgTxGnrwcUvwBidK6gfQCS2roBd3UQrs1BZcXEGPDDvDLy6PDn9SjJZssuQ5AAAAAElFTkSuQmCC'},
-  {name:'Красный кейс',price:100,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABJ0lEQVRoge2ZsQ2DMBBFn7oQqMCdSlqC0FX0EN0A3QAtOdIXQAmBvKf8QVii/3oIlVRJ46w0nP0b+aa8DPRdoox5l3y5rRNwPWweNoFfAEqjpBeBSpVALGARpfVALGITh/FEULmQJUFkGU6fpMEI0EO2SQSe88/R6nrlxn6KBoIlAUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBxgD8oIJ2qzSm6s0nUXMgPyEDe6ED9jLDE9cRxgSY80ID+dXgzT4BWxy7AUObI2QAAAABJRU5ErkJggg=='},
-  {name:'Зелёный кейс',price:200,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABAUlEQVRoge2ZQQmAIBADY/v8n5pOVJ0IahIuQw1rwCd8pE8/yPRJ5DUmkgkokQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkohY4M8Idm8BWdE2n9wbaW8Jnk8MvYG5VQAAAABJRU5ErkJggg=='},
-  {name:'Синий кейс',price:300,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABDElEQVRoge2XwQ2CMBRG//8wBCEyEyEyEyEyEyEyEyE9IDAnk8eMV8khUmkkpIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIohYwrPF8glflRmZ16XgE1bpKEAAAAASUVORK5CYII='},
-  {name:'Фиолетовый кейс',price:400,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABMUlEQVRoge2ZwQ3CMBBF+xB5AAdwQAewBAewBBdcxilLJIjWJNc8ovNkVkZf97zVHoznuvRvlV4hXcAI2PgBtBBgAXAJnOIKw3rHMSpIDeSFgHkg2dCQs4N3A2swWHh6E1nhFlugJA2cMAJiGYAkvRzx1FRoiJoAiIIiAAiCIgAIgiIACIImofC3wFvusWqMY5XIapDYzQOvcmkCpoH6nACM9OcjKAFspO0MgBNW5JrFuw7jZ/hg5A9CZrtNYHvI9j/ewB+Vro6LyvscfbQAAAABJRU5ErkJggg=='},
-];
-const items = [
-  {name:'Жёлтый скин',price:70,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAkElEQVRoge3XQQ2DMBBF0YeCA+4oTmm7y2k7hMC8lQUpo7GwC6A+15D59bltvygX9tA0ZIl8RW1mina7VnsEPvTeafzBQHtD/w3gDdfLwD4/Akmqm8咪4xBKnIwjCLIcQyj9BMfRWegCilpQh4EuxTC144y1E6w35QEBNR/nQhcKeTK7cDFLerQAAAABJRU5ErkJggg=='},
-  {name:'Красный скин',price:90,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
-  {name:'Синий скин',price:160,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
+  {name:'Экономный кейс',price:50,tier:'economy',img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABFUlEQVRoge2YUQ2DMBBF/5iUGZQyMyTInSIjcIRrZcRHipMRDX5dCP8o6Dnt8hAg92nvsJzIT/V0r0402RA8hAv5BIOrj7lEhrA3AEdDawjOAQUAxwGnEEMognAqYwQxyCuHKz/quiJN9F96HvPBpGZPAB0heA3dJHMfA3vbpY+0C3cdFd1/BnCXABc1Vsw2mQ0tgFjeQUodzcgyA1aJuyzkJK5QXb7QFP6wRjac2s3E+AXiN5sSlA4vgTxGnrwcUvwBidK6gfQCS2roBd3UQrs1BZcXEGPDDvDLy6PDn9SjJZssuQ5AAAAAElFTkSuQmCC'},
+  {name:'Стандартный кейс',price:100,tier:'standard',img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABJ0lEQVRoge2ZsQ2DMBBFn7oQqMCdSlqC0FX0EN0A3QAtOdIXQAmBvKf8QVii/3oIlVRJ46w0nP0b+aa8DPRdoox5l3y5rRNwPWweNoFfAEqjpBeBSpVALGARpfVALGITh/FEULmQJUFkGU6fpMEI0EO2SQSe88/R6nrlxn6KBoIlAUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBVEAFUBxgD8oIJ2qzSm6s0nUXMgPyEDe6ED9jLDE9cRxgSY80ID+dXgzT4BWxy7AUObI2QAAAABJRU5ErkJggg=='},
+  {name:'Премиум кейс',price:200,tier:'premium',img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABAUlEQVRoge2ZQQmAIBADY/v8n5pOVJ0IahIuQw1rwCd8pE8/yPRJ5DUmkgkokQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkogQkohY4M8Idm8BWdE2n9wbaW8Jnk8MvYG5VQAAAABJRU5ErkJggg=='},
+  {name:'Элитный кейс',price:300,tier:'elite',img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABDElEQVRoge2XwQ2CMBRG//8wBCEyEyEyEyEyEyEyEyE9IDAnk8eMV8khUmkkpIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIoIohYwrPF8glflRmZ16XgE1bpKEAAAAASUVORK5CYII='},
+  {name:'Легендарный кейс',price:400,tier:'legendary',img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAABMUlEQVRoge2ZwQ3CMBBF+xB5AAdwQAewBAewBBdcxilLJIjWJNc8ovNkVkZf97zVHoznuvRvlV4hXcAI2PgBtBBgAXAJnOIKw3rHMSpIDeSFgHkg2dCQs4N3A2swWHh6E1nhFlugJA2cMAJiGYAkvRzx1FRoiJoAiIIiAAiCIgAIgiIACIImofC3wFvusWqMY5XIapDYzQOvcmkCpoH6nACM9OcjKAFspO0MgBNW5JrFuw7jZ/hg5A9CZrtNYHvI9j/ewB+Vro6LyvscfbQAAAABJRU5ErkJggg=='},
 ];
 
-// === RTP 78% ===
+// Предметы по категориям (разные для каждого типа кейса)
+const itemsByTier = {
+  economy: [
+    {name:'MP7 | Индустриальный камуфляж',price:50,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAkElEQVRoge3XQQ2DMBBF0YeCA+4oTmm7y2k7hMC8lQUpo7GwC6A+15D59bltvygX9tA0ZIl8RW1mina7VnsEPvTeafzBQHtD/w3gDdfLwD4/Akmqm8咪4xBKnIwjCLIcQyj9BMfRWegCilpQh4EuxTC144y1E6w35QEBNR/nQhcKeTK7cDFLerQAAAABJRU5ErkJggg=='},
+    {name:'Glock-18 | Водяной знак',price:60,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
+  ],
+  standard: [
+    {name:'AK-47 | Лавовый потоп',price:100,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
+    {name:'M4A4 | Апокалипсис',price:120,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
+  ],
+  premium: [
+    {name:'AWP | Магма',price:200,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
+    {name:'Dragon Lore | Холодная сталь',price:250,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
+  ],
+  elite: [
+    {name:'M9 Bayonet | Ночное небо',price:300,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
+    {name:'Karambit | Редкий закат',price:350,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
+  ],
+  legendary: [
+    {name:'Souvenir AWP | Легенда',price:400,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVUlEQVRoge3XIQrAIAwDQcf7/y/rNOHXBV6SC3nBveh5JIo6ukWIDbBWgwg4Zw6w1XtRdaBxAaYhYfbIQzZyA5wNgywICQ5RcqxhUvJ43z7zP9f59d9SJNH6t/ooAAAAASUVORK5CYII='},
+    {name:'Factory New Dragon Lore',price:500,img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAYAAAC1+jfqAAAAVklEQVRoge3XIQrAIAwDQcf7/8XsU5HqGhhQ4+Unf8HsQSLIxy7sFZBbbD7WJXgJLACj4IAONC8XCi7OCU5BcwREFBAbYBKAQ1JikpGDcYuZ753127XCN858uKHxyyHfRQAAAABJRU5ErkJggg=='},
+  ]
+};
+
+// === Курс: 1 токен = 2.5 рубля ===
+const RUBLE_PER_TOKEN = 2.5;
 const RTP = 0.78;
 
 let state = {
-  balance: parseInt(localStorage.getItem('casehunters_balance')) || 500,
+  balance: parseInt(localStorage.getItem('casehunters_balance')) || 1250, // 500 токенов = 1250 рублей
   inventory: JSON.parse(localStorage.getItem('casehunters_inventory')) || [],
   selectedIdx: null,
   currentCase: null,
@@ -211,7 +231,7 @@ function saveState() {
   localStorage.setItem('casehunters_inventory', JSON.stringify(state.inventory));
 }
 
-// === Баланс ===ща
+// === Баланс (в рублях) ===
 const balEl = document.getElementById('balance');
 function updateBalance(sum) { 
   if(typeof sum === 'number') state.balance = sum;
@@ -233,7 +253,8 @@ const casesEl = document.getElementById('cases');
 cases.forEach(c => {
   const d = document.createElement('div');
   d.className = 'case';
-  d.innerHTML = `<img src="${c.img}"><div>${c.name}<div class="small">RTP 78%</div></div><div class="small">${c.price} 💵</div>`;
+  const priceInRubles = c.price * RUBLE_PER_TOKEN;
+  d.innerHTML = `<img src="${c.img}"><div>${c.name}<div class="small">RTP 78%</div></div><div class="small">${priceInRubles} ₽</div>`;
   d.onclick = () => openCase(c);
   casesEl.appendChild(d);
 });
@@ -249,10 +270,12 @@ function openCase(c) {
   curCase = c;
   caseTitle.textContent = c.name;
   track.innerHTML = '';
+  // Получаем предметы для этого типа кейса
+  const caseItems = itemsByTier[c.tier];
   // RTP 78% для выигрыша
-  winItem = Math.random() < RTP ? items[Math.floor(Math.random() * items.length)] : null;
+  winItem = Math.random() < RTP ? caseItems[Math.floor(Math.random() * caseItems.length)] : null;
   for(let i = 0; i < 25; i++) {
-    let it = (i === 12) ? (winItem || items[Math.floor(Math.random() * items.length)]) : items[Math.floor(Math.random() * items.length)];
+    let it = (i === 12) ? (winItem || caseItems[Math.floor(Math.random() * caseItems.length)]) : caseItems[Math.floor(Math.random() * caseItems.length)];
     track.innerHTML += `<div class="roulette-item"><img src="${it.img}"><div>${it.name}</div></div>`;
   }
   track.style.transition = "none";
@@ -263,9 +286,10 @@ function openCase(c) {
 let spinInProgress = false;
 document.getElementById('spinBtn').onclick = function() {
   if(spinInProgress) return;
-  if(state.balance < curCase.price) return alert('Недостаточно средств!');
+  const priceInRubles = curCase.price * RUBLE_PER_TOKEN;
+  if(state.balance < priceInRubles) return alert('Недостаточно средств!');
   spinInProgress = true;
-  state.balance -= curCase.price;
+  state.balance -= priceInRubles;
   updateBalance();
   track.style.transition = 'transform 6s cubic-bezier(.05,.8,0,1)';
   track.style.transform = 'translateX(-540px)';
@@ -281,7 +305,7 @@ document.getElementById('spinBtn').onclick = function() {
 document.getElementById('closeModalBtn').onclick = closeModal;
 function closeModal() { overlay.style.display = 'none'; }
 
-// === Инв��нтарь ===
+// === Инвентарь ===
 const invEl = document.getElementById('inventory');
 function drawInventory() {
   invEl.innerHTML = '';
@@ -291,7 +315,8 @@ function drawInventory() {
     if(state.upgradeSelecting) className += ' upgrade-candidate';
     if(state.selectedIdx === idx && !state.upgradeSelecting) className += ' selected';
     d.className = className;
-    d.innerHTML = `<img src="${item.img}"><div>${item.name}</div><div>${item.price} 💵</div>`;
+    const priceInRubles = item.price * RUBLE_PER_TOKEN;
+    d.innerHTML = `<img src="${item.img}"><div>${item.name}</div><div>${priceInRubles} ₽</div>`;
     if(state.upgradeSelecting) {
       d.onclick = () => chooseForUpgrade(idx);
     } else {
@@ -308,7 +333,8 @@ function drawInventory() {
 // === Продажа ===
 document.getElementById('sellBtn').onclick = function() {
   if(state.selectedIdx == null) return;
-  state.balance += state.inventory[state.selectedIdx].price;
+  const priceInRubles = state.inventory[state.selectedIdx].price * RUBLE_PER_TOKEN;
+  state.balance += priceInRubles;
   state.inventory.splice(state.selectedIdx, 1);
   state.selectedIdx = null;
   updateBalance();
@@ -345,8 +371,9 @@ const cancelUpgradeBtn = document.getElementById('cancelUpgradeBtn');
 function showUpgradeModal(idx) {
   const item = state.inventory[idx];
   upgradeModal.style.display = 'flex';
+  const priceInRubles = item.price * RUBLE_PER_TOKEN;
   upgradeSelected.innerHTML = `<img src="${item.img}"><div><div>${item.name}</div>
-    <div class="small">${item.price} 💵</div></div>`;
+    <div class="small">${priceInRubles} ₽</div></div>`;
   upgradeResult.textContent = '';
   wheelContainer.style.display = 'none';
   wheel.classList.remove('stopped');
@@ -380,7 +407,12 @@ function performUpgrade(multiplier) {
     wheel.classList.add('stopped');
     
     if(Math.random() < chance) {
-      const better = items.filter(i => i.price > item.price);
+      // Получаем все предметы для апгрейда
+      const allItems = [];
+      Object.values(itemsByTier).forEach(tier => {
+        allItems.push(...tier);
+      });
+      const better = allItems.filter(i => i.price > item.price);
       if(better.length) {
         const newItem = better[Math.floor(Math.random() * better.length)];
         state.inventory[state.upgradeIdx] = newItem;
@@ -406,7 +438,7 @@ upgrade2xBtn.onclick = () => performUpgrade(2);
 cancelUpgradeBtn.onclick = hideUpgradeModal;
 
 // === Бонус ===
-const BONUS_AMOUNT = 1_000_000;
+const BONUS_AMOUNT = 2500000; // 1 000 000 токенов = 2 500 000 рублей
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusMsg = document.getElementById('bonusMsg');
 
@@ -422,7 +454,7 @@ function canTakeBonus() {
 function updateBonusButton() {
   if (canTakeBonus()) {
     bonusBtn.disabled = false;
-    bonusBtn.textContent = "🎁 Ежедневный бонус 1 000 000";
+    bonusBtn.textContent = "🎁 Ежедневный бонус 2 500 000 ₽";
     bonusMsg.textContent = "";
   } else {
     bonusBtn.disabled = true;
@@ -489,9 +521,9 @@ refGetBtn.onclick = () => {
   }
   localStorage.refBonusTaken = "yes";
   localStorage.refReceivedFrom = inputCode;
-  state.balance += 100_000;
+  state.balance += 250000; // 100 000 токенов = 250 000 рублей
   updateBalance();
-  refMsg.textContent = `✅ Бонус за реферала +100,000!`;
+  refMsg.textContent = `✅ Бонус за реферала +250,000 ₽!`;
   refGetBtn.disabled = true;
   otherRefInput.disabled = true;
 };
