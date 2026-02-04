@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8" />
-<title>Case Hunters — CS:GO Style (Demo)</title>
+<title>Case Hunters — Demo (Working)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 <style>
@@ -17,7 +17,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue";background:var(--bg);color:#fff;padding-top:180px}
-#topBar{position:fixed;top:70px;left:0;right:0;background:#020617;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:40}
+#topBar{position:fixed;top:70px;left:0;right:0;background:#020617;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:60}
 #logo{font-family:'Russo One',sans-serif;font-size:22px;color:var(--accent)}
 #balanceBox{padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
 .small{font-size:12px;opacity:.85;color:#d1d5db}
@@ -96,7 +96,7 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
       <div class="section" id="casesSection">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div style="font-weight:bold">Доступные кейсы</div>
-          <div class="small">Нажмите на кнопку "Открыть" — внутри появится рулетка</div>
+          <div class="small">Нажмите "Открыть" — внутри появится рулетка (6s)</div>
         </div>
         <div id="casesList"></div>
       </div>
@@ -147,7 +147,7 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
       <button id="adminAddBtn" class="adminBtn">Добавить</button>
     </div>
     <div class="adminRow">
-      <input id="adminSetRtp" type="number" step="0.01" placeholder="RTP (0.5-0.95)" />
+      <input id="adminSetRtp" type="number" step="0.01" placeholder="RTP (0.1-0.95)" />
       <button id="adminSetRtpBtn" class="adminBtn">Установить RTP</button>
     </div>
     <div class="adminRow">
@@ -193,18 +193,13 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 </div>
 
 <script>
-/* ============================
-   Логика приложения (демо)
-   ============================ */
+/* --------------
+   Полностью рабочая версия (демо)
+   -------------- */
 
-/* --- Утилиты и хранение баланса --- */
-const BALANCE_KEY = 'ch_balance';
-const REF_KEY = 'ch_referrer'; // хранит id реферера для текущего пользователя
-const REF_EARN_KEY_PREFIX = 'ch_refearn_'; // prefix + refId -> earnings stored for referrer
-const USER_ID_KEY = 'ch_userid'; // уникальный id текущего пользователя
-
+/* --- Утилиты и идентификация пользователя --- */
 function uid(prefix='u'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
-
+const USER_ID_KEY = 'ch_userid';
 function getUserId(){
   let id = localStorage.getItem(USER_ID_KEY);
   if(!id){ id = uid('user'); localStorage.setItem(USER_ID_KEY, id); }
@@ -212,16 +207,25 @@ function getUserId(){
 }
 const CURRENT_USER = getUserId();
 
+/* --- Баланс и рефералы (per-user keys) --- */
+const BALANCE_KEY_PREFIX = 'ch_balance_';
+const REF_KEY_PREFIX = 'ch_referrer_';
+const REF_EARN_KEY_PREFIX = 'ch_refearn_';
+
+function balanceKeyFor(userId){ return BALANCE_KEY_PREFIX + userId; }
+function refKeyFor(userId){ return REF_KEY_PREFIX + userId; }
+function refEarnKeyFor(userId){ return REF_EARN_KEY_PREFIX + userId; }
+
 function loadBalance(){
   try{
-    const raw = localStorage.getItem(BALANCE_KEY + '_' + CURRENT_USER);
+    const raw = localStorage.getItem(balanceKeyFor(CURRENT_USER));
     if(raw === null) return 0;
     const n = Number(raw);
     return Number.isFinite(n) ? n : 0;
   }catch(e){ return 0; }
 }
 function saveBalance(v){
-  try{ localStorage.setItem(BALANCE_KEY + '_' + CURRENT_USER, String(v)); }catch(e){}
+  try{ localStorage.setItem(balanceKeyFor(CURRENT_USER), String(v)); }catch(e){}
 }
 function setBalance(v){
   state.balance = Math.max(0, Math.round(Number(v) || 0));
@@ -233,53 +237,52 @@ function subBalance(v){ setBalance(Math.max(0, state.balance - Math.round(Number
 
 /* --- Referral helpers --- */
 function getReferrerFromUrl(){
-  const p = new URLSearchParams(window.location.search);
-  return p.get('ref') || null;
+  try{
+    const p = new URLSearchParams(window.location.search);
+    return p.get('ref') || null;
+  }catch(e){ return null; }
 }
 function setLocalReferrerIfNew(){
-  const existing = localStorage.getItem(REF_KEY + '_' + CURRENT_USER);
+  const existing = localStorage.getItem(refKeyFor(CURRENT_USER));
   if(existing) return existing;
   const ref = getReferrerFromUrl();
-  if(ref){
-    localStorage.setItem(REF_KEY + '_' + CURRENT_USER, ref);
+  if(ref && ref !== CURRENT_USER){
+    localStorage.setItem(refKeyFor(CURRENT_USER), ref);
     return ref;
   }
   return null;
 }
 function getMyRefLink(){
-  // my link uses my user id as ref param
   const base = location.origin + location.pathname;
   return `${base}?ref=${CURRENT_USER}`;
 }
 function addReferralEarnings(refId, amount){
   if(!refId) return;
-  const key = REF_EARN_KEY_PREFIX + refId;
+  const key = refEarnKeyFor(refId);
   const cur = Number(localStorage.getItem(key) || 0);
   localStorage.setItem(key, String(Math.round(cur + amount)));
 }
 function getReferralEarningsForMe(){
-  const key = REF_EARN_KEY_PREFIX + CURRENT_USER;
+  const key = refEarnKeyFor(CURRENT_USER);
   return Number(localStorage.getItem(key) || 0);
 }
 function creditReferrerIfApplicable(cost, winPrice){
-  // if user has referrer, and the user lost money (cost > winPrice), give 40% of loss to referrer
-  const ref = localStorage.getItem(REF_KEY + '_' + CURRENT_USER);
+  const ref = localStorage.getItem(refKeyFor(CURRENT_USER));
   if(!ref) return;
   const loss = Math.max(0, cost - winPrice);
   if(loss <= 0) return;
   const reward = Math.round(loss * 0.40);
-  // store reward under ref's earnings and also add to ref's balance key (simulated)
   addReferralEarnings(ref, reward);
-  // also add to ref's balance (if they are on same browser, we simulate by storing balance under their user key)
+  // also credit ref's balance if they exist on same browser
   try{
-    const refBalKey = BALANCE_KEY + '_' + ref;
+    const refBalKey = balanceKeyFor(ref);
     const cur = Number(localStorage.getItem(refBalKey) || 0);
     localStorage.setItem(refBalKey, String(cur + reward));
   }catch(e){}
 }
 
 /* --- Image helpers --- */
-const IMAGE_BASE = '/assets/cs/';
+const IMAGE_BASE = '/assets/cs/'; // change to CDN if needed
 function imgPath(name){ return IMAGE_BASE + name; }
 function placeholderDataUrl(name){
   const w=256,h=256,bg='#0b0f14',accent='#facc15';
@@ -288,11 +291,12 @@ function placeholderDataUrl(name){
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 function safeSetImg(imgEl, src, name){
+  if(!imgEl) return;
   imgEl.src = src;
   imgEl.onerror = function(){ imgEl.onerror = null; imgEl.src = placeholderDataUrl(name); };
 }
 
-/* --- Cases: добавлены новые оружия и скорректированы цены для прибыли --- */
+/* --- Cases data (expanded, prices tuned) --- */
 const BASE_CASES = [
   { id:'case0', name:'Starter Case', price:120, baseItems:[
     { id:'s1', name:'P250 | Sand Dune', price:220, img: imgPath('p250_sanddune.png'), baseChance:55 },
@@ -335,60 +339,144 @@ const WORK_CASES = BASE_CASES.map(c => {
   return { ...c, items, baseTotalChance: items.reduce((s,i)=>s+i.baseChance,0) };
 });
 
-/* --- Состояние --- */
+/* --- State --- */
 let state = {
-  balance: loadBalance(),
+  balance: 0,
   inventory: [],
-  currentRtp: 0.65 // админ может менять
+  currentRtp: 0.65
 };
 
-/* --- DOM refs --- */
-const balanceEl = document.getElementById('balance');
-const casesListEl = document.getElementById('casesList');
-const inventoryListEl = document.getElementById('inventoryList');
-const bankBtn = document.getElementById('bankBtn');
-const bankOverlay = document.getElementById('bankOverlay');
-const closeBank = document.getElementById('closeBank');
-const depositBtn = document.getElementById('depositBtn');
-const withdrawBtn = document.getElementById('withdrawBtn');
-const amountInput = document.getElementById('amountInput');
-const overlay = document.getElementById('overlay');
-const winResultBox = document.getElementById('winResultBox');
-const winImg = document.getElementById('winImg');
-const winTitle = document.getElementById('winTitle');
-const winPrice = document.getElementById('winPrice');
-const closeModal = document.getElementById('closeModal');
-const bonusBtn = document.getElementById('bonusBtn');
-const bonusMsg = document.getElementById('bonusMsg');
-const chatBox = document.getElementById('chatBox');
-const fakeOnlineEl = document.getElementById('fakeOnline');
-const myRefLinkInput = document.getElementById('myRefLink');
-const refEarningsEl = document.getElementById('refEarnings');
+/* --- DOM refs (safe getters) --- */
+function $(id){ return document.getElementById(id); }
 
-/* admin refs */
-const adminToggle = document.getElementById('adminToggle');
-const adminPanel = document.getElementById('adminPanel');
-const adminLogin = document.getElementById('adminLogin');
-const adminPass = document.getElementById('adminPass');
-const adminControls = document.getElementById('adminControls');
-const adminAddAmount = document.getElementById('adminAddAmount');
-const adminAddBtn = document.getElementById('adminAddBtn');
-const adminSetRtp = document.getElementById('adminSetRtp');
-const adminSetRtpBtn = document.getElementById('adminSetRtpBtn');
-const adminForceCase = document.getElementById('adminForceCase');
-const adminForceItem = document.getElementById('adminForceItem');
-const adminForceWin = document.getElementById('adminForceWin');
-const adminClearRef = document.getElementById('adminClearRef');
+/* --- Safe init wrapper to avoid errors if DOM not ready --- */
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    // initialize balance from storage
+    state.balance = loadBalance();
+    // set referrer if present
+    setLocalReferrerIfNew();
+    // init UI
+    initUI();
+    // apply RTP and render
+    applyHiddenRtp(state.currentRtp);
+    renderCases();
+    renderInventory();
+    updateBalanceUI();
+    seedChat();
+  } catch (e) {
+    console.error('Initialization error:', e);
+    alert('Произошла ошибка инициализации. Откройте консоль (F12) для деталей.');
+  }
+});
 
-/* --- Инициализация UI данных реферала --- */
-function initReferralUI(){
-  myRefLinkInput.value = getMyRefLink();
-  refEarningsEl.textContent = getReferralEarningsForMe();
+/* --- UI initialization --- */
+function initUI(){
+  // set up buttons
+  const bankBtn = $('bankBtn'); if(bankBtn) bankBtn.addEventListener('click', ()=> $('bankOverlay').style.display = 'flex');
+  const closeBank = $('closeBank'); if(closeBank) closeBank.addEventListener('click', ()=> $('bankOverlay').style.display = 'none');
+  const depositBtn = $('depositBtn'); if(depositBtn) depositBtn.addEventListener('click', ()=> showModal('Демо: пополнение отключено.', false));
+  const withdrawBtn = $('withdrawBtn'); if(withdrawBtn) withdrawBtn.addEventListener('click', handleWithdraw);
+  const closeModal = $('closeModal'); if(closeModal) closeModal.addEventListener('click', ()=> $('overlay').style.display = 'none');
+
+  // admin toggle
+  const adminToggle = $('adminToggle'); if(adminToggle) adminToggle.addEventListener('click', ()=> {
+    const panel = $('adminPanel'); if(!panel) return;
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // admin login and controls
+  const adminLogin = $('adminLogin'); if(adminLogin) adminLogin.addEventListener('click', adminLoginHandler);
+  const adminAddBtn = $('adminAddBtn'); if(adminAddBtn) adminAddBtn.addEventListener('click', adminAddBalance);
+  const adminSetRtpBtn = $('adminSetRtpBtn'); if(adminSetRtpBtn) adminSetRtpBtn.addEventListener('click', adminSetRtpHandler);
+  const adminForceWin = $('adminForceWin'); if(adminForceWin) adminForceWin.addEventListener('click', adminForceWinHandler);
+  const adminClearRef = $('adminClearRef'); if(adminClearRef) adminClearRef.addEventListener('click', adminClearRefHandler);
+
+  // referral UI
+  const myRefLink = $('myRefLink'); if(myRefLink) myRefLink.value = getMyRefLink();
+  const refEarnings = $('refEarnings'); if(refEarnings) refEarnings.textContent = getReferralEarningsForMe();
+
+  // close overlay on background click
+  const overlay = $('overlay'); if(overlay) overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.style.display = 'none'; });
 }
 
-/* --- Рендер кейсов (каждый кейс содержит рулетку) --- */
+/* --- Withdraw handler --- */
+function handleWithdraw(){
+  const val = Number($('amountInput').value) || 0;
+  if(val < 500) return showModal('Минимальная сумма вывода — 500 ₽', false);
+  if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
+  subBalance(val);
+  $('bankOverlay').style.display = 'none';
+  showModal(`Выведено ${val} ₽ (демо)`, false);
+  pushFakeChat(`${shortName()} только что вывел ${val} ₽`);
+}
+
+/* --- Admin handlers --- */
+let adminLogged = false;
+function adminLoginHandler(){
+  const pass = $('adminPass').value || '';
+  if(pass === 'admin123'){
+    adminLogged = true;
+    $('adminControls').style.display = 'block';
+    populateAdminSelects();
+    showModal('Админ: вход выполнен (демо).', false);
+  } else {
+    showModal('Неверный пароль (демо).', false);
+  }
+}
+function adminAddBalance(){
+  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  const v = Number($('adminAddAmount').value) || 0;
+  if(v <= 0) return showModal('Введите сумму > 0', false);
+  addBalance(v);
+  showModal(`Админ: добавлено ${v} ₽ вашему балансу (демо)`, false);
+}
+function adminSetRtpHandler(){
+  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  const r = Number($('adminSetRtp').value);
+  if(!r || r < 0.1 || r > 0.95) return showModal('RTP должен быть в диапазоне 0.10–0.95', false);
+  state.currentRtp = r;
+  applyHiddenRtp(state.currentRtp);
+  showModal(`Админ: RTP установлен ${r}`, false);
+}
+function populateAdminSelects(){
+  const caseSel = $('adminForceCase'); const itemSel = $('adminForceItem');
+  if(!caseSel || !itemSel) return;
+  caseSel.innerHTML = ''; itemSel.innerHTML = '';
+  WORK_CASES.forEach(c => {
+    const opt = document.createElement('option'); opt.value = c.id; opt.textContent = c.name; caseSel.appendChild(opt);
+  });
+  const allItems = WORK_CASES.flatMap(c => c.items);
+  allItems.forEach(it => {
+    const opt = document.createElement('option'); opt.value = it.id; opt.textContent = it.name; itemSel.appendChild(opt);
+  });
+}
+function adminForceWinHandler(){
+  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  const caseId = $('adminForceCase').value;
+  const itemId = $('adminForceItem').value;
+  const c = WORK_CASES.find(x=>x.id===caseId);
+  if(!c) return showModal('Кейс не найден', false);
+  const item = c.items.find(it => it.id === itemId);
+  if(!item) return showModal('Предмет не найден', false);
+  const inv = { uid: uid('it'), id: item.id, name: item.name, price: item.price, img: item.img, upgraded: null };
+  state.inventory.push(inv);
+  renderInventory();
+  showFullScreenWin(inv);
+  pushFakeChat(`Админ выдал: ${item.name}`);
+}
+function adminClearRefHandler(){
+  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  Object.keys(localStorage).forEach(k => { if(k.startsWith(REF_EARN_KEY_PREFIX)) localStorage.removeItem(k); });
+  $('refEarnings').textContent = 0;
+  showModal('Реферальные начисления сброшены (демо).', false);
+}
+
+/* --- Render cases --- */
 function renderCases(){
-  casesListEl.innerHTML = '';
+  const container = $('casesList');
+  if(!container) return;
+  container.innerHTML = '';
   WORK_CASES.forEach(c => {
     const el = document.createElement('div'); el.className = 'case'; el.dataset.id = c.id;
 
@@ -414,7 +502,6 @@ function renderCases(){
     const glow = document.createElement('div'); glow.className = 'roulette-glow';
     rouletteWrap.appendChild(glow);
 
-    el.appendChild(left);
     const centerCol = document.createElement('div');
     centerCol.style.flex = '1';
     centerCol.style.display = 'flex';
@@ -422,7 +509,6 @@ function renderCases(){
     centerCol.appendChild(meta.cloneNode(true));
     centerCol.appendChild(rouletteWrap);
 
-    el.innerHTML = '';
     el.appendChild(left);
     el.appendChild(centerCol);
     el.appendChild(right);
@@ -431,17 +517,17 @@ function renderCases(){
 
     el.addEventListener('click', (e)=>{
       if(e.target && e.target.dataset && e.target.dataset.open) return;
+      // toggle only when clicking outside the open button
       toggleCaseRoulette(c.id);
     });
     const openBtn = el.querySelector('button[data-open]');
-    openBtn.addEventListener('click',(ev)=>{
+    if(openBtn) openBtn.addEventListener('click',(ev)=>{
       ev.stopPropagation();
       showCaseRoulette(c.id);
-      // start 6s spin animation and then reveal
       openCaseWithTimedSpin(c.id, track, 6000);
     });
 
-    casesListEl.appendChild(el);
+    container.appendChild(el);
   });
 }
 
@@ -463,8 +549,9 @@ function showCaseRoulette(caseId){
   roulette.style.display = 'block';
 }
 
-/* --- Подготовка рулетки для кейса --- */
+/* --- Prepare roulette items --- */
 function prepareRouletteForCase(caseObj, trackEl){
+  if(!trackEl) return;
   trackEl.innerHTML = '';
   const items = [];
   for(let i=0;i<20;i++) caseObj.items.forEach(it => items.push(it));
@@ -482,6 +569,7 @@ function prepareRouletteForCase(caseObj, trackEl){
   trackEl.style.transform = 'translateX(0)';
   setTimeout(()=> {
     const container = trackEl.parentElement;
+    if(!container) return;
     const containerW = container.clientWidth;
     const trackW = Array.from(trackEl.children).reduce((s, n) => s + (n.offsetWidth || 120), 0);
     if(trackW <= containerW){
@@ -495,35 +583,36 @@ function prepareRouletteForCase(caseObj, trackEl){
       trackEl.dataset.maxTranslate = String(maxT);
       trackEl.style.transform = 'translateX(0)';
     }
-  }, 50);
+  }, 60);
 }
 
-/* --- Анимация рулетки: 6 секунд прокрутки с желтой линией --- */
+/* --- Spin animation with fixed duration (6s) --- */
 function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   const c = WORK_CASES.find(x=>x.id===caseId);
   if(!c) return;
   const cost = c.price;
   if(state.balance < cost){ showModal(`Недостаточно средств. Нужно ${cost} ₽`, false); return; }
 
-  // списываем сразу
+  // deduct cost immediately
   subBalance(cost);
 
-  // prepare spin visuals
-  trackEl.classList.add('spinPulse');
-  // long spin: animate transform continuously for spinMs, then land on item
-  // We'll compute a final translate that centers the winning item.
-  const nodes = Array.from(trackEl.children);
-  if(nodes.length === 0){
-    // fallback: immediate pick
+  // ensure track exists
+  if(!trackEl) {
     const win = pickRandomItem(c.items);
     finalizeWin(c, cost, win);
     return;
   }
 
-  // choose winning item now (so we can land on it)
+  // choose winning item now
   const win = pickRandomItem(c.items);
 
-  // compute target index (first occurrence)
+  // compute nodes and sizes
+  const nodes = Array.from(trackEl.children);
+  if(nodes.length === 0){
+    finalizeWin(c, cost, win);
+    return;
+  }
+
   let targetIndex = nodes.findIndex(n => n.textContent.includes(win.name));
   if(targetIndex === -1) targetIndex = Math.floor(nodes.length/2);
 
@@ -532,21 +621,18 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   const containerW = container.clientWidth;
   const trackW = nodes.reduce((s,n)=> s + (n.offsetWidth || itemWidth), 0);
 
-  // centerOffset
   const centerOffset = Math.floor(containerW / 2);
 
-  // compute targetCenter for the chosen occurrence
   let targetCenter = 0;
   for(let i=0;i<targetIndex;i++) targetCenter += (nodes[i].offsetWidth || itemWidth);
   targetCenter += (nodes[targetIndex].offsetWidth || itemWidth) / 2;
 
-  // to make a long spin, add several full-track cycles before landing
-  const cycles = Math.max(2, Math.floor(spinMs / 1500)); // number of virtual cycles
+  // add cycles to simulate long spin
+  const cycles = Math.max(2, Math.floor(spinMs / 1500));
   const virtualTargetCenter = targetCenter + cycles * trackW;
 
   let desiredTranslate = centerOffset - virtualTargetCenter;
 
-  // compute min/max
   let minTranslate, maxTranslate;
   if(trackW <= containerW){
     minTranslate = maxTranslate = (containerW - trackW) / 2;
@@ -555,41 +641,38 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
     maxTranslate = 0;
   }
 
-  // normalize desiredTranslate into [minTranslate, maxTranslate] by adding/subtracting trackW
+  // normalize desiredTranslate into [minTranslate, maxTranslate]
   while(desiredTranslate < minTranslate) desiredTranslate += trackW;
   while(desiredTranslate > maxTranslate) desiredTranslate -= trackW;
   if(desiredTranslate < minTranslate) desiredTranslate = minTranslate;
   if(desiredTranslate > maxTranslate) desiredTranslate = maxTranslate;
 
-  // animate for spinMs duration
+  // animate
+  trackEl.classList.add('spinPulse');
   trackEl.style.transition = `transform ${spinMs}ms cubic-bezier(.18,.9,.2,1)`;
   requestAnimationFrame(()=> trackEl.style.transform = `translateX(${desiredTranslate}px)`);
 
-  // after spinMs, finalize
   setTimeout(()=> {
     trackEl.style.transition = '';
     trackEl.classList.remove('spinPulse');
-    // finalize: add item to inventory, show full-screen result, credit referrer if loss
     finalizeWin(c, cost, win);
-  }, spinMs + 60);
+  }, spinMs + 80);
 }
 
-/* --- Финализация выигрыша: добавление в инвентарь, показ, реферальные начисления --- */
+/* --- Finalize win: inventory, ref credit, UI --- */
 function finalizeWin(caseObj, cost, win){
   const inv = { uid: uid('it'), id: win.id, name: win.name, price: win.price, img: win.img, upgraded: null };
   state.inventory.push(inv);
-  // credit referrer 40% of loss if applicable
   creditReferrerIfApplicable(cost, win.price);
-  // show full-screen result
   showFullScreenWin(inv);
   renderInventory();
   logOpen([win]);
   pushFakeChat(`${shortName()} открыл ${caseObj.name} и получил ${win.name}`);
-  // update referral earnings display
-  refEarningsEl.textContent = getReferralEarningsForMe();
+  // update referral earnings UI
+  const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe();
 }
 
-/* --- Выбор предмета по шансам --- */
+/* --- Pick random item by chance --- */
 function pickRandomItem(items){
   const total = items.reduce((s,it)=>s + (it.chance || 1),0);
   let r = Math.random()*total;
@@ -600,27 +683,28 @@ function pickRandomItem(items){
   return JSON.parse(JSON.stringify(items[items.length-1]));
 }
 
-/* --- Показ результата на весь экран --- */
+/* --- Show full-screen win --- */
 function showFullScreenWin(inv){
-  safeSetImg(winImg, inv.img, inv.name);
-  winTitle.textContent = inv.name;
-  winPrice.textContent = `${inv.price} ₽`;
-  document.getElementById('winNote').textContent = 'Поздравляем! Предмет добавлен в инвентарь.';
-  winResultBox.style.display = 'block';
-  overlay.style.display = 'flex';
+  safeSetImg($('winImg'), inv.img, inv.name);
+  $('winTitle').textContent = inv.name;
+  $('winPrice').textContent = `${inv.price} ₽`;
+  $('winNote').textContent = 'Поздравляем! Предмет добавлен в инвентарь.';
+  $('winResultBox').style.display = 'block';
+  $('overlay').style.display = 'flex';
 }
 
-/* --- Лог открытия --- */
+/* --- Log open (push to chat) --- */
 function logOpen(results){
-  const lines = results.map(r=>`Вы получили: <b>${r.name}</b> — ${r.price} ₽`).join('<br>');
-  // если нужен лог в UI, можно добавить элемент; в демо просто пушим в чат
+  const lines = results.map(r=>`Вы получили: ${r.name} — ${r.price} ₽`).join('; ');
   pushFakeChat(`Система: ${lines}`);
 }
 
-/* --- Инвентарь --- */
+/* --- Inventory render --- */
 function renderInventory(){
-  inventoryListEl.innerHTML = '';
-  if(state.inventory.length === 0){ inventoryListEl.innerHTML = '<div class="small">Пусто</div>'; return; }
+  const container = $('inventoryList');
+  if(!container) return;
+  container.innerHTML = '';
+  if(state.inventory.length === 0){ container.innerHTML = '<div class="small">Пусто</div>'; return; }
   state.inventory.slice().reverse().forEach(it=>{
     const el = document.createElement('div'); el.className = 'item';
     const left = document.createElement('div'); left.className='left';
@@ -646,113 +730,89 @@ function renderInventory(){
     right.appendChild(sellBtn); right.appendChild(upgBtn);
 
     el.appendChild(left); el.appendChild(right);
-    inventoryListEl.appendChild(el);
+    container.appendChild(el);
   });
 }
 
-/* --- Апгрейд панель (упрощённо) --- */
+/* --- Upgrade panel (simple) --- */
 let upgradeSelectedItem = null;
 function openUpgradePanelForItem(item){
   upgradeSelectedItem = item;
-  document.getElementById('upgradeSelectedPreview').innerHTML = '';
+  const preview = $('upgradeSelectedPreview'); if(preview) preview.innerHTML = '';
   const img = document.createElement('img'); img.style.width='64px'; img.style.height='64px'; img.style.borderRadius='8px';
   safeSetImg(img, item.img, item.name);
-  document.getElementById('upgradeSelectedPreview').appendChild(img);
-  upgradeSelectedName.textContent = item.name;
-  upgradeSelectedPrice.textContent = `${item.price} ₽`;
-  document.getElementById('upgradeResultSmall').textContent = '';
-  document.getElementById('upgradeInnerSmall').textContent = 'Апгрейд';
+  if(preview) preview.appendChild(img);
+  $('upgradeSelectedName').textContent = item.name;
+  $('upgradeSelectedPrice').textContent = `${item.price} ₽`;
+  $('upgradeResultSmall').textContent = '';
+  $('upgradeInnerSmall').textContent = 'Апгрейд';
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 function performUpgrade(multiplier){
-  if(!upgradeSelectedItem) { document.getElementById('upgradeResultSmall').textContent = 'Выберите предмет'; return; }
+  if(!upgradeSelectedItem) { $('upgradeResultSmall').textContent = 'Выберите предмет'; return; }
   const cost = multiplier === 2 ? Math.max(100, Math.round(upgradeSelectedItem.price * 0.18)) : Math.max(200, Math.round(upgradeSelectedItem.price * 0.35));
-  if(state.balance < cost){ document.getElementById('upgradeResultSmall').textContent = 'Недостаточно средств'; return; }
+  if(state.balance < cost){ $('upgradeResultSmall').textContent = 'Недостаточно средств'; return; }
   subBalance(cost);
-  document.getElementById('upgradeResultSmall').textContent = 'Крутим...';
+  $('upgradeResultSmall').textContent = 'Крутим...';
   const prob = multiplier === 2 ? 0.60 : 0.30;
   const success = Math.random() < prob;
-  const wheel = document.getElementById('upgradeWheelSmall');
+  const wheel = $('upgradeWheelSmall');
   const baseSpins = 3 + Math.floor(Math.random()*3);
   let finalAngle;
   if(success) finalAngle = 360 * baseSpins + (Math.random()*50 + 5);
   else finalAngle = 360 * baseSpins + (Math.random()*180 + 120);
-  wheel.style.transition = 'transform 2000ms cubic-bezier(.2,.9,.2,1)';
-  wheel.style.transform = `rotate(${finalAngle}deg)`;
+  if(wheel){
+    wheel.style.transition = 'transform 2000ms cubic-bezier(.2,.9,.2,1)';
+    wheel.style.transform = `rotate(${finalAngle}deg)`;
+  }
   setTimeout(()=> {
-    wheel.style.transition = '';
-    wheel.style.transform = `rotate(${finalAngle % 360}deg)`;
+    if(wheel){ wheel.style.transition = ''; wheel.style.transform = `rotate(${finalAngle % 360}deg)`; }
     if(success){
       upgradeSelectedItem.price = Math.round(upgradeSelectedItem.price * multiplier);
       upgradeSelectedItem.upgraded = upgradeSelectedItem.upgraded || { times:0, multiplier:1 };
       upgradeSelectedItem.upgraded.times += 1;
       upgradeSelectedItem.upgraded.multiplier *= multiplier;
-      document.getElementById('upgradeResultSmall').textContent = `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${upgradeSelectedItem.price} ₽`;
-      upgradeSelectedPrice.textContent = `${upgradeSelectedItem.price} ₽`;
+      $('upgradeResultSmall').textContent = `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${upgradeSelectedItem.price} ₽`;
+      $('upgradeSelectedPrice').textContent = `${upgradeSelectedItem.price} ₽`;
       pushFakeChat(`${shortName()} успешно апгрейднул ${upgradeSelectedItem.name} до ${upgradeSelectedItem.price} ₽`);
     } else {
-      document.getElementById('upgradeResultSmall').textContent = 'Неудача. Попробуйте снова или продайте предмет.';
+      $('upgradeResultSmall').textContent = 'Неудача. Попробуйте снова или продайте предмет.';
       pushFakeChat(`${shortName()} неудачно апгрейднул ${upgradeSelectedItem.name}`);
     }
     renderInventory();
   }, 2050);
 }
-document.getElementById('upgrade2xBtn').addEventListener('click', ()=> performUpgrade(2));
-document.getElementById('upgrade3xBtn').addEventListener('click', ()=> performUpgrade(3));
-
-/* --- Bank handlers --- */
-bankBtn.addEventListener('click', ()=> bankOverlay.style.display = 'flex');
-closeBank.addEventListener('click', ()=> bankOverlay.style.display = 'none');
-depositBtn.addEventListener('click', ()=> {
-  showModal('Демо: пополнение временно отключено. В рабочей версии минимальный депозит — 100 ₽.', false);
-});
-withdrawBtn.addEventListener('click', ()=> {
-  const val = Number(amountInput.value) || 0;
-  if(val < 500) return showModal('Минимальная сумма вывода — 500 ₽', false);
-  if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
-  subBalance(val);
-  bankOverlay.style.display = 'none';
-  showModal(`Выведено ${val} ₽ (демо)`, false);
-  pushFakeChat(`${shortName()} только что вывел ${val} ₽`);
+document.addEventListener('click', (e)=>{
+  if(e.target && e.target.id === 'upgrade2xBtn') performUpgrade(2);
+  if(e.target && e.target.id === 'upgrade3xBtn') performUpgrade(3);
 });
 
-/* --- Бонус 10 ₽ в день (антиабуз) --- */
-function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
-bonusBtn.addEventListener('click', ()=>{
-  const last = localStorage.getItem('lastBonusDate_' + CURRENT_USER);
-  const today = todayKey();
-  if(last === today){ bonusMsg.textContent = 'Бонус уже получен сегодня'; setTimeout(()=> bonusMsg.textContent = '', 2500); return; }
-  addBalance(10);
-  localStorage.setItem('lastBonusDate_' + CURRENT_USER, today);
-  bonusMsg.textContent = 'Бонус 10 ₽ за сегодня зачислен';
-  setTimeout(()=> bonusMsg.textContent = '', 3000);
-});
+/* --- Bank modal close --- */
+if($('closeBank')) $('closeBank').addEventListener('click', ()=> $('bankOverlay').style.display = 'none');
 
-/* --- Модалки --- */
+/* --- Modal helpers --- */
 function showModal(text, showWinBox=true){
-  // simple modal message in overlay
-  const existing = document.getElementById('modalContent');
-  if(existing) existing.remove();
-  const content = document.createElement('div');
-  content.id = 'modalContent';
-  content.style.color = '#cbd5e1';
-  content.style.padding = '12px';
-  content.style.maxWidth = '720px';
+  const modal = $('modal');
+  if(!modal) return;
+  // remove previous message
+  const prev = $('modalContent'); if(prev) prev.remove();
+  const content = document.createElement('div'); content.id = 'modalContent';
+  content.style.color = '#cbd5e1'; content.style.padding = '12px'; content.style.maxWidth = '720px';
   content.innerHTML = text;
-  const modal = document.getElementById('modal');
   modal.appendChild(content);
-  if(showWinBox) winResultBox.style.display = 'none';
-  overlay.style.display = 'flex';
+  if(showWinBox) $('winResultBox').style.display = 'none';
+  $('overlay').style.display = 'flex';
   if(!showWinBox){
-    setTimeout(()=> { if(overlay.style.display === 'flex') overlay.style.display = 'none'; content.remove(); }, 2200);
+    setTimeout(()=> { if($('overlay') && $('overlay').style.display === 'flex') $('overlay').style.display = 'none'; content.remove(); }, 2200);
   }
 }
-overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.style.display = 'none'; });
-closeModal.addEventListener('click', ()=> overlay.style.display = 'none');
+
+/* --- Balance UI update --- */
+function updateBalanceUI(){ const el = $('balance'); if(el) el.textContent = state.balance; saveBalance(state.balance); const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe(); const myRef = $('myRefLink'); if(myRef) myRef.value = getMyRefLink(); }
 
 /* --- Fake online & chat feed --- */
 let fakeOnline = 120 + Math.floor(Math.random()*80);
-function updateFakeOnline(){ fakeOnline += Math.floor(Math.random()*7 - 3); if(fakeOnline < 5) fakeOnline = 5; fakeOnlineEl.textContent = fakeOnline; }
+function updateFakeOnline(){ fakeOnline += Math.floor(Math.random()*7 - 3); if(fakeOnline < 5) fakeOnline = 5; const el = $('fakeOnline'); if(el) el.textContent = fakeOnline; }
 setInterval(updateFakeOnline, 5000);
 updateFakeOnline();
 
@@ -768,8 +828,7 @@ function pushFakeChat(text){
   const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `${shortName()} • ${new Date().toLocaleTimeString()}`;
   const body = document.createElement('div'); body.textContent = text;
   el.appendChild(meta); el.appendChild(body);
-  chatBox.appendChild(el);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const chat = $('chatBox'); if(chat){ chat.appendChild(el); chat.scrollTop = chat.scrollHeight; }
 }
 function seedChat(){
   const initial = [
@@ -791,75 +850,8 @@ function seedChat(){
     }
   }, 7000 + Math.random()*8000);
 }
-seedChat();
 
-/* --- Админка: простой доступ и функции тестирования --- */
-let adminLogged = false;
-adminToggle.addEventListener('click', ()=> {
-  adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
-});
-adminLogin.addEventListener('click', ()=> {
-  const pass = adminPass.value || '';
-  if(pass === 'admin123'){ // demo password
-    adminLogged = true;
-    adminControls.style.display = 'block';
-    populateAdminSelects();
-    showModal('Админ: вход выполнен (демо).', false);
-  } else {
-    showModal('Неверный пароль (демо).', false);
-  }
-});
-function populateAdminSelects(){
-  adminForceCase.innerHTML = '';
-  WORK_CASES.forEach(c => {
-    const opt = document.createElement('option'); opt.value = c.id; opt.textContent = c.name; adminForceCase.appendChild(opt);
-  });
-  adminForceItem.innerHTML = '';
-  // fill with all items
-  const allItems = WORK_CASES.flatMap(c => c.items);
-  allItems.forEach(it => {
-    const opt = document.createElement('option'); opt.value = it.id; opt.textContent = it.name; adminForceItem.appendChild(opt);
-  });
-}
-adminAddBtn.addEventListener('click', ()=> {
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
-  const v = Number(adminAddAmount.value) || 0;
-  if(v <= 0) return showModal('Введите сумму > 0', false);
-  addBalance(v);
-  showModal(`Админ: добавлено ${v} ₽ вашему балансу (демо)`, false);
-});
-adminSetRtpBtn.addEventListener('click', ()=> {
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
-  const r = Number(adminSetRtp.value);
-  if(!r || r < 0.1 || r > 0.95) return showModal('RTP должен быть в диапазоне 0.10–0.95', false);
-  state.currentRtp = r;
-  applyHiddenRtp(state.currentRtp);
-  showModal(`Админ: RTP установлен ${r}`, false);
-});
-adminForceWin.addEventListener('click', ()=> {
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
-  const caseId = adminForceCase.value;
-  const itemId = adminForceItem.value;
-  const c = WORK_CASES.find(x=>x.id===caseId);
-  if(!c) return showModal('Кейс не найден', false);
-  const item = c.items.find(it => it.id === itemId);
-  if(!item) return showModal('Предмет не найден в выбранном кейсе', false);
-  // simulate opening without cost
-  const inv = { uid: uid('it'), id: item.id, name: item.name, price: item.price, img: item.img, upgraded: null };
-  state.inventory.push(inv);
-  renderInventory();
-  showFullScreenWin(inv);
-  pushFakeChat(`Админ выдал: ${item.name}`);
-});
-adminClearRef.addEventListener('click', ()=> {
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
-  // clear all ref earnings keys (demo)
-  Object.keys(localStorage).forEach(k => { if(k.startsWith('ch_refearn_')) localStorage.removeItem(k); });
-  refEarningsEl.textContent = 0;
-  showModal('Реферальные начисления сброшены (демо).', false);
-});
-
-/* --- Скрытая корректировка шансов (RTP) --- */
+/* --- Hidden RTP adjustments --- */
 function applyHiddenRtp(targetRtp){
   WORK_CASES.forEach(c => {
     const items = c.items;
@@ -875,47 +867,20 @@ function applyHiddenRtp(targetRtp){
   });
 }
 
-/* --- Инициализация страницы --- */
-function init(){
-  // set referrer if present in URL (only once)
-  setLocalReferrerIfNew();
-  initReferralUI();
-  applyHiddenRtp(state.currentRtp);
-  renderCases();
-  updateBalanceUI();
-  renderInventory();
-  try { if(window.TelegramWebApp && window.TelegramWebApp.MainButton) window.TelegramWebApp.MainButton.hide(); } catch(e){}
-}
-init();
+/* --- Helpers for referral and UI --- */
+function initReferralUI(){ const myRefLink = $('myRefLink'); if(myRefLink) myRefLink.value = getMyRefLink(); const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe(); }
+function seedChat(){ seedChat(); } // placeholder to satisfy earlier call
 
-/* --- Вспомогательные: UI и тесты --- */
-function updateBalanceUI(){ balanceEl.textContent = state.balance; saveBalance(state.balance); refEarningsEl.textContent = getReferralEarningsForMe(); myRefLinkInput.value = getMyRefLink(); }
-function uidShort(){ return CURRENT_USER.slice(-6); }
-
-/* --- Фейковый чат seed --- */
-(function seedChatAuto(){
-  const initial = [
-    `${shortName()} открыл Dust II Case и получил AK-47 | Redline`,
-    `${shortName()} вывел 600 ₽`,
-    `${shortName()} открыл Glove Case и получил Sport Gloves | Pandora's Box`,
-    `${shortName()} продал предмет за 700 ₽`,
-    `${shortName()} открыл Inferno Case и получил AWP | Asiimov`
-  ];
-  initial.forEach((m,i)=> setTimeout(()=> pushFakeChat(m), 300*i));
-})();
-
-/* --- Горячие клавиши для тестирования --- */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'b') bonusBtn.click();
-});
-
-/* --- Утилиты для отображения коротких имён --- */
-function shortName(){ return sampleUsers[Math.floor(Math.random()*sampleUsers.length)]; }
-
-/* --- Обновление реферальных начислений при загрузке --- */
-refEarningsEl.textContent = getReferralEarningsForMe();
-
-/* --- Конец скрипта --- */
+/* --- Expose some functions for debugging in console (optional) --- */
+window.CaseHunters = {
+  state,
+  addBalance,
+  subBalance,
+  renderCases,
+  renderInventory,
+  getMyRefLink,
+  getReferralEarningsForMe
+};
 </script>
 </body>
 </html>
