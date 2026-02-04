@@ -30,7 +30,36 @@ body{
   overflow-x:hidden;
 }
 
-/* Top Bar - ИСПРАВЛЕНО для мобильных */
+/* Loading Overlay */
+#loadingOverlay{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  transition:opacity 0.3s ease;
+}
+#loadingOverlay.fade-out{
+  opacity:0;
+  pointer-events:none;
+}
+.loader{
+  width:60px;
+  height:60px;
+  border:4px solid var(--accent);
+  border-top-color:transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:0 auto 20px;
+}
+@keyframes spin{
+  100%{transform:rotate(360deg);}
+}
+
+/* Top Bar */
 #topBar{
   position:sticky;
   top:0;
@@ -72,6 +101,7 @@ body{
   white-space:nowrap;
   flex:1;
   text-align:center;
+  transition:transform 0.3s ease;
 }
 .top-buttons{
   display:flex;
@@ -121,23 +151,17 @@ body{
   box-shadow:0 4px 12px rgba(0,0,0,.3);
 }
 
-/* Case Cards */
-.case{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+/* Case Cards - ОБНОВЛЕНО: рулетка под кейсом */
+.case-wrapper{
   background:linear-gradient(135deg,#1a2233,#111827);
   border-radius:12px;
   padding:14px;
   margin:10px 0;
-  cursor:pointer;
   border:1px solid rgba(255,255,255,0.05);
-  transition:all 0.3s ease;
-  touch-action:manipulation;
   position:relative;
   overflow:hidden;
 }
-.case::before{
+.case-wrapper::before{
   content:'';
   position:absolute;
   top:0;
@@ -147,17 +171,25 @@ body{
   background:linear-gradient(90deg, transparent, rgba(250,204,21,0.1), transparent);
   transition:left 0.7s ease;
 }
-.case:hover::before{
+.case-wrapper:hover::before{
   left:100%;
 }
-.case:active{
+.case-wrapper .case-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  touch-action:manipulation;
+  margin-bottom:12px;
+}
+.case-wrapper .case-header:active{
   transform:scale(0.98);
 }
-.case:hover{
+.case-wrapper:hover{
   border-color:rgba(250,204,21,0.3);
   box-shadow:0 0 20px rgba(250,204,21,0.2);
 }
-.case .left{
+.case-wrapper .case-left{
   display:flex;
   gap:12px;
   align-items:center;
@@ -180,71 +212,29 @@ body{
   flex-shrink:0;
   transition:all 0.3s ease;
 }
-.case:hover .case-badge{
+.case-wrapper:hover .case-badge{
   transform:rotate(5deg) scale(1.05);
   box-shadow:0 8px 25px rgba(250,204,21,0.4);
 }
-.case .meta{
+.case-wrapper .case-meta{
   flex:1;
 }
-.case .meta .title{
+.case-wrapper .case-meta .title{
   font-weight:bold;
   font-size:15px;
   margin-bottom:4px;
 }
-.case .meta .sub{
+.case-wrapper .case-meta .sub{
   font-size:12px;
   color:var(--muted);
 }
-.case .right{
+.case-wrapper .case-right{
   display:flex;
   flex-direction:column;
   align-items:flex-end;
   gap:6px;
 }
-
-/* Buttons */
-.smallBtn{
-  background:linear-gradient(135deg,#1a2233,#111827);
-  border:1px solid rgba(255,255,255,0.1);
-  color:#fff;
-  padding:8px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:500;
-  transition:all 0.2s;
-  touch-action:manipulation;
-  user-select:none;
-  min-width:70px;
-  position:relative;
-  overflow:hidden;
-}
-.smallBtn::after{
-  content:'';
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:5px;
-  height:5px;
-  background:rgba(255,255,255,0.5);
-  opacity:0;
-  border-radius:100%;
-  transform:scale(1,1) translate(-50%);
-  transform-origin:50% 50%;
-}
-.smallBtn:focus:not(:active)::after{
-  animation:ripple 1s ease-out;
-}
-@keyframes ripple{
-  0%{transform:scale(0,0); opacity:0.5;}
-  20%{transform:scale(25,25); opacity:0.3;}
-  100%{transform:scale(40,40); opacity:0;}
-}
-.smallBtn:active{
-  transform:scale(0.95);
-}
-.openBtn{
+.case-wrapper .case-open-btn{
   background:linear-gradient(135deg,var(--green),#0da271);
   border:none;
   padding:10px 16px;
@@ -260,7 +250,7 @@ body{
   position:relative;
   overflow:hidden;
 }
-.openBtn::before{
+.case-wrapper .case-open-btn::before{
   content:'';
   position:absolute;
   top:0;
@@ -270,78 +260,39 @@ body{
   background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition:left 0.5s;
 }
-.openBtn:hover::before{
+.case-wrapper .case-open-btn:hover::before{
   left:100%;
 }
-.openBtn:active{
+.case-wrapper .case-open-btn:active{
   transform:scale(0.95);
 }
-.openBtn:disabled{
+.case-wrapper .case-open-btn:disabled{
   opacity:0.5;
   cursor:not-allowed;
   transform:none;
 }
 
-/* Кнопка копирования рефералки */
-.copy-btn{
-  background:linear-gradient(135deg, #3b82f6, #2563eb);
-  border:none;
-  color:white;
-  padding:8px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:13px;
-  transition:all 0.2s;
-  display:flex;
-  align-items:center;
-  gap:5px;
-  touch-action:manipulation;
-  position:relative;
-  overflow:hidden;
-}
-.copy-btn::before{
-  content:'';
-  position:absolute;
-  top:0;
-  left:-100%;
-  width:100%;
-  height:100%;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition:left 0.5s;
-}
-.copy-btn:hover::before{
-  left:100%;
-}
-.copy-btn:active{
-  transform:scale(0.95);
-}
-.copy-btn.copied{
-  background:linear-gradient(135deg, var(--green), #0da271);
-  animation:pulse 0.5s ease-in-out;
-}
-@keyframes pulse{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.05);}
-  100%{transform:scale(1);}
-}
-
-/* Roulette - БЕСКОНЕЧНАЯ рулетка без исчезающих элементов */
-.roulette{
+/* Roulette - ПОД кейсом */
+.case-roulette{
   width:100%;
   overflow:hidden;
   position:relative;
   border-radius:12px;
   height:130px;
-  margin:12px 0;
   background:#071018;
   border:2px solid rgba(250,204,21,0.1);
+  margin-top:12px;
   -webkit-overflow-scrolling:touch;
+  display:none;
 }
-.track{
+.roulette-track{
   display:flex;
   height:100%;
   will-change:transform;
   transform:translate3d(0,0,0);
+  position:absolute;
+  left:0;
+  top:0;
 }
 .roulette-item{
   width:120px;
@@ -353,6 +304,7 @@ body{
   align-items:center;
   justify-content:center;
   transition:all 0.3s ease;
+  position:relative;
 }
 .roulette-item img{
   width:80px;
@@ -397,6 +349,91 @@ body{
   border-radius:50%;
   background:radial-gradient(circle, rgba(250,204,21,0.08), transparent 40%);
   pointer-events:none;
+}
+
+/* Buttons */
+.smallBtn{
+  background:linear-gradient(135deg,#1a2233,#111827);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#fff;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:500;
+  transition:all 0.2s;
+  touch-action:manipulation;
+  user-select:none;
+  min-width:70px;
+  position:relative;
+  overflow:hidden;
+}
+.smallBtn::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:5px;
+  height:5px;
+  background:rgba(255,255,255,0.5);
+  opacity:0;
+  border-radius:100%;
+  transform:scale(1,1) translate(-50%);
+  transform-origin:50% 50%;
+}
+.smallBtn:focus:not(:active)::after{
+  animation:ripple 1s ease-out;
+}
+@keyframes ripple{
+  0%{transform:scale(0,0); opacity:0.5;}
+  20%{transform:scale(25,25); opacity:0.3;}
+  100%{transform:scale(40,40); opacity:0;}
+}
+.smallBtn:active{
+  transform:scale(0.95);
+}
+
+/* Кнопка копирования рефералки */
+.copy-btn{
+  background:linear-gradient(135deg, #3b82f6, #2563eb);
+  border:none;
+  color:white;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  touch-action:manipulation;
+  position:relative;
+  overflow:hidden;
+}
+.copy-btn::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition:left 0.5s;
+}
+.copy-btn:hover::before{
+  left:100%;
+}
+.copy-btn:active{
+  transform:scale(0.95);
+}
+.copy-btn.copied{
+  background:linear-gradient(135deg, var(--green), #0da271);
+  animation:pulse 0.5s ease-in-out;
+}
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
 }
 
 /* Win Modal */
@@ -695,9 +732,6 @@ body{
   animation:spin 4s linear infinite;
   opacity:0.3;
 }
-@keyframes spin{
-  100%{transform:rotate(360deg);}
-}
 .upgrade-wheel .inner{
   color:#e5e7eb;
   font-size:13px;
@@ -859,7 +893,13 @@ body{
 </head>
 <body>
 
-<!-- Top Bar - ИСПРАВЛЕНО -->
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="loader"></div>
+  <div style="color:var(--accent);font-weight:bold;">Загрузка...</div>
+</div>
+
+<!-- Top Bar -->
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div class="top-controls">
@@ -1068,11 +1108,11 @@ body{
 </audio>
 
 <script>
-// Константы и конфигурация - ИСПРАВЛЕНО RTP на 40%
+// Константы и конфигурация
 const CONFIG = {
   STORAGE_PREFIX: 'ch_',
   DEMO_PASSWORD: '!125125Cc',
-  DEFAULT_RTP: 0.40, // РЕАЛЬНОЕ RTP 40%
+  DEFAULT_RTP: 0.40,
   IMAGE_BASE: 'https://via.placeholder.com/100x100/0b0f14/facc15?text=',
   SPIN_DURATION: 9000,
   CHAT_UPDATE_INTERVAL: 7000,
@@ -1082,7 +1122,7 @@ const CONFIG = {
   BOT_USERNAME: 'casehunter_bot'
 };
 
-// Все кейсы с СНИЖЕННЫМИ ЦЕНАМИ на оружие (примерно на 30-40%)
+// Все кейсы с ценами
 const CASES = [
   {
     id: 'case1',
@@ -1141,6 +1181,159 @@ const CASES = [
   }
 ];
 
+// Класс для кэширования изображений
+class ImageCache {
+  constructor() {
+    this.cache = new Map();
+    this.placeholders = new Map();
+  }
+  
+  async getImage(name, fallbackUrl = null) {
+    const cacheKey = name || 'default';
+    
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
+    
+    if (fallbackUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          this.cache.set(cacheKey, img.src);
+          resolve(img.src);
+        };
+        img.onerror = () => {
+          const placeholder = this.createPlaceholder(name);
+          this.cache.set(cacheKey, placeholder);
+          resolve(placeholder);
+        };
+        img.src = fallbackUrl;
+      });
+    }
+    
+    return this.createPlaceholder(name);
+  }
+  
+  createPlaceholder(text) {
+    const cacheKey = `placeholder_${text}`;
+    if (this.placeholders.has(cacheKey)) {
+      return this.placeholders.get(cacheKey);
+    }
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#0b0f14';
+    ctx.fillRect(0, 0, 100, 100);
+    
+    ctx.fillStyle = '#facc15';
+    ctx.globalAlpha = 0.12;
+    ctx.fillRect(12, 12, 76, 76);
+    ctx.globalAlpha = 1;
+    
+    ctx.fillStyle = '#e6eef6';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const words = text ? text.split(' ') : ['Item'];
+    let lines = [];
+    let currentLine = words[0];
+    
+    for (let i = 1; i < words.length; i++) {
+      const testLine = currentLine + ' ' + words[i];
+      if (ctx.measureText(testLine).width < 80) {
+        currentLine = testLine;
+      } else {
+        lines.push(currentLine);
+        currentLine = words[i];
+      }
+    }
+    lines.push(currentLine);
+    
+    const startY = 50 - ((lines.length - 1) * 7);
+    lines.forEach((line, index) => {
+      ctx.fillText(line, 50, startY + (index * 14));
+    });
+    
+    const dataUrl = canvas.toDataURL();
+    this.placeholders.set(cacheKey, dataUrl);
+    return dataUrl;
+  }
+}
+
+// Класс для аналитики
+class Analytics {
+  constructor(app) {
+    this.app = app;
+    this.events = [];
+    this.maxEvents = 100;
+  }
+  
+  track(event, data = {}) {
+    const eventData = {
+      event,
+      data,
+      timestamp: Date.now(),
+      userId: this.app.userId
+    };
+    
+    this.events.push(eventData);
+    
+    if (this.events.length > this.maxEvents) {
+      this.events = this.events.slice(-this.maxEvents);
+    }
+    
+    console.log('Analytics:', eventData);
+  }
+  
+  getStats() {
+    const opens = this.events.filter(e => e.event === 'case_open').length;
+    const wins = this.events.filter(e => e.event === 'item_won').length;
+    const upgrades = this.events.filter(e => e.event === 'upgrade_attempt').length;
+    
+    return { opens, wins, upgrades };
+  }
+}
+
+// Класс для автосохранения
+class AutoSave {
+  constructor(app, interval = 30000) {
+    this.app = app;
+    this.interval = interval;
+    this.timer = null;
+    this.pendingSave = false;
+  }
+  
+  start() {
+    this.timer = setInterval(() => {
+      if (this.pendingSave) {
+        this.app.saveState();
+        this.pendingSave = false;
+      }
+    }, this.interval);
+    
+    window.addEventListener('beforeunload', () => this.forceSave());
+  }
+  
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+  
+  scheduleSave() {
+    this.pendingSave = true;
+  }
+  
+  forceSave() {
+    this.app.saveState();
+  }
+}
+
 // Основной класс приложения
 class CaseHuntersGame {
   constructor() {
@@ -1154,23 +1347,97 @@ class CaseHuntersGame {
     };
     
     this.userId = this.getUserId();
+    this.intervals = [];
+    this.timeouts = [];
     this.cases = this.prepareCases();
     this.audioElements = {};
+    this.imageCache = new ImageCache();
+    this.analytics = new Analytics(this);
+    this.autoSave = new AutoSave(this);
+    
     this.init();
   }
 
   // Инициализация
-  init() {
-    this.loadState();
-    this.setupReferrer();
-    this.initAudio();
-    this.bindEvents();
-    this.renderCases();
-    this.renderInventory();
-    this.updateUI();
-    this.initChat();
-    this.initOnlineCounter();
-    this.populateAdminSelects();
+  async init() {
+    this.showLoading(true);
+    
+    try {
+      this.initErrorHandling();
+      this.loadState();
+      this.setupReferrer();
+      this.initAudio();
+      this.bindEvents();
+      this.renderCases();
+      this.renderInventory();
+      this.updateUI();
+      this.initChat();
+      this.initOnlineCounter();
+      this.populateAdminSelects();
+      
+      this.autoSave.start();
+      
+      await new Promise(resolve => this.setSafeTimeout(resolve, 500));
+      this.showLoading(false);
+      
+      this.analytics.track('app_loaded');
+      
+    } catch (error) {
+      console.error('Ошибка инициализации:', error);
+      this.showToast('Ошибка загрузки приложения', 'error');
+      this.showLoading(false);
+    }
+  }
+
+  // Показать/скрыть загрузку
+  showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+      if (show) {
+        overlay.style.display = 'flex';
+      } else {
+        overlay.classList.add('fade-out');
+        this.setSafeTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.classList.remove('fade-out');
+        }, 300);
+      }
+    }
+  }
+
+  // Обработка ошибок
+  initErrorHandling() {
+    window.addEventListener('error', (event) => {
+      console.error('Global error:', event.error);
+      this.showToast('Произошла ошибка. Попробуйте обновить страницу.', 'error');
+      this.analytics.track('error', { message: event.error?.message });
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+    });
+  }
+
+  // Безопасные таймеры
+  setSafeInterval(callback, delay) {
+    const id = setInterval(callback, delay);
+    this.intervals.push(id);
+    return id;
+  }
+
+  setSafeTimeout(callback, delay) {
+    const id = setTimeout(callback, delay);
+    this.timeouts.push(id);
+    return id;
+  }
+
+  // Очистка ресурсов
+  destroy() {
+    this.intervals.forEach(id => clearInterval(id));
+    this.timeouts.forEach(id => clearTimeout(id));
+    this.intervals = [];
+    this.timeouts = [];
+    this.autoSave.stop();
   }
 
   // Инициализация аудио
@@ -1221,6 +1488,7 @@ class CaseHuntersGame {
     
     this.showToast(this.state.soundEnabled ? 'Звук включен' : 'Звук выключен', 'info');
     this.saveState();
+    this.analytics.track('sound_toggled', { enabled: this.state.soundEnabled });
   }
 
   // Показать уведомление
@@ -1230,13 +1498,13 @@ class CaseHuntersGame {
     toast.textContent = message;
     document.body.appendChild(toast);
     
-    setTimeout(() => {
+    this.setSafeTimeout(() => {
       toast.classList.add('show');
     }, 10);
     
-    setTimeout(() => {
+    this.setSafeTimeout(() => {
       toast.classList.remove('show');
-      setTimeout(() => {
+      this.setSafeTimeout(() => {
         if (toast.parentNode) {
           document.body.removeChild(toast);
         }
@@ -1244,8 +1512,18 @@ class CaseHuntersGame {
     }, 3000);
   }
 
-  // Создание эффекта частиц
+  // Создание эффекта частиц с ограничением
   createParticles(x, y, count = 10, color = '#facc15') {
+    const maxParticles = 50;
+    const currentParticles = document.querySelectorAll('.particle').length;
+    
+    if (currentParticles > maxParticles) {
+      const particles = document.querySelectorAll('.particle');
+      for (let i = 0; i < particles.length - maxParticles / 2; i++) {
+        particles[i].remove();
+      }
+    }
+    
     for (let i = 0; i < count; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
@@ -1281,7 +1559,7 @@ class CaseHuntersGame {
     const balanceBox = document.getElementById('balanceBox');
     if (balanceBox) {
       balanceBox.classList.add('balance-increase');
-      setTimeout(() => {
+      this.setSafeTimeout(() => {
         balanceBox.classList.remove('balance-increase');
       }, 500);
     }
@@ -1311,7 +1589,7 @@ class CaseHuntersGame {
     bonus.style.top = `${refEarnings.getBoundingClientRect().top}px`;
     document.body.appendChild(bonus);
     
-    setTimeout(() => {
+    this.setSafeTimeout(() => {
       if (bonus.parentNode) {
         document.body.removeChild(bonus);
       }
@@ -1367,19 +1645,21 @@ class CaseHuntersGame {
       
       const soundKey = CONFIG.STORAGE_PREFIX + 'sound_' + this.userId;
       localStorage.setItem(soundKey, this.state.soundEnabled.toString());
+      
+      this.autoSave.scheduleSave();
     } catch (error) {
       console.error('Error saving state:', error);
     }
   }
 
-  // Подготовка кейсов с РЕАЛЬНЫМ RTP 40%
+  // Подготовка кейсов с реальным RTP 40%
   prepareCases() {
     return CASES.map(c => ({
       ...c,
       items: c.baseItems.map(it => ({ 
         ...it, 
         chance: this.calculateRealChance(it, c.baseItems, CONFIG.DEFAULT_RTP),
-        img: this.getImageUrl(it.img || it.name)
+        imgUrl: `${CONFIG.IMAGE_BASE}${encodeURIComponent(it.img || it.name.substring(0, 20))}`
       })),
       baseTotalChance: c.baseItems.reduce((s, i) => s + i.baseChance, 0)
     }));
@@ -1391,20 +1671,10 @@ class CaseHuntersGame {
     const avgPrice = totalPrice / allItems.length;
     const itemValueRatio = item.price / avgPrice;
     
-    // Формула для расчета шансов с учетом RTP 40%
-    // Более дешевые предметы имеют больший шанс
     const baseChance = (1 / itemValueRatio) * 100;
+    const adjustedChance = baseChance * (targetRtp / 0.5);
     
-    // Корректируем под целевой RTP
-    const adjustedChance = baseChance * (targetRtp / 0.5); // Нормализуем
-    
-    return Math.max(adjustedChance, 1); // Минимальный шанс 1%
-  }
-
-  // Получение URL картинки
-  getImageUrl(name) {
-    const encodedName = encodeURIComponent(name.substring(0, 20));
-    return `${CONFIG.IMAGE_BASE}${encodedName}`;
+    return Math.max(adjustedChance, 1);
   }
 
   // Регистрация реферала
@@ -1416,6 +1686,7 @@ class CaseHuntersGame {
       if (referrer && referrer !== this.userId) {
         const referrerKey = CONFIG.STORAGE_PREFIX + 'referrer_' + this.userId;
         localStorage.setItem(referrerKey, referrer);
+        this.analytics.track('referral_registered', { referrer });
       }
     } catch (error) {
       console.error('Error setting up referrer:', error);
@@ -1428,6 +1699,7 @@ class CaseHuntersGame {
     document.getElementById('bankBtn')?.addEventListener('click', () => {
       this.playSound('click');
       this.showBankModal();
+      this.analytics.track('bank_opened');
     });
     document.getElementById('closeBank')?.addEventListener('click', () => {
       this.playSound('click');
@@ -1446,6 +1718,7 @@ class CaseHuntersGame {
     document.getElementById('adminToggle')?.addEventListener('click', () => {
       this.playSound('click');
       this.toggleAdminPanel();
+      this.analytics.track('admin_panel_toggled');
     });
     document.getElementById('adminLogin')?.addEventListener('click', () => {
       this.playSound('click');
@@ -1496,16 +1769,19 @@ class CaseHuntersGame {
     document.getElementById('upgrade2xBtn')?.addEventListener('click', () => {
       this.playSound('click');
       this.performUpgrade(2);
+      this.analytics.track('upgrade_attempt', { multiplier: 2 });
     });
     document.getElementById('upgrade3xBtn')?.addEventListener('click', () => {
       this.playSound('click');
       this.performUpgrade(3);
+      this.analytics.track('upgrade_attempt', { multiplier: 3 });
     });
 
     // Копирование реферальной ссылки
     document.getElementById('copyRefBtn')?.addEventListener('click', () => {
       this.playSound('click');
       this.copyReferralLink();
+      this.analytics.track('referral_link_copied');
     });
 
     // Звук
@@ -1522,7 +1798,7 @@ class CaseHuntersGame {
   }
 
   // Копирование реферальной ссылки
-  copyReferralLink() {
+  async copyReferralLink() {
     const refLink = document.getElementById('myRefLink');
     const copyBtn = document.getElementById('copyRefBtn');
     const copyText = document.getElementById('copyText');
@@ -1533,34 +1809,22 @@ class CaseHuntersGame {
     refLink.setSelectionRange(0, 99999);
     
     try {
-      navigator.clipboard.writeText(refLink.value).then(() => {
-        copyBtn.classList.add('copied');
-        copyText.textContent = 'Скопировано!';
-        
-        setTimeout(() => {
-          copyBtn.classList.remove('copied');
-          copyText.textContent = 'Копировать';
-        }, 2000);
-        
-        this.showToast('Ссылка скопирована в буфер обмена!', 'success');
-        this.createParticles(
-          copyBtn.getBoundingClientRect().left + copyBtn.offsetWidth / 2,
-          copyBtn.getBoundingClientRect().top + copyBtn.offsetHeight / 2,
-          8,
-          '#3b82f6'
-        );
-      }).catch(err => {
-        document.execCommand('copy');
-        copyBtn.classList.add('copied');
-        copyText.textContent = 'Скопировано!';
-        
-        setTimeout(() => {
-          copyBtn.classList.remove('copied');
-          copyText.textContent = 'Копировать';
-        }, 2000);
-        
-        this.showToast('Ссылка скопирована в буфер обмена!', 'success');
-      });
+      await navigator.clipboard.writeText(refLink.value);
+      copyBtn.classList.add('copied');
+      copyText.textContent = 'Скопировано!';
+      
+      this.setSafeTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyText.textContent = 'Копировать';
+      }, 2000);
+      
+      this.showToast('Ссылка скопирована в буфер обмена!', 'success');
+      this.createParticles(
+        copyBtn.getBoundingClientRect().left + copyBtn.offsetWidth / 2,
+        copyBtn.getBoundingClientRect().top + copyBtn.offsetHeight / 2,
+        8,
+        '#3b82f6'
+      );
     } catch (error) {
       console.error('Error copying text:', error);
       this.showToast('Ошибка копирования', 'error');
@@ -1591,6 +1855,7 @@ class CaseHuntersGame {
     this.hideBankModal();
     this.showToast(`Демо: Пополнено ${amount} ₽`, 'success');
     this.pushFakeChat(`${this.getRandomName()} пополнил баланс на ${amount} ₽`);
+    this.analytics.track('deposit_demo', { amount });
   }
 
   // Вывод средств
@@ -1615,6 +1880,7 @@ class CaseHuntersGame {
     this.hideBankModal();
     this.showToast(`Демо: Выведено ${amount} ₽`, 'success');
     this.pushFakeChat(`${this.getRandomName()} вывел ${amount} ₽`);
+    this.analytics.track('withdraw_demo', { amount });
   }
 
   // Переключение админ панели
@@ -1632,8 +1898,10 @@ class CaseHuntersGame {
       document.getElementById('adminControls').style.display = 'block';
       this.updateBalanceUI();
       this.showToast('Админ: вход выполнен. Баланс администратора — безграничный.', 'success');
+      this.analytics.track('admin_login_success');
     } else {
       this.showToast('Неверный пароль.', 'error');
+      this.analytics.track('admin_login_failed');
     }
   }
 
@@ -1654,6 +1922,7 @@ class CaseHuntersGame {
 
     this.addBalance(amount);
     this.showToast(`Админ: добавлено ${amount} ₽`, 'success');
+    this.analytics.track('admin_add_balance', { amount });
   }
 
   // Установка RTP
@@ -1674,6 +1943,7 @@ class CaseHuntersGame {
     this.state.currentRtp = rtp;
     this.applyHiddenRtp(rtp);
     this.showToast(`Админ: RTP установлен ${rtp}`, 'success');
+    this.analytics.track('admin_set_rtp', { rtp });
   }
 
   // Принудительный выигрыш
@@ -1708,7 +1978,7 @@ class CaseHuntersGame {
       id: item.id,
       name: item.name,
       price: item.price,
-      img: item.img,
+      img: await this.imageCache.getImage(item.name, item.imgUrl),
       upgraded: null
     };
 
@@ -1718,6 +1988,7 @@ class CaseHuntersGame {
     this.showFullScreenWin(inventoryItem);
     this.pushFakeChat(`Админ выдал: ${item.name}`);
     this.showToast(`Выдан предмет: ${item.name}`, 'success');
+    this.analytics.track('admin_force_win', { caseId, itemId });
   }
 
   // Сброс реферальных начислений
@@ -1735,6 +2006,7 @@ class CaseHuntersGame {
 
     this.updateUI();
     this.showToast('Реферальные начисления сброшены.', 'success');
+    this.analytics.track('admin_clear_ref');
   }
 
   // Заполнение выпадающих списков в админке
@@ -1782,7 +2054,7 @@ class CaseHuntersGame {
   }
 
   // Получение бонуса
-  claimBonus(type) {
+  async claimBonus(type) {
     const today = new Date().toISOString().split('T')[0];
     const storageKey = type === 'daily' 
       ? CONFIG.STORAGE_PREFIX + 'lastBonus_' + this.userId
@@ -1811,6 +2083,8 @@ class CaseHuntersGame {
       12,
       '#facc15'
     );
+    
+    this.analytics.track('bonus_claimed', { type, amount });
   }
 
   // Зачисление реферальных средств
@@ -1827,6 +2101,7 @@ class CaseHuntersGame {
     this.clearReferralEarnings();
     this.showToast(`Зачислено ${earnings} ₽ на баланс`, 'success');
     this.animateRefBonus(earnings);
+    this.analytics.track('referral_earnings_claimed', { amount: earnings });
   }
 
   // Получение реферальных доходов
@@ -1851,98 +2126,86 @@ class CaseHuntersGame {
   }
 
   // Рендер кейсов
-  renderCases() {
+  async renderCases() {
     const container = document.getElementById('casesList');
     if (!container) return;
 
     container.innerHTML = '';
 
-    this.cases.forEach(caseItem => {
+    for (const caseItem of this.cases) {
       const caseElement = document.createElement('div');
-      caseElement.className = 'case';
+      caseElement.className = 'case-wrapper';
       caseElement.dataset.id = caseItem.id;
 
       caseElement.innerHTML = `
-        <div class="left">
-          <div class="case-badge">
-            <div>КЕЙС</div>
+        <div class="case-header">
+          <div class="case-left">
+            <div class="case-badge">
+              <div>КЕЙС</div>
+            </div>
+            <div class="case-meta">
+              <div class="title">${caseItem.name}</div>
+              <div class="sub">Цена: ${caseItem.price} ₽</div>
+            </div>
           </div>
-          <div class="meta">
-            <div class="title">${caseItem.name}</div>
-            <div class="sub">Цена: ${caseItem.price} ₽</div>
+          <div class="case-right">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Предметов: ${caseItem.items.length}</div>
+            <button class="case-open-btn" data-open="${caseItem.id}">Открыть</button>
           </div>
         </div>
-        <div class="right">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Предметов: ${caseItem.items.length}</div>
-          <button class="openBtn" data-open="${caseItem.id}">Открыть</button>
+        <div class="case-roulette" id="roulette-${caseItem.id}">
+          <div class="roulette-track" data-case="${caseItem.id}"></div>
+          <div class="roulette-center-line"></div>
+          <div class="roulette-glow"></div>
         </div>
       `;
-
-      const rouletteWrap = document.createElement('div');
-      rouletteWrap.className = 'roulette';
-      rouletteWrap.style.marginTop = '12px';
-      rouletteWrap.style.display = 'none';
       
-      const track = document.createElement('div');
-      track.className = 'track';
-      track.dataset.case = caseItem.id;
-      
-      const centerLine = document.createElement('div');
-      centerLine.className = 'roulette-center-line';
-      
-      const glow = document.createElement('div');
-      glow.className = 'roulette-glow';
-      
-      rouletteWrap.appendChild(track);
-      rouletteWrap.appendChild(centerLine);
-      rouletteWrap.appendChild(glow);
-      
-      caseElement.appendChild(rouletteWrap);
       container.appendChild(caseElement);
-
-      this.prepareRouletteForCase(caseItem, track);
+      
+      const rouletteWrap = caseElement.querySelector(`#roulette-${caseItem.id}`);
+      const track = rouletteWrap.querySelector('.roulette-track');
+      
+      await this.prepareRouletteForCase(caseItem, track);
 
       const openBtn = caseElement.querySelector(`[data-open="${caseItem.id}"]`);
       if (openBtn) {
         openBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           this.playSound('click');
-          this.showCaseRoulette(caseItem.id);
           this.openCaseWithDynamicSpin(caseItem.id, track);
+          this.analytics.track('case_open_click', { caseId: caseItem.id });
         });
       }
 
-      caseElement.addEventListener('click', (e) => {
-        if (e.target !== openBtn && !e.target.closest('.openBtn')) {
+      caseElement.querySelector('.case-header').addEventListener('click', (e) => {
+        if (e.target !== openBtn && !e.target.closest('.case-open-btn')) {
           this.playSound('click');
           this.toggleCaseRoulette(caseItem.id);
         }
       });
-    });
+    }
   }
 
-  // Подготовка рулетки для кейса - БЕСКОНЕЧНАЯ
-  prepareRouletteForCase(caseItem, trackEl) {
+  // Подготовка рулетки для кейса с оптимизацией
+  async prepareRouletteForCase(caseItem, trackEl) {
     if (!trackEl) return;
 
     trackEl.innerHTML = '';
-
-    // Создаем достаточно элементов для плавной прокрутки
-    const itemsToShow = 30; // Уменьшено для производительности
+    
+    // Создаем виртуальный буфер элементов
+    const itemsToShow = 15; // Уменьшено для производительности
     
     for (let i = 0; i < itemsToShow; i++) {
-      caseItem.items.forEach(item => {
+      for (const item of caseItem.items) {
         const el = document.createElement('div');
         el.className = 'roulette-item';
         el.dataset.itemId = item.id;
+        el.dataset.index = i;
 
         const img = document.createElement('img');
         img.className = 'weapon-img';
-        img.src = item.img;
+        img.src = await this.imageCache.getImage(item.name, item.imgUrl);
         img.alt = item.name;
-        img.onerror = () => {
-          img.src = this.createImagePlaceholder(item.name);
-        };
 
         el.appendChild(img);
         
@@ -1960,81 +2223,22 @@ class CaseHuntersGame {
         el.appendChild(priceDiv);
         
         trackEl.appendChild(el);
-      });
-    }
-  }
-
-  // Создание placeholder для картинки
-  createImagePlaceholder(text) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 100;
-    canvas.height = 100;
-    const ctx = canvas.getContext('2d');
-    
-    ctx.fillStyle = '#0b0f14';
-    ctx.fillRect(0, 0, 100, 100);
-    
-    ctx.fillStyle = '#facc15';
-    ctx.globalAlpha = 0.12;
-    ctx.fillRect(12, 12, 76, 76);
-    ctx.globalAlpha = 1;
-    
-    ctx.fillStyle = '#e6eef6';
-    ctx.font = 'bold 10px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    const words = text.split(' ');
-    let lines = [];
-    let currentLine = words[0];
-    
-    for (let i = 1; i < words.length; i++) {
-      const testLine = currentLine + ' ' + words[i];
-      if (ctx.measureText(testLine).width < 80) {
-        currentLine = testLine;
-      } else {
-        lines.push(currentLine);
-        currentLine = words[i];
       }
     }
-    lines.push(currentLine);
-    
-    const startY = 50 - ((lines.length - 1) * 7);
-    lines.forEach((line, index) => {
-      ctx.fillText(line, 50, startY + (index * 14));
-    });
-    
-    return canvas.toDataURL();
   }
 
   // Переключение рулетки кейса
   toggleCaseRoulette(caseId) {
-    const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
-    if (!caseEl) return;
-    
-    const roulette = caseEl.querySelector('.roulette');
+    const roulette = document.getElementById(`roulette-${caseId}`);
     if (!roulette) return;
     
-    document.querySelectorAll('.case .roulette').forEach(r => {
-      if (r !== roulette) r.style.display = 'none';
+    document.querySelectorAll('.case-roulette').forEach(r => {
+      if (r.id !== `roulette-${caseId}`) {
+        r.style.display = 'none';
+      }
     });
     
     roulette.style.display = roulette.style.display === 'none' ? 'block' : 'none';
-  }
-
-  // Показать рулетку кейса
-  showCaseRoulette(caseId) {
-    const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
-    if (!caseEl) return;
-    
-    const roulette = caseEl.querySelector('.roulette');
-    if (!roulette) return;
-    
-    document.querySelectorAll('.case .roulette').forEach(r => {
-      if (r !== roulette) r.style.display = 'none';
-    });
-    
-    roulette.style.display = 'block';
   }
 
   // Открытие кейса с динамичной анимацией
@@ -2061,10 +2265,16 @@ class CaseHuntersGame {
     
     const winItem = this.pickRandomItem(caseItem.items);
     
+    // Показываем рулетку
+    const roulette = document.getElementById(`roulette-${caseId}`);
+    if (roulette) {
+      roulette.style.display = 'block';
+    }
+    
     // Звук вращения рулетки
     this.playSound('rouletteSpin');
     
-    // Динамичная анимация с быстрым стартом и плавным замедлением
+    // Анимация рулетки
     await this.animateRouletteWithDynamicSpeed(caseId, winItem, trackEl);
     
     const inventoryItem = {
@@ -2072,7 +2282,7 @@ class CaseHuntersGame {
       id: winItem.id,
       name: winItem.name,
       price: winItem.price,
-      img: winItem.img,
+      img: await this.imageCache.getImage(winItem.name, winItem.imgUrl),
       upgraded: null
     };
     
@@ -2092,7 +2302,7 @@ class CaseHuntersGame {
     this.pushFakeChat(`${this.getRandomName()} открыл ${caseItem.name} и получил ${winItem.name}`);
     
     // Эффект частиц при выигрыше
-    const caseRect = document.querySelector(`.case[data-id="${caseId}"]`)?.getBoundingClientRect();
+    const caseRect = document.querySelector(`.case-wrapper[data-id="${caseId}"]`)?.getBoundingClientRect();
     if (caseRect) {
       this.createParticles(
         caseRect.left + caseRect.width / 2,
@@ -2108,9 +2318,15 @@ class CaseHuntersGame {
     }
     
     this.showToast(`Вы выиграли: ${winItem.name} (${winItem.price} ₽)`, 'success');
+    this.analytics.track('case_opened', { 
+      caseId, 
+      itemId: winItem.id, 
+      itemPrice: winItem.price,
+      cost 
+    });
   }
 
-  // Анимация рулетки с динамичной скоростью - ИСПРАВЛЕНО: предметы не пропадают
+  // Анимация рулетки с динамичной скоростью
   animateRouletteWithDynamicSpeed(caseId, winItem, trackEl) {
     return new Promise((resolve) => {
       if (!trackEl) {
@@ -2142,7 +2358,6 @@ class CaseHuntersGame {
       
       const centerOffset = Math.floor(containerWidth / 2);
       
-      // Вычисляем позицию так, чтобы выигранный предмет остановился в центре
       let targetPosition = 0;
       for (let i = 0; i < targetIndex; i++) {
         targetPosition += (items[i].offsetWidth || itemWidth);
@@ -2151,28 +2366,25 @@ class CaseHuntersGame {
       
       const trackWidth = items.reduce((sum, item) => sum + (item.offsetWidth || itemWidth), 0);
       
-      // Вычисляем конечное смещение
       const finalTranslate = centerOffset - targetPosition;
-      
-      // Начальное смещение (далеко слева)
       const startTranslate = trackWidth * 2;
       
-      // 1. БЫСТРЫЙ СТАРТ - первые 2 секунды
+      // 1. БЫСТРЫЙ СТАРТ
       trackEl.style.transition = 'transform 2s cubic-bezier(0.1, 0.8, 0.2, 1)';
       trackEl.style.transform = `translateX(${startTranslate}px)`;
       
-      setTimeout(() => {
-        // 2. СРЕДНЯЯ СКОРОСТЬ - следующие 4 секунды
+      this.setSafeTimeout(() => {
+        // 2. СРЕДНЯЯ СКОРОСТЬ
         trackEl.style.transition = 'transform 4s cubic-bezier(0.2, 0.7, 0.3, 1)';
         const midTranslate = finalTranslate * 0.3;
         trackEl.style.transform = `translateX(${midTranslate}px)`;
         
-        setTimeout(() => {
-          // 3. МЕДЛЕННОЕ ЗАМЕДЛЕНИЕ - последние 3 секунды
+        this.setSafeTimeout(() => {
+          // 3. МЕДЛЕННОЕ ЗАМЕДЛЕНИЕ
           trackEl.style.transition = 'transform 3s cubic-bezier(0.3, 0.1, 0.2, 1)';
           trackEl.style.transform = `translateX(${finalTranslate}px)`;
           
-          setTimeout(() => {
+          this.setSafeTimeout(() => {
             items.forEach(item => item.classList.remove('active'));
             
             const winningElements = items.filter(item => item.dataset.itemId === winItem.id);
@@ -2193,7 +2405,6 @@ class CaseHuntersGame {
               
               closestToCenter.classList.add('active');
               
-              // Эффект частиц на выигранном предмете
               const rect = closestToCenter.getBoundingClientRect();
               this.createParticles(
                 rect.left + rect.width / 2,
@@ -2247,23 +2458,27 @@ class CaseHuntersGame {
       const refBalance = parseInt(localStorage.getItem(refBalanceKey) || '0');
       localStorage.setItem(refBalanceKey, (refBalance + reward).toString());
       
+      this.analytics.track('referral_credited', { 
+        referrerId, 
+        reward, 
+        loss, 
+        cost, 
+        winPrice 
+      });
+      
     } catch (error) {
       console.error('Error crediting referrer:', error);
     }
   }
 
   // Показать выигрыш в полноэкранном режиме
-  showFullScreenWin(item) {
+  async showFullScreenWin(item) {
     const winImg = document.getElementById('winImg');
     const winTitle = document.getElementById('winTitle');
     const winPrice = document.getElementById('winPrice');
     const winNote = document.getElementById('winNote');
     
-    winImg.src = item.img;
-    winImg.onerror = () => {
-      winImg.src = this.createImagePlaceholder(item.name);
-    };
-    
+    winImg.src = await this.imageCache.getImage(item.name, item.img);
     winTitle.textContent = item.name;
     winPrice.textContent = `${item.price} ₽`;
     winNote.textContent = 'Поздравляем! Предмет добавлен в инвентарь.';
@@ -2271,7 +2486,6 @@ class CaseHuntersGame {
     document.getElementById('winResultBox').style.display = 'block';
     document.getElementById('overlay').style.display = 'flex';
     
-    // Эффект частиц в модалке
     const modalRect = document.getElementById('winResultBox').getBoundingClientRect();
     this.createParticles(
       modalRect.left + modalRect.width / 2,
@@ -2279,10 +2493,16 @@ class CaseHuntersGame {
       25,
       '#facc15'
     );
+    
+    this.analytics.track('item_won', { 
+      itemId: item.id, 
+      itemName: item.name, 
+      itemPrice: item.price 
+    });
   }
 
   // Рендер инвентаря
-  renderInventory() {
+  async renderInventory() {
     const container = document.getElementById('inventoryList');
     if (!container) return;
     
@@ -2291,53 +2511,71 @@ class CaseHuntersGame {
       return;
     }
     
-    container.innerHTML = '';
+    // Дифференциальный рендеринг
+    const currentItems = Array.from(container.children);
+    const newItems = [...this.state.inventory].reverse();
     
-    [...this.state.inventory].reverse().forEach(item => {
-      const itemElement = document.createElement('div');
-      itemElement.className = 'item';
-      itemElement.dataset.uid = item.uid;
-      
-      itemElement.innerHTML = `
-        <div class="left">
-          <img src="${item.img}" alt="${item.name}" class="weapon-img" 
-               onerror="this.src='${this.createImagePlaceholder(item.name)}'">
-          <div class="meta">
-            <div class="title">${item.name}${item.upgraded ? ` • ${item.upgraded.multiplier}x` : ''}</div>
-            <div class="sub">${item.price} ₽</div>
-          </div>
-        </div>
-        <div>
-          <button class="smallBtn" data-sell="${item.uid}" style="margin-bottom:8px">Продать</button>
-          <button class="smallBtn" data-upgrade="${item.uid}">Апгрейд</button>
-        </div>
-      `;
-      
-      container.appendChild(itemElement);
-      
-      const sellBtn = itemElement.querySelector(`[data-sell="${item.uid}"]`);
-      const upgradeBtn = itemElement.querySelector(`[data-upgrade="${item.uid}"]`);
-      
-      if (sellBtn) {
-        sellBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (confirm(`Продать "${item.name}" за ${item.price} ₽?`)) {
-            this.sellItem(item.uid);
-          }
-        });
-      }
-      
-      if (upgradeBtn) {
-        upgradeBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.openUpgradePanelForItem(item);
-        });
+    // Удалить отсутствующие элементы
+    currentItems.forEach(itemEl => {
+      const uid = itemEl.dataset.uid;
+      if (!newItems.find(item => item.uid === uid)) {
+        itemEl.remove();
       }
     });
+    
+    // Добавить или обновить элементы
+    for (const item of newItems) {
+      const existingEl = container.querySelector(`[data-uid="${item.uid}"]`);
+      if (!existingEl) {
+        container.appendChild(await this.createInventoryItem(item));
+      }
+    }
+  }
+
+  // Создание элемента инвентаря
+  async createInventoryItem(item) {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'item';
+    itemElement.dataset.uid = item.uid;
+    
+    itemElement.innerHTML = `
+      <div class="left">
+        <img src="${await this.imageCache.getImage(item.name, item.img)}" alt="${item.name}" class="weapon-img">
+        <div class="meta">
+          <div class="title">${item.name}${item.upgraded ? ` • ${item.upgraded.multiplier}x` : ''}</div>
+          <div class="sub">${item.price} ₽</div>
+        </div>
+      </div>
+      <div>
+        <button class="smallBtn" data-sell="${item.uid}" style="margin-bottom:8px">Продать</button>
+        <button class="smallBtn" data-upgrade="${item.uid}">Апгрейд</button>
+      </div>
+    `;
+    
+    const sellBtn = itemElement.querySelector(`[data-sell="${item.uid}"]`);
+    const upgradeBtn = itemElement.querySelector(`[data-upgrade="${item.uid}"]`);
+    
+    if (sellBtn) {
+      sellBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm(`Продать "${item.name}" за ${item.price} ₽?`)) {
+          this.sellItem(item.uid);
+        }
+      });
+    }
+    
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openUpgradePanelForItem(item);
+      });
+    }
+    
+    return itemElement;
   }
 
   // Продажа предмета
-  sellItem(itemUid) {
+  async sellItem(itemUid) {
     const itemIndex = this.state.inventory.findIndex(item => item.uid === itemUid);
     if (itemIndex === -1) return;
     
@@ -2352,7 +2590,6 @@ class CaseHuntersGame {
     this.showToast(`Предмет "${item.name}" продан за ${item.price} ₽`, 'success');
     this.pushFakeChat(`${this.getRandomName()} продал ${item.name} за ${item.price} ₽`);
     
-    // Эффект частиц при продаже
     const itemElement = document.querySelector(`.item[data-uid="${itemUid}"]`);
     if (itemElement) {
       const rect = itemElement.getBoundingClientRect();
@@ -2363,10 +2600,16 @@ class CaseHuntersGame {
         '#10b981'
       );
     }
+    
+    this.analytics.track('item_sold', { 
+      itemId: item.id, 
+      itemName: item.name, 
+      itemPrice: item.price 
+    });
   }
 
   // Открытие панели апгрейда
-  openUpgradePanelForItem(item) {
+  async openUpgradePanelForItem(item) {
     this.state.upgradeSelectedItem = item;
     
     const preview = document.getElementById('upgradeSelectedPreview');
@@ -2377,10 +2620,7 @@ class CaseHuntersGame {
       img.style.height = '60px';
       img.style.borderRadius = '8px';
       img.style.objectFit = 'cover';
-      img.src = item.img;
-      img.onerror = () => {
-        img.src = this.createImagePlaceholder(item.name);
-      };
+      img.src = await this.imageCache.getImage(item.name, item.img);
       preview.appendChild(img);
     }
     
@@ -2396,13 +2636,15 @@ class CaseHuntersGame {
     });
     
     upgradePanel.style.boxShadow = '0 0 30px rgba(250, 204, 21, 0.3)';
-    setTimeout(() => {
+    this.setSafeTimeout(() => {
       upgradePanel.style.boxShadow = '';
     }, 1500);
+    
+    this.analytics.track('upgrade_panel_opened', { itemId: item.id });
   }
 
   // Выполнение апгрейда
-  performUpgrade(multiplier) {
+  async performUpgrade(multiplier) {
     if (!this.state.upgradeSelectedItem) {
       document.getElementById('upgradeResultSmall').textContent = 'Выберите предмет';
       return;
@@ -2444,7 +2686,7 @@ class CaseHuntersGame {
       wheel.style.transform = `rotate(${finalAngle}deg)`;
     }
     
-    setTimeout(() => {
+    this.setSafeTimeout(() => {
       if (wheel) {
         wheel.style.transition = '';
         wheel.style.transform = `rotate(${finalAngle % 360}deg)`;
@@ -2457,7 +2699,7 @@ class CaseHuntersGame {
           this.playSound('upgradeFail');
         }
         
-        setTimeout(() => {
+        this.setSafeTimeout(() => {
           wheel.classList.remove('upgrade-success', 'upgrade-fail');
         }, 800);
       }
@@ -2475,7 +2717,6 @@ class CaseHuntersGame {
         this.showToast(`Апгрейд успешен! Новая цена: ${item.price} ₽`, 'success');
         this.pushFakeChat(`${this.getRandomName()} успешно апгрейднул ${item.name} до ${item.price} ₽`);
         
-        // Эффект частиц при успешном апгрейде
         const upgradePanel = document.getElementById('upgradePanel');
         const rect = upgradePanel.getBoundingClientRect();
         this.createParticles(
@@ -2484,6 +2725,12 @@ class CaseHuntersGame {
           20,
           '#10b981'
         );
+        
+        this.analytics.track('upgrade_success', { 
+          multiplier, 
+          oldPrice: item.price / multiplier, 
+          newPrice: item.price 
+        });
       } else {
         const itemElement = document.querySelector(`.item[data-uid="${item.uid}"]`);
         if (itemElement) {
@@ -2499,7 +2746,6 @@ class CaseHuntersGame {
         this.showToast('Апгрейд неудачен: предмет сгорел', 'error');
         this.pushFakeChat(`${this.getRandomName()} неудачно апгрейднул ${item.name} - предмет сгорел`);
         
-        // Эффект частиц при сгорании
         const upgradePanel = document.getElementById('upgradePanel');
         const rect = upgradePanel.getBoundingClientRect();
         this.createParticles(
@@ -2509,7 +2755,12 @@ class CaseHuntersGame {
           '#ef4444'
         );
         
-        setTimeout(() => {
+        this.analytics.track('upgrade_fail', { 
+          multiplier, 
+          itemPrice: item.price 
+        });
+        
+        this.setSafeTimeout(() => {
           const itemIndex = this.state.inventory.findIndex(invItem => invItem.uid === item.uid);
           if (itemIndex !== -1) {
             this.state.inventory.splice(itemIndex, 1);
@@ -2565,6 +2816,7 @@ class CaseHuntersGame {
     this.saveState();
     this.updateUI();
     this.animateBalanceChange(amount);
+    this.analytics.track('balance_added', { amount });
   }
 
   // Списание баланса
@@ -2577,6 +2829,7 @@ class CaseHuntersGame {
     this.state.balance = Math.max(0, this.state.balance - Math.round(amount));
     this.saveState();
     this.updateUI();
+    this.analytics.track('balance_subtracted', { amount });
   }
 
   // Обновление баланса в UI
@@ -2623,12 +2876,12 @@ class CaseHuntersGame {
     ];
     
     initialMessages.forEach((msg, i) => {
-      setTimeout(() => {
+      this.setSafeTimeout(() => {
         this.pushFakeChat(msg, 'Система');
       }, 1000 * i);
     });
     
-    setInterval(() => {
+    this.setSafeInterval(() => {
       const messages = [
         'P250 | Sand Dune',
         'AK-47 | Redline',
@@ -2645,7 +2898,7 @@ class CaseHuntersGame {
       );
     }, 12000);
     
-    setInterval(() => {
+    this.setSafeInterval(() => {
       const amount = 500 + Math.floor(Math.random() * 1000);
       this.pushFakeChat(
         `${this.getRandomName()} вывел ${amount} ₽`,
@@ -2653,7 +2906,7 @@ class CaseHuntersGame {
       );
     }, 18000);
     
-    setInterval(() => {
+    this.setSafeInterval(() => {
       const messages = [
         'успешно апгрейднул предмет до 2x! 🎉',
         'попытался апгрейднуть предмет и он сгорел 💥',
@@ -2725,18 +2978,25 @@ class CaseHuntersGame {
     };
     
     updateOnline();
-    setInterval(updateOnline, 5000);
+    this.setSafeInterval(updateOnline, 5000);
   }
 }
 
 // Инициализация приложения при загрузке страницы
 let app;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   try {
     app = new CaseHuntersGame();
     
     window.CaseHunters = app;
+    
+    // Очистка при закрытии страницы
+    window.addEventListener('beforeunload', () => {
+      if (app) {
+        app.destroy();
+      }
+    });
     
     console.log('Case Hunters успешно загружен!');
     
