@@ -6,15 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 <style>
-/* Оптимизированный CSS с сохранением структуры */
+/* Оптимизированный CSS для Telegram Web */
 :root{
   --bg:#0b0f14;
   --card:#111827;
   --accent:#facc15;
   --muted:#9ca3af;
   --green:#10b981;
+  --red:#ef4444;
+  --blue:#3b82f6;
   --yellow-line:#facc15;
   --glow: rgba(250,204,21,0.18);
+  --shadow: 0 4px 20px rgba(0,0,0,.6);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -23,9 +26,10 @@ body{
   color:#fff;
   -webkit-tap-highlight-color:transparent;
   -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
 }
 
-/* Top Bar - оптимизировано для Telegram Web */
+/* Top Bar */
 #topBar{
   position:sticky;
   top:0;
@@ -36,7 +40,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 2px 10px rgba(0,0,0,.8);
+  box-shadow:var(--shadow);
   z-index:1000;
   backdrop-filter:blur(10px);
 }
@@ -57,49 +61,52 @@ body{
   white-space:nowrap;
 }
 
-/* Container - адаптивный для мобильных */
+/* Container */
 .container{
   max-width:100%;
   margin:0 auto;
-  padding:16px 12px 140px;
+  padding:16px 12px 160px;
 }
 .section{
   background:var(--card);
   border-radius:14px;
-  padding:16px;
+  padding:18px;
   margin:12px 0;
   border:1px solid rgba(255,255,255,0.05);
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
 }
 
-/* Case Cards - оптимизированы для тапов */
+/* Case Cards */
 .case{
   display:flex;
   justify-content:space-between;
   align-items:center;
   background:linear-gradient(135deg,#1a2233,#111827);
   border-radius:12px;
-  padding:14px;
+  padding:16px;
   margin:10px 0;
   cursor:pointer;
   border:1px solid rgba(255,255,255,0.05);
-  transition:transform 0.2s, border-color 0.2s;
+  transition:all 0.3s ease;
   touch-action:manipulation;
 }
 .case:active{
   transform:scale(0.98);
 }
 .case:hover{
-  border-color:rgba(250,204,21,0.2);
+  border-color:rgba(250,204,21,0.3);
+  box-shadow:0 0 20px rgba(250,204,21,0.1);
 }
 .case .left{
   display:flex;
   gap:14px;
   align-items:center;
+  flex:1;
 }
 .case-badge{
-  width:64px;
-  height:64px;
-  border-radius:10px;
+  width:70px;
+  height:70px;
+  border-radius:12px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -107,13 +114,31 @@ body{
   color:#000;
   font-weight:900;
   font-family:'Russo One',sans-serif;
-  box-shadow:0 6px 18px var(--glow);
+  box-shadow:0 6px 20px var(--glow);
   font-size:14px;
   letter-spacing:1px;
   flex-shrink:0;
 }
+.case .meta{
+  flex:1;
+}
+.case .meta .title{
+  font-weight:bold;
+  font-size:16px;
+  margin-bottom:4px;
+}
+.case .meta .sub{
+  font-size:13px;
+  color:var(--muted);
+}
+.case .right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+}
 
-/* Buttons - улучшены для мобильных */
+/* Buttons */
 .smallBtn{
   background:linear-gradient(135deg,#1a2233,#111827);
   border:1px solid rgba(255,255,255,0.1);
@@ -126,6 +151,7 @@ body{
   transition:all 0.2s;
   touch-action:manipulation;
   user-select:none;
+  min-width:80px;
 }
 .smallBtn:active{
   transform:scale(0.95);
@@ -142,18 +168,24 @@ body{
   min-width:100px;
   transition:all 0.2s;
   touch-action:manipulation;
+  box-shadow:0 4px 12px rgba(16,185,129,0.3);
 }
 .openBtn:active{
   transform:scale(0.95);
 }
+.openBtn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+  transform:none;
+}
 
-/* Roulette - оптимизирована анимация */
+/* Roulette */
 .roulette{
   width:100%;
   overflow:hidden;
   position:relative;
   border-radius:14px;
-  height:130px;
+  height:140px;
   margin:12px 0;
   background:#071018;
   border:2px solid rgba(250,204,21,0.1);
@@ -163,27 +195,25 @@ body{
   display:flex;
   height:100%;
   will-change:transform;
-  backface-visibility:hidden;
   transform:translate3d(0,0,0);
 }
 .roulette-item{
-  width:130px;
+  width:140px;
   flex-shrink:0;
   text-align:center;
-  font-size:12px;
-  padding:10px;
+  padding:12px;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
 }
 .roulette-item img{
-  width:90px;
-  height:90px;
+  width:100px;
+  height:100px;
   display:block;
   margin:0 auto 8px;
-  border-radius:10px;
-  box-shadow:0 6px 18px rgba(0,0,0,.6);
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,.7);
   object-fit:cover;
   background:#0b0f14;
 }
@@ -195,12 +225,23 @@ body{
   width:4px;
   height:100%;
   background:linear-gradient(180deg,var(--yellow-line),rgba(250,204,21,0.6));
-  box-shadow:0 0 20px rgba(250,204,21,0.3);
+  box-shadow:0 0 25px rgba(250,204,21,0.4);
   pointer-events:none;
   z-index:10;
 }
+.roulette-glow{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:240px;
+  height:240px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(250,204,21,0.08), transparent 40%);
+  pointer-events:none;
+}
 
-/* Win Modal - для полного экрана Telegram */
+/* Win Modal */
 #overlay{
   position:fixed;
   inset:0;
@@ -214,111 +255,253 @@ body{
 }
 #winResultBox{
   width:100%;
-  max-width:420px;
-  padding:28px;
+  max-width:450px;
+  padding:30px;
   background:linear-gradient(135deg,#071018,#08121a);
-  border-radius:18px;
+  border-radius:20px;
   border:3px solid var(--accent);
   text-align:center;
   animation:slideUp 0.4s ease;
+  box-shadow:0 20px 40px rgba(0,0,0,0.5);
 }
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes winPulse{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
 #winResultBox img{
-  width:180px;
-  height:180px;
-  border-radius:12px;
+  width:200px;
+  height:200px;
+  border-radius:14px;
   margin:0 auto 20px;
-  box-shadow:0 0 40px rgba(250,204,21,.2);
+  box-shadow:0 0 50px rgba(250,204,21,.3);
   object-fit:cover;
+  border:2px solid rgba(250,204,21,0.3);
 }
 #winResultBox .winTitle{
-  font-size:24px;
+  font-size:26px;
   font-weight:800;
   color:var(--accent);
-  margin-bottom:10px;
+  margin-bottom:12px;
   line-height:1.2;
 }
+#winResultBox .winPrice{
+  font-size:22px;
+  color:#4ecdc4;
+  margin-bottom:10px;
+  font-weight:600;
+}
+#winResultBox .winNote{
+  font-size:15px;
+  color:#cbd5e1;
+  margin-bottom:24px;
+}
 
-/* Inventory Items */
+/* Inventory */
 .item{
   display:flex;
   justify-content:space-between;
   align-items:center;
   background:linear-gradient(135deg,#1a2233,#111827);
   border-radius:12px;
-  padding:14px;
+  padding:16px;
   margin:10px 0;
   border:1px solid rgba(255,255,255,0.05);
 }
 .weapon-img{
-  width:64px;
-  height:64px;
+  width:70px;
+  height:70px;
   border-radius:10px;
   object-fit:cover;
   box-shadow:0 4px 12px rgba(0,0,0,.5);
   background:#0b0f14;
   flex-shrink:0;
+  border:1px solid rgba(255,255,255,0.1);
 }
 
-/* Chat оптимизирован для мобильных */
+/* Chat */
 .chatBox{
   width:100%;
   max-height:360px;
   background:#0b1220;
   border-radius:12px;
-  padding:12px;
+  padding:14px;
   overflow-y:auto;
   border:1px solid #16202a;
   -webkit-overflow-scrolling:touch;
 }
 .chatMessage{
-  padding:10px;
+  padding:12px;
   border-radius:10px;
-  margin-bottom:10px;
+  margin-bottom:12px;
   background:linear-gradient(135deg,#071018,#08121a);
   font-size:14px;
   line-height:1.4;
+  border:1px solid rgba(255,255,255,0.05);
+}
+.chatMessage .meta{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+  display:flex;
+  justify-content:space-between;
 }
 
-/* Адаптивность для разных экранов */
+/* Admin Panel */
+#adminPanel{
+  position:fixed;
+  right:16px;
+  top:100px;
+  background:#0b1220;
+  border:1px solid #1f2937;
+  padding:18px;
+  border-radius:14px;
+  z-index:1000;
+  min-width:300px;
+  display:none;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+}
+#adminPanel h4{
+  margin:0 0 12px 0;
+  color:var(--accent);
+  font-size:18px;
+}
+.adminRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:12px;
+}
+.adminRow input, .adminRow select{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #2b3440;
+  background:#071018;
+  color:#fff;
+  font-size:14px;
+  flex:1;
+}
+.adminBtn{
+  background:linear-gradient(135deg,#1a2233,#111827);
+  border:1px solid #2b3440;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  transition:all 0.2s;
+}
+.adminBtn:active{
+  transform:scale(0.95);
+}
+
+/* Bank Modal */
+#bankOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  z-index:1500;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+#bankModal{
+  background:#181d27;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.5);
+  padding:28px;
+  max-width:450px;
+  width:90%;
+  border:2px solid rgba(250,204,21,0.2);
+}
+#amountInput{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #2b3440;
+  background:#0b1220;
+  color:#fff;
+  font-size:16px;
+  text-align:center;
+  width:100%;
+  margin-bottom:16px;
+}
+
+/* Upgrade Panel */
+#upgradePanel{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#071018;
+  border-top:4px solid var(--yellow-line);
+  padding:20px;
+  z-index:100;
+  display:none;
+}
+.upgrade-wheel{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  border:4px solid var(--accent);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle,#111827,#020617);
+  box-shadow:0 0 20px rgba(250,204,21,0.25);
+  transition:transform 2s cubic-bezier(0.2,0.9,0.2,1);
+}
+.upgrade-wheel .inner{
+  color:#e5e7eb;
+  font-size:14px;
+  text-align:center;
+}
+
+/* Responsive */
 @media (max-width:768px){
   .container{
-    padding:12px 10px 120px;
+    padding:12px 10px 180px;
   }
   .section{
-    padding:14px;
+    padding:16px;
     margin:10px 0;
   }
   .case{
-    padding:12px;
     flex-wrap:wrap;
+    gap:12px;
   }
-  .case .left{
+  .case .right{
     width:100%;
-    margin-bottom:12px;
+    align-items:stretch;
   }
   .openBtn{
     width:100%;
-    margin-top:8px;
   }
   .roulette{
-    height:120px;
+    height:130px;
   }
   .roulette-item{
-    width:120px;
+    width:130px;
   }
   .roulette-item img{
-    width:80px;
-    height:80px;
+    width:90px;
+    height:90px;
+  }
+  #adminPanel{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:90%;
+    max-width:400px;
   }
   #winResultBox{
     padding:24px 20px;
     margin:20px;
   }
   #winResultBox img{
-    width:150px;
-    height:150px;
+    width:160px;
+    height:160px;
   }
 }
 
@@ -334,96 +517,182 @@ body{
     font-size:14px;
   }
   .case-badge{
-    width:56px;
-    height:56px;
+    width:60px;
+    height:60px;
     font-size:12px;
+  }
+  .weapon-img{
+    width:60px;
+    height:60px;
   }
 }
 </style>
 </head>
 <body>
 
-<!-- Сохраняем оригинальную структуру HTML -->
+<!-- Top Bar -->
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
-  <div style="display:flex;align-items:center;gap:10px">
+  <div style="display:flex;align-items:center;gap:12px">
     <div id="balanceBox"><span style="font-size:16px;">💵</span> <span id="balance">0</span> ₽</div>
-    <button id="bankBtn" class="smallBtn">💼</button>
+    <button id="bankBtn" class="smallBtn" title="Банк">💼</button>
     <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
   </div>
 </div>
 
-<div class="daily-bonus" style="background:#111827;padding:12px 16px;text-align:center;border-bottom:1px solid #222">
+<!-- Daily Bonus Top -->
+<div style="background:#111827;padding:12px 16px;text-align:center;border-bottom:1px solid #222">
   <button id="dailyBonusBtnTop" class="smallBtn">🎁 Ежедневный бонус +10 ₽</button>
 </div>
 
+<!-- Main Container -->
 <div class="container">
-  <div style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;flex-direction:column;gap:16px">
     <div>
+      <!-- Cases Section -->
       <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-weight:bold;font-size:16px">Доступные кейсы</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-weight:bold;font-size:18px">Доступные кейсы</div>
           <div style="font-size:12px;color:var(--muted)">Нажмите "Открыть" для запуска рулетки</div>
         </div>
         <div id="casesList"></div>
       </div>
 
+      <!-- Inventory Section -->
       <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-weight:bold;font-size:16px">Инвентарь</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-weight:bold;font-size:18px">Инвентарь</div>
           <div style="font-size:12px;color:var(--muted)">Ваши предметы</div>
         </div>
         <div id="inventoryList" style="margin-top:12px"></div>
       </div>
 
+      <!-- Referral Section -->
       <div class="section">
-        <div style="font-weight:bold;font-size:16px;margin-bottom:12px">Реферальная система</div>
+        <div style="font-weight:bold;font-size:18px;margin-bottom:12px">Реферальная система</div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Ваша реферальная ссылка:</div>
-        <input id="myRefLink" style="width:100%;padding:10px;border-radius:10px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:14px" readonly>
+        <input id="myRefLink" style="width:100%;padding:12px;border-radius:10px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:14px;margin-bottom:16px" readonly>
         
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-          <div style="font-size:13px">
-            Заработано: <b id="refEarnings">0</b> ₽
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:14px">
+            Заработано: <b id="refEarnings" style="color:var(--accent)">0</b> ₽
           </div>
           <button id="claimRefBtn" class="smallBtn">Зачислить</button>
         </div>
         
-        <div style="display:flex;gap:8px;margin-top:16px">
+        <div style="display:flex;gap:10px;margin-top:20px">
           <button id="dailyBonusBtn" class="smallBtn" style="flex:1">🎁 Бонус 10 ₽</button>
           <button id="extraBonusBtn" class="smallBtn" style="flex:1">✨ +10 ₽</button>
         </div>
       </div>
     </div>
 
+    <!-- Chat & Online -->
     <div>
-      <div style="background:#071018;border-radius:12px;padding:16px;margin-bottom:12px">
-        <div style="font-weight:bold;font-size:14px;margin-bottom:6px">Онлайн</div>
-        <div style="font-size:32px;font-weight:800" id="fakeOnline">0</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">пользователей сейчас</div>
+      <!-- Online Widget -->
+      <div style="background:linear-gradient(135deg,#071018,#08121a);border-radius:14px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.05)">
+        <div style="font-weight:bold;font-size:16px;margin-bottom:8px">Онлайн</div>
+        <div style="font-size:40px;font-weight:800;color:var(--accent)" id="fakeOnline">0</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">пользователей сейчас</div>
       </div>
 
-      <div class="chatBox" id="chatBox" aria-live="polite"></div>
+      <!-- Chat Box -->
+      <div class="chatBox" id="chatBox"></div>
     </div>
   </div>
 </div>
 
-<!-- Оригинальные модальные окна -->
-<div id="adminPanel" style="position:fixed;right:16px;top:100px;background:#0b1220;border:1px solid #1f2937;padding:16px;border-radius:12px;z-index:1000;min-width:280px;display:none">
-  <!-- ... (админ панель без изменений) ... -->
+<!-- Admin Panel -->
+<div id="adminPanel">
+  <h4>Админ панель</h4>
+  <div class="adminRow">
+    <input id="adminPass" placeholder="Пароль" type="password" />
+    <button id="adminLogin" class="adminBtn">Войти</button>
+  </div>
+  <div id="adminControls" style="display:none">
+    <div class="adminRow">
+      <input id="adminAddAmount" type="number" placeholder="Сумма +баланс" />
+      <button id="adminAddBtn" class="adminBtn">Добавить</button>
+    </div>
+    <div class="adminRow">
+      <input id="adminSetRtp" type="number" step="0.01" placeholder="RTP (0.1-0.95)" />
+      <button id="adminSetRtpBtn" class="adminBtn">Установить RTP</button>
+    </div>
+    <div class="adminRow">
+      <select id="adminForceCase" style="flex:1"></select>
+      <select id="adminForceItem" style="flex:1"></select>
+    </div>
+    <div class="adminRow">
+      <button id="adminForceWin" class="adminBtn" style="width:100%">Принудительный выигрыш</button>
+    </div>
+    <div class="adminRow">
+      <button id="adminClearRef" class="adminBtn" style="width:100%;background:linear-gradient(135deg,#ef4444,#dc2626)">Сбросить реф. начисления</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Пароль: <b>!125125Cc</b></div>
+  </div>
 </div>
 
-<div id="bankOverlay" style="display:none;position:fixed;inset:0;z-index:1500;align-items:center;justify-content:center;background:rgba(0,0,0,0.9)">
-  <!-- ... (банк модалка без изменений) ... -->
+<!-- Bank Modal -->
+<div id="bankOverlay">
+  <div id="bankModal">
+    <div style="font-weight:bold;font-size:20px;margin-bottom:12px;text-align:center">Банк</div>
+    <div style="margin-bottom:16px;color:var(--muted);text-align:center;font-size:14px">
+      Пополнение и вывод средств в демо-режиме
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
+      <input id="amountInput" type="number" min="100" step="50" value="500" />
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-bottom:20px">
+      <button id="depositBtn" class="smallBtn" style="flex:1;background:linear-gradient(135deg,var(--green),#0da271)">Пополнить</button>
+      <button id="withdrawBtn" class="smallBtn" style="flex:1;background:linear-gradient(135deg,#3b82f6,#2563eb)">Вывести</button>
+    </div>
+    
+    <div style="width:100%;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">
+      <div style="text-align:center;color:var(--muted);font-size:13px">Минимум: 100 ₽ | Вывод: от 500 ₽</div>
+    </div>
+    
+    <button id="closeBank" class="smallBtn" style="width:100%;margin-top:16px">Закрыть</button>
+  </div>
 </div>
 
+<!-- Win Overlay -->
 <div id="overlay">
   <div id="modal">
-    <div id="winResultBox" style="display:none">
+    <div id="winResultBox">
       <img id="winImg" src="" alt="win">
       <div class="winTitle" id="winTitle">Вы выиграли</div>
       <div class="winPrice" id="winPrice">0 ₽</div>
       <div class="winNote" id="winNote">Поздравляем! Предмет добавлен в инвентарь.</div>
-      <div style="margin-top:20px"><button id="closeModal" class="smallBtn">Закрыть</button></div>
+      <div style="margin-top:24px"><button id="closeModal" class="smallBtn" style="min-width:120px">Закрыть</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrade Panel -->
+<div id="upgradePanel">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div id="upgradeSelectedPreview" style="width:70px;height:70px;border-radius:10px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1;border:1px solid rgba(255,255,255,0.1)">—</div>
+      <div>
+        <div id="upgradeSelectedName" style="font-weight:bold;font-size:16px">Выберите предмет для апгрейда</div>
+        <div id="upgradeSelectedPrice" style="font-size:13px;color:var(--muted)">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:16px;align-items:center">
+      <div class="upgrade-wheel" id="upgradeWheelSmall">
+        <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid var(--accent);z-index:20"></div>
+        <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+        <div style="display:flex;gap:10px">
+          <button id="upgrade2xBtn" class="smallBtn">Попытка 2x</button>
+          <button id="upgrade3xBtn" class="smallBtn">Попытка 3x</button>
+        </div>
+        <div id="upgradeResultSmall" style="font-size:13px;color:var(--muted);min-width:200px;text-align:right"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -432,47 +701,93 @@ body{
 // Константы и конфигурация
 const CONFIG = {
   STORAGE_PREFIX: 'ch_',
-  DEFAULT_RTP: 0.65,
   DEMO_PASSWORD: '!125125Cc',
-  IMAGE_BASE: '/assets/cs/',
+  DEFAULT_RTP: 0.65,
+  IMAGE_BASE: 'https://via.placeholder.com/100x100/0b0f14/facc15?text=', // Placeholder для демо
   SPIN_DURATION: 6000,
-  CHAT_UPDATE_INTERVAL: 7000
+  CHAT_UPDATE_INTERVAL: 7000,
+  REFERRAL_PERCENT: 0.40,
+  MIN_WITHDRAWAL: 500,
+  MIN_DEPOSIT: 100
 };
 
-// Данные кейсов (сокращено для примера)
+// Все кейсы из оригинального кода
 const CASES = [
   {
     id: 'case0',
     name: 'Starter Case',
     price: 120,
-    items: [
-      { id: 's1', name: 'P250 | Sand Dune', price: 220, baseChance: 55 },
-      { id: 's2', name: 'USP-S | Torque', price: 480, baseChance: 30 },
-      { id: 's4', name: 'CZ75-Auto | Tigris', price: 900, baseChance: 10 },
-      { id: 's3', name: 'Nova | Ranger', price: 1500, baseChance: 5 }
+    baseItems: [
+      { id: 's1', name: 'P250 | Sand Dune', price: 220, baseChance: 55, img: 'P250' },
+      { id: 's2', name: 'USP-S | Torque', price: 480, baseChance: 30, img: 'USP-S' },
+      { id: 's4', name: 'CZ75-Auto | Tigris', price: 900, baseChance: 10, img: 'CZ75' },
+      { id: 's3', name: 'Nova | Ranger', price: 1500, baseChance: 5, img: 'Nova' }
     ]
   },
   {
     id: 'case1',
     name: 'Dust II Case',
     price: 220,
-    items: [
-      { id: 'g1', name: 'AK-47 | Redline', price: 900, baseChance: 40 },
-      { id: 'g2', name: 'M4A1-S | Guardian', price: 1800, baseChance: 30 },
-      { id: 'g5', name: 'P90 | Asiimov', price: 2600, baseChance: 10 },
-      { id: 'g3', name: 'Desert Eagle | Blaze', price: 5200, baseChance: 20 }
+    baseItems: [
+      { id: 'g1', name: 'AK-47 | Redline', price: 900, baseChance: 40, img: 'AK-47' },
+      { id: 'g2', name: 'M4A1-S | Guardian', price: 1800, baseChance: 30, img: 'M4A1-S' },
+      { id: 'g5', name: 'P90 | Asiimov', price: 2600, baseChance: 10, img: 'P90' },
+      { id: 'g3', name: 'Desert Eagle | Blaze', price: 5200, baseChance: 20, img: 'Deagle' }
+    ]
+  },
+  {
+    id: 'case1b',
+    name: 'Classic Case',
+    price: 420,
+    baseItems: [
+      { id: 'c1', name: 'AK-47 | Vulcan', price: 7200, baseChance: 35, img: 'AK-Vulcan' },
+      { id: 'c2', name: 'M4A4 | Howl', price: 45000, baseChance: 6, img: 'M4-Howl' },
+      { id: 'c4', name: 'USP-S | Kill Confirmed', price: 12000, baseChance: 20, img: 'USP-KC' },
+      { id: 'c3', name: 'Glock-18 | Fade', price: 9600, baseChance: 39, img: 'Glock-Fade' }
+    ]
+  },
+  {
+    id: 'case2',
+    name: 'Inferno Case',
+    price: 980,
+    baseItems: [
+      { id: 'p1', name: 'AWP | Asiimov', price: 17600, baseChance: 18, img: 'AWP' },
+      { id: 'p2', name: 'AK-47 | Fire Serpent', price: 72000, baseChance: 25, img: 'AK-Serpent' },
+      { id: 'p3', name: 'M4A1-S | Hot Rod', price: 56000, baseChance: 45, img: 'M4-HotRod' },
+      { id: 'p4', name: 'FAMAS | Roll Cage', price: 4200, baseChance: 12, img: 'FAMAS' }
+    ]
+  },
+  {
+    id: 'case3',
+    name: 'Mirage Case',
+    price: 7200,
+    baseItems: [
+      { id: 'l1', name: 'AWP | Medusa', price: 480000, baseChance: 3, img: 'AWP-Medusa' },
+      { id: 'l2', name: 'AK-47 | Fire Serpent (StatTrak)', price: 200000, baseChance: 12, img: 'AK-ST' },
+      { id: 'l3', name: 'M4A4 | Howl (StatTrak)', price: 96000, baseChance: 85, img: 'M4-Howl-ST' }
+    ]
+  },
+  {
+    id: 'gloveCase',
+    name: 'Glove Case',
+    price: 720,
+    baseItems: [
+      { id: 'gl1', name: 'Sport Gloves | Pandora\'s Box', price: 96000, baseChance: 40, img: 'Gloves' },
+      { id: 'gl2', name: 'Driver Gloves | King Snake', price: 200000, baseChance: 35, img: 'Gloves-Snake' },
+      { id: 'gl3', name: 'Specialist Gloves | Crimson Kimono', price: 360000, baseChance: 25, img: 'Gloves-Crimson' }
     ]
   }
 ];
 
 // Основной класс приложения
-class CaseHuntersApp {
+class CaseHuntersGame {
   constructor() {
     this.state = {
       balance: 0,
       inventory: [],
       currentRtp: CONFIG.DEFAULT_RTP,
-      adminLogged: false
+      adminLogged: false,
+      upgradeSelectedItem: null
     };
     
     this.userId = this.getUserId();
@@ -490,6 +805,7 @@ class CaseHuntersApp {
     this.updateUI();
     this.initChat();
     this.initOnlineCounter();
+    this.populateAdminSelects();
   }
 
   // Получение ID пользователя
@@ -531,13 +847,24 @@ class CaseHuntersApp {
     }
   }
 
-  // Подготовка кейсов
+  // Подготовка кейсов с RTP
   prepareCases() {
     return CASES.map(c => ({
       ...c,
-      items: c.items.map(it => ({ ...it, chance: it.baseChance })),
-      baseTotalChance: c.items.reduce((s, i) => s + i.baseChance, 0)
+      items: c.baseItems.map(it => ({ 
+        ...it, 
+        chance: it.baseChance,
+        img: this.getImageUrl(it.img || it.name)
+      })),
+      baseTotalChance: c.baseItems.reduce((s, i) => s + i.baseChance, 0)
     }));
+  }
+
+  // Получение URL картинки
+  getImageUrl(name) {
+    // Для демо используем placeholder, в реальном приложении замените на свои картинки
+    const encodedName = encodeURIComponent(name.substring(0, 20));
+    return `${CONFIG.IMAGE_BASE}${encodedName}`;
   }
 
   // Регистрация реферала
@@ -558,29 +885,310 @@ class CaseHuntersApp {
   // Привязка событий
   bindEvents() {
     // Банк
-    document.getElementById('bankBtn')?.addEventListener('click', () => {
-      document.getElementById('bankOverlay').style.display = 'flex';
-    });
-    
-    document.getElementById('closeBank')?.addEventListener('click', () => {
-      document.getElementById('bankOverlay').style.display = 'none';
-    });
+    document.getElementById('bankBtn')?.addEventListener('click', () => this.showBankModal());
+    document.getElementById('closeBank')?.addEventListener('click', () => this.hideBankModal());
+    document.getElementById('depositBtn')?.addEventListener('click', () => this.deposit());
+    document.getElementById('withdrawBtn')?.addEventListener('click', () => this.withdraw());
 
     // Админка
-    document.getElementById('adminToggle')?.addEventListener('click', () => {
-      const panel = document.getElementById('adminPanel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    });
+    document.getElementById('adminToggle')?.addEventListener('click', () => this.toggleAdminPanel());
+    document.getElementById('adminLogin')?.addEventListener('click', () => this.adminLogin());
+    document.getElementById('adminAddBtn')?.addEventListener('click', () => this.adminAddBalance());
+    document.getElementById('adminSetRtpBtn')?.addEventListener('click', () => this.adminSetRtp());
+    document.getElementById('adminForceWin')?.addEventListener('click', () => this.adminForceWin());
+    document.getElementById('adminClearRef')?.addEventListener('click', () => this.adminClearRef());
 
     // Бонусы
     document.getElementById('dailyBonusBtn')?.addEventListener('click', () => this.claimBonus('daily'));
     document.getElementById('dailyBonusBtnTop')?.addEventListener('click', () => this.claimBonus('daily'));
     document.getElementById('extraBonusBtn')?.addEventListener('click', () => this.claimBonus('extra'));
+    document.getElementById('claimRefBtn')?.addEventListener('click', () => this.claimReferralEarnings());
 
     // Закрытие модалок
     document.getElementById('closeModal')?.addEventListener('click', () => {
       document.getElementById('overlay').style.display = 'none';
     });
+
+    // Апгрейд
+    document.getElementById('upgrade2xBtn')?.addEventListener('click', () => this.performUpgrade(2));
+    document.getElementById('upgrade3xBtn')?.addEventListener('click', () => this.performUpgrade(3));
+  }
+
+  // Показать банк модалку
+  showBankModal() {
+    document.getElementById('bankOverlay').style.display = 'flex';
+  }
+
+  // Скрыть банк модалку
+  hideBankModal() {
+    document.getElementById('bankOverlay').style.display = 'none';
+  }
+
+  // Пополнение баланса
+  deposit() {
+    const amountInput = document.getElementById('amountInput');
+    const amount = parseInt(amountInput?.value) || 0;
+    
+    if (amount < CONFIG.MIN_DEPOSIT) {
+      this.showMessage(`Минимальная сумма пополнения ${CONFIG.MIN_DEPOSIT} ₽`);
+      return;
+    }
+
+    this.addBalance(amount);
+    this.hideBankModal();
+    this.showMessage(`Пополнено ${amount} ₽`, false);
+    this.pushFakeChat(`${this.getRandomName()} пополнил баланс на ${amount} ₽`);
+  }
+
+  // Вывод средств
+  withdraw() {
+    const amountInput = document.getElementById('amountInput');
+    const amount = parseInt(amountInput?.value) || 0;
+    
+    if (amount < CONFIG.MIN_WITHDRAWAL) {
+      this.showMessage(`Минимальная сумма вывода ${CONFIG.MIN_WITHDRAWAL} ₽`);
+      return;
+    }
+
+    if (!this.state.adminLogged && this.state.balance < amount) {
+      this.showMessage('Недостаточно средств для вывода');
+      return;
+    }
+
+    if (!this.state.adminLogged) {
+      this.subBalance(amount);
+    }
+
+    this.hideBankModal();
+    this.showMessage(`Выведено ${amount} ₽`, false);
+    this.pushFakeChat(`${this.getRandomName()} вывел ${amount} ₽`);
+  }
+
+  // Переключение админ панели
+  toggleAdminPanel() {
+    const panel = document.getElementById('adminPanel');
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+  }
+
+  // Вход в админку
+  adminLogin() {
+    const password = document.getElementById('adminPass')?.value || '';
+    
+    if (password === CONFIG.DEMO_PASSWORD) {
+      this.state.adminLogged = true;
+      document.getElementById('adminControls').style.display = 'block';
+      this.updateBalanceUI();
+      this.showMessage('Админ: вход выполнен. Баланс администратора — безграничный.', false);
+    } else {
+      this.showMessage('Неверный пароль.', false);
+    }
+  }
+
+  // Добавление баланса через админку
+  adminAddBalance() {
+    if (!this.state.adminLogged) {
+      this.showMessage('Требуется вход в админку');
+      return;
+    }
+
+    const amountInput = document.getElementById('adminAddAmount');
+    const amount = parseInt(amountInput?.value) || 0;
+    
+    if (amount <= 0) {
+      this.showMessage('Введите сумму > 0');
+      return;
+    }
+
+    this.addBalance(amount);
+    this.showMessage(`Админ: добавлено ${amount} ₽`, false);
+  }
+
+  // Установка RTP через админку
+  adminSetRtp() {
+    if (!this.state.adminLogged) {
+      this.showMessage('Требуется вход в админку');
+      return;
+    }
+
+    const rtpInput = document.getElementById('adminSetRtp');
+    const rtp = parseFloat(rtpInput?.value);
+    
+    if (!rtp || rtp < 0.1 || rtp > 0.95) {
+      this.showMessage('RTP должен быть в диапазоне 0.10–0.95');
+      return;
+    }
+
+    this.state.currentRtp = rtp;
+    this.applyHiddenRtp(rtp);
+    this.showMessage(`Админ: RTP установлен ${rtp}`, false);
+  }
+
+  // Принудительный выигрыш
+  adminForceWin() {
+    if (!this.state.adminLogged) {
+      this.showMessage('Требуется вход в админку');
+      return;
+    }
+
+    const caseSelect = document.getElementById('adminForceCase');
+    const itemSelect = document.getElementById('adminForceItem');
+    
+    if (!caseSelect || !itemSelect) return;
+
+    const caseId = caseSelect.value;
+    const itemId = itemSelect.value;
+    
+    const caseItem = this.cases.find(c => c.id === caseId);
+    if (!caseItem) {
+      this.showMessage('Кейс не найден');
+      return;
+    }
+
+    const item = caseItem.items.find(it => it.id === itemId);
+    if (!item) {
+      this.showMessage('Предмет не найден');
+      return;
+    }
+
+    const inventoryItem = {
+      uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      img: item.img,
+      upgraded: null
+    };
+
+    this.state.inventory.push(inventoryItem);
+    this.saveState();
+    this.renderInventory();
+    this.showFullScreenWin(inventoryItem);
+    this.pushFakeChat(`Админ выдал: ${item.name}`);
+  }
+
+  // Сброс реферальных начислений
+  adminClearRef() {
+    if (!this.state.adminLogged) {
+      this.showMessage('Требуется вход в админку');
+      return;
+    }
+
+    // Удаляем все реферальные начисления
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes(CONFIG.STORAGE_PREFIX + 'refearn_')) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    this.updateUI();
+    this.showMessage('Реферальные начисления сброшены.', false);
+  }
+
+  // Заполнение выпадающих списков в админке
+  populateAdminSelects() {
+    const caseSelect = document.getElementById('adminForceCase');
+    const itemSelect = document.getElementById('adminForceItem');
+    
+    if (!caseSelect || !itemSelect) return;
+
+    caseSelect.innerHTML = '';
+    itemSelect.innerHTML = '';
+
+    // Заполняем кейсы
+    this.cases.forEach(caseItem => {
+      const option = document.createElement('option');
+      option.value = caseItem.id;
+      option.textContent = caseItem.name;
+      caseSelect.appendChild(option);
+    });
+
+    // Заполняем предметы из первого кейса по умолчанию
+    if (this.cases.length > 0) {
+      this.updateAdminItems(this.cases[0].id);
+    }
+
+    // Обработчик изменения кейса
+    caseSelect.addEventListener('change', (e) => {
+      this.updateAdminItems(e.target.value);
+    });
+  }
+
+  // Обновление списка предметов в админке
+  updateAdminItems(caseId) {
+    const itemSelect = document.getElementById('adminForceItem');
+    if (!itemSelect) return;
+
+    itemSelect.innerHTML = '';
+    
+    const caseItem = this.cases.find(c => c.id === caseId);
+    if (!caseItem) return;
+
+    caseItem.items.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      itemSelect.appendChild(option);
+    });
+  }
+
+  // Получение бонуса
+  claimBonus(type) {
+    const today = new Date().toISOString().split('T')[0];
+    const storageKey = type === 'daily' 
+      ? CONFIG.STORAGE_PREFIX + 'lastBonus_' + this.userId
+      : CONFIG.STORAGE_PREFIX + 'lastExtraBonus_' + this.userId;
+
+    const lastClaim = localStorage.getItem(storageKey);
+    const amount = 10; // 10 ₽ за каждый бонус
+
+    if (lastClaim === today) {
+      this.showMessage(`Бонус уже получен сегодня`, false);
+      return;
+    }
+
+    this.addBalance(amount);
+    localStorage.setItem(storageKey, today);
+    
+    const message = type === 'daily' 
+      ? `Ежедневный бонус ${amount} ₽ зачислен`
+      : `Бонус сверху +${amount} ₽ зачислен`;
+    
+    this.showMessage(message, false);
+  }
+
+  // Зачисление реферальных средств
+  claimReferralEarnings() {
+    const earnings = this.getReferralEarnings();
+    
+    if (earnings <= 0) {
+      this.showMessage('Нет реферальных средств для зачисления', false);
+      return;
+    }
+
+    this.addBalance(earnings);
+    this.clearReferralEarnings();
+    this.showMessage(`Зачислено ${earnings} ₽ на баланс`, false);
+  }
+
+  // Получение реферальных доходов
+  getReferralEarnings() {
+    try {
+      const key = CONFIG.STORAGE_PREFIX + 'refearn_' + this.userId;
+      return parseInt(localStorage.getItem(key) || '0');
+    } catch {
+      return 0;
+    }
+  }
+
+  // Очистка реферальных доходов
+  clearReferralEarnings() {
+    try {
+      const key = CONFIG.STORAGE_PREFIX + 'refearn_' + this.userId;
+      localStorage.setItem(key, '0');
+      this.updateUI();
+    } catch (error) {
+      console.error('Error clearing referral earnings:', error);
+    }
   }
 
   // Рендер кейсов
@@ -598,164 +1206,323 @@ class CaseHuntersApp {
       caseElement.innerHTML = `
         <div class="left">
           <div class="case-badge">
-            <div style="transform:translateY(1px)">КЕЙС</div>
+            <div>КЕЙС</div>
           </div>
           <div class="meta">
-            <div style="font-weight:bold;font-size:15px">${caseItem.name}</div>
-            <div style="font-size:13px;color:var(--muted)">Цена: ${caseItem.price} ₽</div>
+            <div class="title">${caseItem.name}</div>
+            <div class="sub">Цена: ${caseItem.price} ₽</div>
           </div>
         </div>
-        <div>
-          <button class="openBtn" data-case="${caseItem.id}">Открыть</button>
+        <div class="right">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Предметов: ${caseItem.items.length}</div>
+          <button class="openBtn" data-open="${caseItem.id}">Открыть</button>
         </div>
       `;
 
       // Добавляем рулетку
-      const rouletteWrapper = document.createElement('div');
-      rouletteWrapper.className = 'roulette';
-      rouletteWrapper.style.display = 'none';
-      rouletteWrapper.innerHTML = `
-        <div class="track" data-case="${caseItem.id}"></div>
-        <div class="roulette-center-line"></div>
-      `;
+      const rouletteWrap = document.createElement('div');
+      rouletteWrap.className = 'roulette';
+      rouletteWrap.style.marginTop = '12px';
+      rouletteWrap.style.display = 'none';
       
-      caseElement.appendChild(rouletteWrapper);
+      const track = document.createElement('div');
+      track.className = 'track';
+      track.dataset.case = caseItem.id;
+      
+      const centerLine = document.createElement('div');
+      centerLine.className = 'roulette-center-line';
+      
+      const glow = document.createElement('div');
+      glow.className = 'roulette-glow';
+      
+      rouletteWrap.appendChild(track);
+      rouletteWrap.appendChild(centerLine);
+      rouletteWrap.appendChild(glow);
+      
+      caseElement.appendChild(rouletteWrap);
       container.appendChild(caseElement);
 
       // Подготавливаем рулетку
-      this.prepareRoulette(caseItem, rouletteWrapper.querySelector('.track'));
+      this.prepareRouletteForCase(caseItem, track);
 
       // Обработчики событий
-      const openBtn = caseElement.querySelector('.openBtn');
-      openBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.openCase(caseItem.id);
-      });
+      const openBtn = caseElement.querySelector(`[data-open="${caseItem.id}"]`);
+      if (openBtn) {
+        openBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          this.showCaseRoulette(caseItem.id);
+          this.openCaseWithTimedSpin(caseItem.id, track, CONFIG.SPIN_DURATION);
+        });
+      }
 
       caseElement.addEventListener('click', (e) => {
         if (e.target !== openBtn && !e.target.closest('.openBtn')) {
-          this.toggleRoulette(caseItem.id);
+          this.toggleCaseRoulette(caseItem.id);
         }
       });
     });
   }
 
-  // Подготовка рулетки
-  prepareRoulette(caseItem, trackElement) {
-    if (!trackElement) return;
+  // Подготовка рулетки для кейса
+  prepareRouletteForCase(caseItem, trackEl) {
+    if (!trackEl) return;
 
-    // Дублируем элементы для эффекта бесконечности
+    trackEl.innerHTML = '';
+
+    // Дублируем элементы 20 раз для эффекта бесконечности
     const itemsToShow = 20;
-    trackElement.innerHTML = '';
-
+    
     for (let i = 0; i < itemsToShow; i++) {
       caseItem.items.forEach(item => {
-        const itemElement = document.createElement('div');
-        itemElement.className = 'roulette-item';
-        
+        const el = document.createElement('div');
+        el.className = 'roulette-item';
+
         const img = document.createElement('img');
         img.className = 'weapon-img';
-        img.src = this.getImageUrl(item);
+        img.src = item.img;
         img.alt = item.name;
         img.onerror = () => {
-          img.src = this.createPlaceholder(item.name);
+          // Если картинка не загрузилась, создаем placeholder с текстом
+          img.src = this.createImagePlaceholder(item.name);
         };
 
-        itemElement.appendChild(img);
-        itemElement.innerHTML += `
-          <div style="font-size:12px;margin-top:4px">${item.name}</div>
-          <div style="font-size:11px;color:var(--muted)">${item.price} ₽</div>
-        `;
-
-        trackElement.appendChild(itemElement);
+        el.appendChild(img);
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.textContent = item.name;
+        nameDiv.style.fontSize = '12px';
+        nameDiv.style.marginTop = '4px';
+        
+        const priceDiv = document.createElement('div');
+        priceDiv.textContent = item.price + ' ₽';
+        priceDiv.style.fontSize = '11px';
+        priceDiv.style.color = 'var(--muted)';
+        
+        el.appendChild(nameDiv);
+        el.appendChild(priceDiv);
+        
+        trackEl.appendChild(el);
       });
     }
   }
 
-  // Открытие кейса
-  async openCase(caseId) {
+  // Создание placeholder для картинки
+  createImagePlaceholder(text) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+    
+    // Фон
+    ctx.fillStyle = '#0b0f14';
+    ctx.fillRect(0, 0, 100, 100);
+    
+    // Акцентный прямоугольник
+    ctx.fillStyle = '#facc15';
+    ctx.globalAlpha = 0.12;
+    ctx.fillRect(12, 12, 76, 76);
+    ctx.globalAlpha = 1;
+    
+    // Текст
+    ctx.fillStyle = '#e6eef6';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Разбиваем текст на строки
+    const words = text.split(' ');
+    let lines = [];
+    let currentLine = words[0];
+    
+    for (let i = 1; i < words.length; i++) {
+      const testLine = currentLine + ' ' + words[i];
+      if (ctx.measureText(testLine).width < 80) {
+        currentLine = testLine;
+      } else {
+        lines.push(currentLine);
+        currentLine = words[i];
+      }
+    }
+    lines.push(currentLine);
+    
+    // Рисуем текст
+    const startY = 50 - ((lines.length - 1) * 7);
+    lines.forEach((line, index) => {
+      ctx.fillText(line, 50, startY + (index * 14));
+    });
+    
+    return canvas.toDataURL();
+  }
+
+  // Переключение рулетки кейса
+  toggleCaseRoulette(caseId) {
+    const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
+    if (!caseEl) return;
+    
+    const roulette = caseEl.querySelector('.roulette');
+    if (!roulette) return;
+    
+    // Скрываем все остальные рулетки
+    document.querySelectorAll('.case .roulette').forEach(r => {
+      if (r !== roulette) r.style.display = 'none';
+    });
+    
+    // Переключаем текущую
+    roulette.style.display = roulette.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Показать рулетку кейса
+  showCaseRoulette(caseId) {
+    const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
+    if (!caseEl) return;
+    
+    const roulette = caseEl.querySelector('.roulette');
+    if (!roulette) return;
+    
+    // Скрываем все остальные рулетки
+    document.querySelectorAll('.case .roulette').forEach(r => {
+      if (r !== roulette) r.style.display = 'none';
+    });
+    
+    // Показываем текущую
+    roulette.style.display = 'block';
+  }
+
+  // Открытие кейса с анимацией
+  async openCaseWithTimedSpin(caseId, trackEl, spinMs) {
     const caseItem = this.cases.find(c => c.id === caseId);
     if (!caseItem) return;
-
-    if (!this.state.adminLogged && this.state.balance < caseItem.price) {
-      this.showMessage(`Недостаточно средств. Нужно ${caseItem.price} ₽`);
+    
+    const cost = caseItem.price;
+    
+    // Проверка баланса
+    if (!this.state.adminLogged && this.state.balance < cost) {
+      this.showMessage(`Недостаточно средств. Нужно ${cost} ₽`);
       return;
     }
-
+    
     // Списание средств
     if (!this.state.adminLogged) {
-      this.updateBalance(-caseItem.price);
+      this.subBalance(cost);
     }
-
-    // Выбор предмета
-    const winItem = this.selectRandomItem(caseItem.items);
     
-    // Запуск анимации
-    await this.animateRoulette(caseId, winItem);
+    // Блокируем кнопку на время анимации
+    const openBtn = document.querySelector(`[data-open="${caseId}"]`);
+    if (openBtn) {
+      openBtn.disabled = true;
+      openBtn.textContent = 'Открывается...';
+    }
     
-    // Добавление в инвентарь
-    this.addToInventory(winItem);
+    // Выбираем случайный предмет
+    const winItem = this.pickRandomItem(caseItem.items);
     
-    // Показ результата
-    this.showWinResult(winItem);
+    // Запускаем анимацию
+    await this.animateRoulette(caseId, winItem, spinMs);
     
-    // Обновление UI
+    // Добавляем в инвентарь
+    const inventoryItem = {
+      uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
+      id: winItem.id,
+      name: winItem.name,
+      price: winItem.price,
+      img: winItem.img,
+      upgraded: null
+    };
+    
+    this.state.inventory.push(inventoryItem);
+    this.saveState();
+    
+    // Начисляем рефералу если есть
+    this.creditReferrerIfApplicable(cost, winItem.price);
+    
+    // Показываем результат
+    this.showFullScreenWin(inventoryItem);
     this.renderInventory();
     this.updateUI();
+    
+    // Добавляем сообщение в чат
+    this.pushFakeChat(`${this.getRandomName()} открыл ${caseItem.name} и получил ${winItem.name}`);
+    
+    // Разблокируем кнопку
+    if (openBtn) {
+      openBtn.disabled = false;
+      openBtn.textContent = 'Открыть';
+    }
   }
 
   // Анимация рулетки
-  animateRoulette(caseId, winItem) {
+  animateRoulette(caseId, winItem, duration) {
     return new Promise((resolve) => {
       const track = document.querySelector(`.track[data-case="${caseId}"]`);
       if (!track) {
         resolve();
         return;
       }
-
-      // Показываем рулетку
-      const roulette = track.closest('.roulette');
-      if (roulette) {
-        roulette.style.display = 'block';
+      
+      const items = Array.from(track.children);
+      if (items.length === 0) {
+        resolve();
+        return;
       }
-
-      // Анимация
-      const duration = CONFIG.SPIN_DURATION;
-      const items = track.querySelectorAll('.roulette-item');
-      const itemWidth = items[0]?.offsetWidth || 130;
       
       // Находим индекс выигранного предмета
-      let winIndex = 0;
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].textContent.includes(winItem.name)) {
-          winIndex = i;
-          break;
-        }
+      let targetIndex = items.findIndex(item => 
+        item.textContent.includes(winItem.name)
+      );
+      
+      if (targetIndex === -1) {
+        targetIndex = Math.floor(items.length / 2);
       }
-
-      // Вычисляем позицию
-      const targetPosition = -(winIndex * itemWidth);
-      const extraSpins = 5; // Дополнительные обороты
-      const finalPosition = targetPosition - (extraSpins * items.length * itemWidth);
-
+      
+      const itemWidth = items[0].offsetWidth || 140;
+      const container = track.parentElement;
+      const containerWidth = container.clientWidth;
+      
+      // Центральная точка контейнера
+      const centerOffset = Math.floor(containerWidth / 2);
+      
+      // Позиция центра выигранного предмета
+      let targetCenter = 0;
+      for (let i = 0; i < targetIndex; i++) {
+        targetCenter += (items[i].offsetWidth || itemWidth);
+      }
+      targetCenter += (items[targetIndex].offsetWidth || itemWidth) / 2;
+      
+      // Несколько полных оборотов + позиция выигрыша
+      const cycles = 5;
+      const trackWidth = items.reduce((sum, item) => sum + (item.offsetWidth || itemWidth), 0);
+      const virtualTargetCenter = targetCenter + cycles * trackWidth;
+      
+      // Позиция для анимации
+      let desiredTranslate = centerOffset - virtualTargetCenter;
+      
+      // Корректировка для плавности
+      const minTranslate = containerWidth - trackWidth;
+      while (desiredTranslate < minTranslate) {
+        desiredTranslate += trackWidth;
+      }
+      
       // Запускаем анимацию
-      track.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.9, 0.2, 1)`;
-      track.style.transform = `translateX(${finalPosition}px)`;
-
+      track.style.transition = `transform ${duration}ms cubic-bezier(0.18, 0.9, 0.2, 1)`;
+      requestAnimationFrame(() => {
+        track.style.transform = `translateX(${desiredTranslate}px)`;
+      });
+      
+      // Завершение анимации
       setTimeout(() => {
-        track.style.transition = 'none';
+        track.style.transition = '';
         resolve();
       }, duration + 100);
     });
   }
 
   // Выбор случайного предмета
-  selectRandomItem(items) {
+  pickRandomItem(items) {
     const totalChance = items.reduce((sum, item) => sum + (item.chance || 1), 0);
     let random = Math.random() * totalChance;
     
     for (const item of items) {
-      random -= item.chance || 1;
+      random -= (item.chance || 1);
       if (random <= 0) {
         return { ...item };
       }
@@ -764,30 +1531,44 @@ class CaseHuntersApp {
     return { ...items[items.length - 1] };
   }
 
-  // Добавление в инвентарь
-  addToInventory(item) {
-    const inventoryItem = {
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      img: this.getImageUrl(item),
-      uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2)
-    };
-    
-    this.state.inventory.push(inventoryItem);
-    this.saveState();
+  // Начисление рефералу
+  creditReferrerIfApplicable(cost, winPrice) {
+    try {
+      const refKey = CONFIG.STORAGE_PREFIX + 'referrer_' + this.userId;
+      const referrerId = localStorage.getItem(refKey);
+      
+      if (!referrerId) return;
+      
+      const loss = Math.max(0, cost - winPrice);
+      if (loss <= 0) return;
+      
+      const reward = Math.round(loss * CONFIG.REFERRAL_PERCENT);
+      
+      // Сохраняем начисления рефералу
+      const refEarnKey = CONFIG.STORAGE_PREFIX + 'refearn_' + referrerId;
+      const currentEarnings = parseInt(localStorage.getItem(refEarnKey) || '0');
+      localStorage.setItem(refEarnKey, (currentEarnings + reward).toString());
+      
+      // Если реферер онлайн, добавляем ему на баланс
+      const refBalanceKey = CONFIG.STORAGE_PREFIX + 'balance_' + referrerId;
+      const refBalance = parseInt(localStorage.getItem(refBalanceKey) || '0');
+      localStorage.setItem(refBalanceKey, (refBalance + reward).toString());
+      
+    } catch (error) {
+      console.error('Error crediting referrer:', error);
+    }
   }
 
-  // Показ результата выигрыша
-  showWinResult(item) {
+  // Показать выигрыш в полноэкранном режиме
+  showFullScreenWin(item) {
     const winImg = document.getElementById('winImg');
     const winTitle = document.getElementById('winTitle');
     const winPrice = document.getElementById('winPrice');
     const winNote = document.getElementById('winNote');
     
-    winImg.src = this.getImageUrl(item);
+    winImg.src = item.img;
     winImg.onerror = () => {
-      winImg.src = this.createPlaceholder(item.name);
+      winImg.src = this.createImagePlaceholder(item.name);
     };
     
     winTitle.textContent = item.name;
@@ -802,12 +1583,12 @@ class CaseHuntersApp {
   renderInventory() {
     const container = document.getElementById('inventoryList');
     if (!container) return;
-
+    
     if (this.state.inventory.length === 0) {
       container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px">Инвентарь пуст</div>';
       return;
     }
-
+    
     container.innerHTML = '';
     
     // Показываем последние предметы первыми
@@ -818,24 +1599,35 @@ class CaseHuntersApp {
       itemElement.innerHTML = `
         <div class="left">
           <img src="${item.img}" alt="${item.name}" class="weapon-img" 
-               onerror="this.src='${this.createPlaceholder(item.name)}'">
+               onerror="this.src='${this.createImagePlaceholder(item.name)}'">
           <div class="meta">
-            <div style="font-weight:bold;font-size:14px">${item.name}</div>
-            <div style="font-size:12px;color:var(--muted)">${item.price} ₽</div>
+            <div class="title">${item.name}${item.upgraded ? ` • ${item.upgraded.multiplier}x` : ''}</div>
+            <div class="sub">${item.price} ₽</div>
           </div>
         </div>
         <div>
           <button class="smallBtn" data-sell="${item.uid}" style="margin-bottom:8px">Продать</button>
+          <button class="smallBtn" data-upgrade="${item.uid}">Апгрейд</button>
         </div>
       `;
-
+      
       container.appendChild(itemElement);
-
-      // Обработчик продажи
-      const sellBtn = itemElement.querySelector('[data-sell]');
-      sellBtn.addEventListener('click', () => {
-        this.sellItem(item.uid);
-      });
+      
+      // Обработчики событий
+      const sellBtn = itemElement.querySelector(`[data-sell="${item.uid}"]`);
+      const upgradeBtn = itemElement.querySelector(`[data-upgrade="${item.uid}"]`);
+      
+      if (sellBtn) {
+        sellBtn.addEventListener('click', () => {
+          this.sellItem(item.uid);
+        });
+      }
+      
+      if (upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+          this.openUpgradePanelForItem(item);
+        });
+      }
     });
   }
 
@@ -843,222 +1635,418 @@ class CaseHuntersApp {
   sellItem(itemUid) {
     const itemIndex = this.state.inventory.findIndex(item => item.uid === itemUid);
     if (itemIndex === -1) return;
-
+    
     const item = this.state.inventory[itemIndex];
-    this.updateBalance(item.price);
+    this.addBalance(item.price);
     this.state.inventory.splice(itemIndex, 1);
     
     this.saveState();
     this.renderInventory();
-    this.showMessage(`Предмет продан за ${item.price} ₽`);
+    this.showMessage(`Предмет "${item.name}" продан за ${item.price} ₽`, false);
+    this.pushFakeChat(`${this.getRandomName()} продал ${item.name} за ${item.price} ₽`);
   }
 
-  // Получение бонуса
-  claimBonus(type) {
-    const today = new Date().toISOString().split('T')[0];
-    const storageKey = type === 'daily' 
-      ? CONFIG.STORAGE_PREFIX + 'lastBonus_' + this.userId
-      : CONFIG.STORAGE_PREFIX + 'lastExtraBonus_' + this.userId;
+  // Открытие панели апгрейда
+  openUpgradePanelForItem(item) {
+    this.state.upgradeSelectedItem = item;
+    
+    const preview = document.getElementById('upgradeSelectedPreview');
+    if (preview) {
+      preview.innerHTML = '';
+      const img = document.createElement('img');
+      img.style.width = '70px';
+      img.style.height = '70px';
+      img.style.borderRadius = '10px';
+      img.style.objectFit = 'cover';
+      img.src = item.img;
+      img.onerror = () => {
+        img.src = this.createImagePlaceholder(item.name);
+      };
+      preview.appendChild(img);
+    }
+    
+    document.getElementById('upgradeSelectedName').textContent = item.name;
+    document.getElementById('upgradeSelectedPrice').textContent = `${item.price} ₽`;
+    document.getElementById('upgradeResultSmall').textContent = '';
+    document.getElementById('upgradeInnerSmall').textContent = 'Апгрейд';
+    
+    // Показываем панель апгрейда
+    document.getElementById('upgradePanel').style.display = 'block';
+    
+    // Прокручиваем к панели апгрейда
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth'
+    });
+  }
 
-    const lastClaim = localStorage.getItem(storageKey);
-    const amount = type === 'daily' ? 10 : 10;
-
-    if (lastClaim === today) {
-      this.showMessage(`Бонус уже получен сегодня`);
+  // Выполнение апгрейда
+  performUpgrade(multiplier) {
+    if (!this.state.upgradeSelectedItem) {
+      document.getElementById('upgradeResultSmall').textContent = 'Выберите предмет';
       return;
     }
-
-    this.updateBalance(amount);
-    localStorage.setItem(storageKey, today);
     
-    const message = type === 'daily' 
-      ? `Ежедневный бонус ${amount} ₽ зачислен`
-      : `Бонус ${amount} ₽ зачислен`;
+    const item = this.state.upgradeSelectedItem;
+    const cost = multiplier === 2 
+      ? Math.max(100, Math.round(item.price * 0.18))
+      : Math.max(200, Math.round(item.price * 0.35));
     
-    this.showMessage(message);
-    this.addChatMessage(`Игрок получил бонус ${amount} ₽`);
-  }
-
-  // Обновление баланса
-  updateBalance(amount) {
-    this.state.balance += amount;
-    if (this.state.balance < 0) this.state.balance = 0;
+    // Проверка баланса
+    if (!this.state.adminLogged && this.state.balance < cost) {
+      document.getElementById('upgradeResultSmall').textContent = 'Недостаточно средств';
+      return;
+    }
     
-    this.saveState();
-    this.updateUI();
+    // Списание средств
+    if (!this.state.adminLogged) {
+      this.subBalance(cost);
+    }
+    
+    document.getElementById('upgradeResultSmall').textContent = 'Крутим...';
+    
+    // Вероятность успеха
+    const probability = multiplier === 2 ? 0.60 : 0.30;
+    const success = Math.random() < probability;
+    
+    // Анимация колеса
+    const wheel = document.getElementById('upgradeWheelSmall');
+    const baseSpins = 3 + Math.floor(Math.random() * 3);
+    let finalAngle;
+    
+    if (success) {
+      finalAngle = 360 * baseSpins + (Math.random() * 50 + 5);
+    } else {
+      finalAngle = 360 * baseSpins + (Math.random() * 180 + 120);
+    }
+    
+    if (wheel) {
+      wheel.style.transition = 'transform 2000ms cubic-bezier(.2,.9,.2,1)';
+      wheel.style.transform = `rotate(${finalAngle}deg)`;
+    }
+    
+    // Результат апгрейда
+    setTimeout(() => {
+      if (wheel) {
+        wheel.style.transition = '';
+        wheel.style.transform = `rotate(${finalAngle % 360}deg)`;
+      }
+      
+      if (success) {
+        // Успешный апгрейд
+        item.price = Math.round(item.price * multiplier);
+        item.upgraded = item.upgraded || { times: 0, multiplier: 1 };
+        item.upgraded.times += 1;
+        item.upgraded.multiplier *= multiplier;
+        
+        document.getElementById('upgradeResultSmall').textContent = 
+          `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${item.price} ₽`;
+        document.getElementById('upgradeSelectedPrice').textContent = `${item.price} ₽`;
+        
+        this.pushFakeChat(`${this.getRandomName()} успешно апгрейднул ${item.name} до ${item.price} ₽`);
+      } else {
+        // Неудача
+        document.getElementById('upgradeResultSmall').textContent = 
+          'Неудача. Попробуйте снова или продайте предмет.';
+        this.pushFakeChat(`${this.getRandomName()} неудачно апгрейднул ${item.name}`);
+      }
+      
+      // Сохраняем изменения и обновляем интерфейс
+      this.saveState();
+      this.renderInventory();
+      this.updateUI();
+      
+    }, 2050);
   }
 
   // Обновление UI
   updateUI() {
+    // Баланс
     const balanceElement = document.getElementById('balance');
     if (balanceElement) {
       balanceElement.textContent = this.state.adminLogged ? '∞' : this.state.balance;
     }
-
+    
+    // Реферальные доходы
     const refEarningsElement = document.getElementById('refEarnings');
     if (refEarningsElement) {
       refEarningsElement.textContent = this.getReferralEarnings();
     }
-
+    
+    // Реферальная ссылка
     const refLinkElement = document.getElementById('myRefLink');
     if (refLinkElement) {
       refLinkElement.value = `${window.location.origin}${window.location.pathname}?ref=${this.userId}`;
     }
   }
 
-  // Вспомогательные методы
-  getImageUrl(item) {
-    return CONFIG.IMAGE_BASE + item.id + '.png';
-  }
-
-  createPlaceholder(text) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 100;
-    canvas.height = 100;
-    const ctx = canvas.getContext('2d');
+  // Добавление баланса
+  addBalance(amount) {
+    if (this.state.adminLogged) {
+      // В режиме админа баланс безграничный
+      this.updateUI();
+      return;
+    }
     
-    // Фон
-    ctx.fillStyle = '#0b0f14';
-    ctx.fillRect(0, 0, 100, 100);
+    this.state.balance += Math.round(amount);
+    this.saveState();
+    this.updateUI();
+  }
+
+  // Списание баланса
+  subBalance(amount) {
+    if (this.state.adminLogged) {
+      // В режиме админа баланс не списывается
+      this.updateUI();
+      return;
+    }
     
-    // Текст
-    ctx.fillStyle = '#facc15';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text.substring(0, 10), 50, 50);
+    this.state.balance = Math.max(0, this.state.balance - Math.round(amount));
+    this.saveState();
+    this.updateUI();
+  }
+
+  // Обновление баланса в UI
+  updateBalanceUI() {
+    const balanceElement = document.getElementById('balance');
+    if (!balanceElement) return;
     
-    return canvas.toDataURL();
+    if (this.state.adminLogged) {
+      balanceElement.textContent = '∞';
+      balanceElement.parentElement.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+    } else {
+      balanceElement.textContent = this.state.balance;
+      balanceElement.parentElement.style.background = 'linear-gradient(135deg, #facc15, #eab308)';
+    }
   }
 
-  getReferralEarnings() {
-    const key = CONFIG.STORAGE_PREFIX + 'refearn_' + this.userId;
-    return parseInt(localStorage.getItem(key) || '0');
+  // Применение RTP
+  applyHiddenRtp(targetRtp) {
+    this.cases.forEach(c => {
+      const items = c.items;
+      const avgPrice = items.reduce((s, i) => s + i.price, 0) / items.length;
+      const baseChances = items.map(i => i.baseChance || 1);
+      const factor = Math.max(0.10, targetRtp);
+      
+      const newChances = items.map((it, idx) => {
+        const rel = it.price / avgPrice;
+        const val = baseChances[idx] * (1 / (1 + (rel - 1) * (1.4 - factor)));
+        return Math.max(val, 0.01);
+      });
+      
+      items.forEach((it, idx) => {
+        it.chance = newChances[idx];
+      });
+    });
   }
 
-  showMessage(text) {
-    alert(text); // В Telegram можно заменить на showAlert
+  // Показать сообщение
+  showMessage(text, showWinBox = true) {
+    // Создаем временное модальное окно для сообщений
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '50%';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.background = 'linear-gradient(135deg, #071018, #08121a)';
+    modal.style.padding = '20px';
+    modal.style.borderRadius = '14px';
+    modal.style.border = '2px solid var(--accent)';
+    modal.style.color = '#fff';
+    modal.style.zIndex = '3000';
+    modal.style.textAlign = 'center';
+    modal.style.minWidth = '250px';
+    modal.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+    modal.innerHTML = `
+      <div style="margin-bottom:15px;font-size:16px">${text}</div>
+      <button class="smallBtn" id="closeTempModal">OK</button>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Обработчик закрытия
+    document.getElementById('closeTempModal').addEventListener('click', () => {
+      document.body.removeChild(modal);
+    });
+    
+    // Автоматическое закрытие для обычных сообщений
+    if (!showWinBox) {
+      setTimeout(() => {
+        if (modal.parentNode) {
+          document.body.removeChild(modal);
+        }
+      }, 2000);
+    }
   }
 
-  // Чат
+  // Инициализация чата
   initChat() {
-    this.addChatMessage('Добро пожаловать в Case Hunters!');
+    // Начальные сообщения
+    const initialMessages = [
+      'Добро пожаловать в Case Hunters!',
+      'Открывайте кейсы и выигрывайте крутые предметы!',
+      'Не забывайте про ежедневные бонусы!'
+    ];
     
-    // Имитация активности чата
+    initialMessages.forEach((msg, i) => {
+      setTimeout(() => {
+        this.pushFakeChat(msg, 'Система');
+      }, 1000 * i);
+    });
+    
+    // Имитация активности игроков
     setInterval(() => {
       const messages = [
-        'Игрок открыл кейс и получил AK-47 | Redline',
-        'Кто-то вывел 500 ₽',
-        'Новый рекорд: 1000 ₽ за один спин!',
-        'Игрок продал предмет за 750 ₽'
+        'AK-47 | Redline',
+        'AWP | Asiimov',
+        'Desert Eagle | Blaze',
+        'Glock-18 | Fade',
+        'M4A4 | Howl',
+        'Sport Gloves | Pandora\'s Box'
       ];
       
-      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      this.addChatMessage(randomMessage);
-    }, CONFIG.CHAT_UPDATE_INTERVAL);
+      const randomItem = messages[Math.floor(Math.random() * messages.length)];
+      this.pushFakeChat(
+        `${this.getRandomName()} открыл кейс и получил ${randomItem}`,
+        this.getRandomName()
+      );
+    }, 10000);
+    
+    // Имитация выводов
+    setInterval(() => {
+      const amount = 500 + Math.floor(Math.random() * 1000);
+      this.pushFakeChat(
+        `${this.getRandomName()} вывел ${amount} ₽`,
+        this.getRandomName()
+      );
+    }, 15000);
   }
 
-  addChatMessage(text) {
+  // Добавление сообщения в чат
+  pushFakeChat(text, user = null) {
     const chatBox = document.getElementById('chatBox');
     if (!chatBox) return;
-
+    
     const messageElement = document.createElement('div');
     messageElement.className = 'chatMessage';
     
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const userName = user || this.getRandomName();
+    const time = new Date().toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
     
     messageElement.innerHTML = `
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
-        <span>Игрок</span>
+      <div class="meta">
+        <span>${userName}</span>
         <span>${time}</span>
       </div>
-      <div style="font-size:13px">${text}</div>
+      <div>${text}</div>
     `;
-
+    
     chatBox.appendChild(messageElement);
+    
+    // Автопрокрутка к новым сообщениям
     chatBox.scrollTop = chatBox.scrollHeight;
+    
+    // Ограничение количества сообщений
+    if (chatBox.children.length > 50) {
+      chatBox.removeChild(chatBox.children[0]);
+    }
+  }
+
+  // Случайное имя для чата
+  getRandomName() {
+    const names = [
+      'Иван_92', 'Anna_Pro', 'GamerMax', 'Oleg_CS', 'Vlad99',
+      'Katya', 'Pro_Player', 'Rus_Bot', 'Sniper', 'Hunter'
+    ];
+    return names[Math.floor(Math.random() * names.length)];
   }
 
   // Счетчик онлайн
   initOnlineCounter() {
     let onlineCount = 120 + Math.floor(Math.random() * 80);
-    const update = () => {
+    
+    const updateOnline = () => {
       onlineCount += Math.floor(Math.random() * 7) - 3;
-      if (onlineCount < 50) onlineCount = 50;
+      onlineCount = Math.max(50, Math.min(300, onlineCount));
       
       const onlineElement = document.getElementById('fakeOnline');
       if (onlineElement) {
         onlineElement.textContent = onlineCount;
       }
     };
-
-    update();
-    setInterval(update, 5000);
-  }
-
-  // Вспомогательные методы для рулетки
-  toggleRoulette(caseId) {
-    const caseElement = document.querySelector(`.case[data-id="${caseId}"]`);
-    if (!caseElement) return;
-
-    const roulette = caseElement.querySelector('.roulette');
-    if (!roulette) return;
-
-    // Скрываем все остальные рулетки
-    document.querySelectorAll('.case .roulette').forEach(r => {
-      if (r !== roulette) r.style.display = 'none';
-    });
-
-    // Переключаем текущую
-    roulette.style.display = roulette.style.display === 'none' ? 'block' : 'none';
+    
+    updateOnline();
+    setInterval(updateOnline, 5000);
   }
 }
 
-// Инициализация приложения
+// Инициализация приложения при загрузке страницы
 let app;
 
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    app = new CaseHuntersApp();
+    app = new CaseHuntersGame();
     
     // Экспорт для отладки
     window.CaseHunters = app;
     
+    console.log('Case Hunters успешно загружен!');
+    
   } catch (error) {
-    console.error('Ошибка инициализации:', error);
-    alert('Ошибка загрузки приложения. Пожалуйста, обновите страницу.');
+    console.error('Ошибка при загрузке приложения:', error);
+    
+    // Показать сообщение об ошибке
+    const errorDiv = document.createElement('div');
+    errorDiv.style.position = 'fixed';
+    errorDiv.style.top = '50%';
+    errorDiv.style.left = '50%';
+    errorDiv.style.transform = 'translate(-50%, -50%)';
+    errorDiv.style.background = '#ef4444';
+    errorDiv.style.color = 'white';
+    errorDiv.style.padding = '20px';
+    errorDiv.style.borderRadius = '10px';
+    errorDiv.style.zIndex = '9999';
+    errorDiv.textContent = 'Ошибка загрузки приложения. Пожалуйста, обновите страницу.';
+    
+    document.body.appendChild(errorDiv);
   }
 });
 
-// Глобальные функции для обработки событий
-function handleWithdraw() {
+// Глобальные хелперы для обработки событий
+window.handleWithdraw = function() {
   const amountInput = document.getElementById('amountInput');
   if (!amountInput) return;
-
+  
   const amount = parseInt(amountInput.value) || 0;
   if (amount < 500) {
     alert('Минимальная сумма вывода — 500 ₽');
     return;
   }
-
-  app?.updateBalance(-amount);
+  
+  app?.subBalance(amount);
   document.getElementById('bankOverlay').style.display = 'none';
-  app?.showMessage(`Выведено ${amount} ₽`);
-  app?.addChatMessage(`Игрок вывел ${amount} ₽`);
-}
+  app?.showMessage(`Выведено ${amount} ₽`, false);
+  app?.pushFakeChat('Игрок вывел ' + amount + ' ₽');
+};
 
-function adminLoginHandler() {
-  const passwordInput = document.getElementById('adminPass');
-  if (!passwordInput) return;
-
-  if (passwordInput.value === CONFIG.DEMO_PASSWORD) {
-    app.state.adminLogged = true;
-    app.updateUI();
-    app.showMessage('Админ-режим активирован');
+// Если нужно сохранить совместимость со старым кодом
+window.adminLoginHandler = function() {
+  const password = document.getElementById('adminPass')?.value || '';
+  
+  if (password === '!125125Cc') {
+    if (app) {
+      app.state.adminLogged = true;
+      app.updateBalanceUI();
+    }
+    document.getElementById('adminControls').style.display = 'block';
+    alert('Админ: вход выполнен. Баланс администратора — безграничный (демо).');
   } else {
-    app.showMessage('Неверный пароль');
+    alert('Неверный пароль (демо).');
   }
-}
+};
 </script>
 </body>
 </html>
