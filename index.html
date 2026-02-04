@@ -114,7 +114,15 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
         <div class="small" style="margin-top:8px">Ваша реферальная ссылка (делитесь с друзьями):</div>
         <div style="margin-top:8px"><input id="myRefLink" style="width:100%;padding:8px;border-radius:8px;border:none;background:#071018;color:#fff" readonly></div>
         <div class="small" style="margin-top:8px">Вы получаете <b>40%</b> от проигрыша приглашённого (начисляется на баланс реферера).</div>
-        <div class="small" style="margin-top:8px">Заработано по рефералам: <span id="refEarnings">0</span> ₽</div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <div class="small">Заработано по рефералам: <b id="refEarnings">0</b> ₽</div>
+          <button id="claimRefBtn" class="smallBtn">Зачислить на баланс</button>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button id="dailyBonusBtn" class="smallBtn">Ежедневный бонус 10 ₽</button>
+          <button id="extraBonusBtn" class="smallBtn">Бонус сверху +10 ₽</button>
+        </div>
       </div>
 
       <div class="footerNote">Демо: реальные игровые файлы не включены. Для реальных изображений положите их в <code>/assets/cs/</code> или используйте CDN.</div>
@@ -158,7 +166,7 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
     <div class="adminRow">
       <button id="adminClearRef" class="adminBtn">Сбросить реф. начислений</button>
     </div>
-    <div style="font-size:12px;color:#9ca3af;margin-top:8px">Пароль по умолчанию: <b>admin123</b> (демо)</div>
+    <div style="font-size:12px;color:#9ca3af;margin-top:8px">Пароль админки (демо): <b>!125125Cc</b></div>
   </div>
 </div>
 
@@ -192,10 +200,42 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
+<!-- Upgrade panel (restored old upgrade UI) -->
+<div id="upgradePanel" style="max-width:980px;margin:18px auto 40px auto;background:#071018;border-top:6px solid var(--yellow-line);border-radius:12px;padding:12px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+  <div class="left">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div id="upgradeSelectedPreview" style="width:64px;height:64px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1">—</div>
+      <div>
+        <div id="upgradeSelectedName" style="font-weight:bold">Выберите предмет для апгрейда</div>
+        <div class="small" id="upgradeSelectedPrice">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="upgrade-wheel" id="upgradeWheelSmall">
+      <div class="pointer" style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid var(--accent);z-index:20"></div>
+      <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+      <div style="display:flex;gap:8px">
+        <button id="upgrade2xBtn" class="smallBtn">Попытка 2x</button>
+        <button id="upgrade3xBtn" class="smallBtn">Попытка 3x</button>
+      </div>
+      <div id="upgradeResultSmall" class="small" style="min-width:220px;text-align:right"></div>
+    </div>
+  </div>
+</div>
+
 <script>
-/* --------------
-   Полностью рабочая версия (демо)
-   -------------- */
+/* -------------------------
+   Обновлённый рабочий код
+   - админ пароль: !125125Cc
+   - админ = безграничный баланс (отображается как ∞)
+   - восстановлен старый апгрейд (2x/3x)
+   - ежедневный бонус 10 ₽ и дополнительный бонус сверху +10 ₽
+   - реферальная система: 40% от проигрыша; можно "зачислить" заработанное на баланс
+   ------------------------- */
 
 /* --- Утилиты и идентификация пользователя --- */
 function uid(prefix='u'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
@@ -207,11 +247,14 @@ function getUserId(){
 }
 const CURRENT_USER = getUserId();
 
-/* --- Баланс и рефералы (per-user keys) --- */
+/* --- Keys --- */
 const BALANCE_KEY_PREFIX = 'ch_balance_';
 const REF_KEY_PREFIX = 'ch_referrer_';
 const REF_EARN_KEY_PREFIX = 'ch_refearn_';
+const LAST_BONUS_KEY = 'ch_lastBonus_';
+const LAST_EXTRA_BONUS_KEY = 'ch_lastExtraBonus_';
 
+/* --- Balance helpers --- */
 function balanceKeyFor(userId){ return BALANCE_KEY_PREFIX + userId; }
 function refKeyFor(userId){ return REF_KEY_PREFIX + userId; }
 function refEarnKeyFor(userId){ return REF_EARN_KEY_PREFIX + userId; }
@@ -227,13 +270,14 @@ function loadBalance(){
 function saveBalance(v){
   try{ localStorage.setItem(balanceKeyFor(CURRENT_USER), String(v)); }catch(e){}
 }
-function setBalance(v){
-  state.balance = Math.max(0, Math.round(Number(v) || 0));
-  updateBalanceUI();
-  saveBalance(state.balance);
-}
-function addBalance(v){ setBalance(state.balance + Math.round(Number(v)||0)); }
-function subBalance(v){ setBalance(Math.max(0, state.balance - Math.round(Number(v)||0))); }
+
+/* --- State --- */
+let state = {
+  balance: 0,
+  inventory: [],
+  currentRtp: 0.65,
+  adminLogged: false
+};
 
 /* --- Referral helpers --- */
 function getReferrerFromUrl(){
@@ -266,6 +310,15 @@ function getReferralEarningsForMe(){
   const key = refEarnKeyFor(CURRENT_USER);
   return Number(localStorage.getItem(key) || 0);
 }
+function claimReferralEarningsToBalance(){
+  const key = refEarnKeyFor(CURRENT_USER);
+  const cur = Number(localStorage.getItem(key) || 0);
+  if(cur <= 0) return showModal('Нет реферальных средств для зачисления', false);
+  addBalance(cur);
+  localStorage.setItem(key, '0');
+  updateBalanceUI();
+  showModal(`Зачислено ${cur} ₽ на баланс`, false);
+}
 function creditReferrerIfApplicable(cost, winPrice){
   const ref = localStorage.getItem(refKeyFor(CURRENT_USER));
   if(!ref) return;
@@ -282,7 +335,7 @@ function creditReferrerIfApplicable(cost, winPrice){
 }
 
 /* --- Image helpers --- */
-const IMAGE_BASE = '/assets/cs/'; // change to CDN if needed
+const IMAGE_BASE = '/assets/cs/';
 function imgPath(name){ return IMAGE_BASE + name; }
 function placeholderDataUrl(name){
   const w=256,h=256,bg='#0b0f14',accent='#facc15';
@@ -296,7 +349,7 @@ function safeSetImg(imgEl, src, name){
   imgEl.onerror = function(){ imgEl.onerror = null; imgEl.src = placeholderDataUrl(name); };
 }
 
-/* --- Cases data (expanded, prices tuned) --- */
+/* --- Cases data --- */
 const BASE_CASES = [
   { id:'case0', name:'Starter Case', price:120, baseItems:[
     { id:'s1', name:'P250 | Sand Dune', price:220, img: imgPath('p250_sanddune.png'), baseChance:55 },
@@ -339,100 +392,89 @@ const WORK_CASES = BASE_CASES.map(c => {
   return { ...c, items, baseTotalChance: items.reduce((s,i)=>s+i.baseChance,0) };
 });
 
-/* --- State --- */
-let state = {
-  balance: 0,
-  inventory: [],
-  currentRtp: 0.65
-};
-
-/* --- DOM refs (safe getters) --- */
+/* --- DOM helper --- */
 function $(id){ return document.getElementById(id); }
 
-/* --- Safe init wrapper to avoid errors if DOM not ready --- */
+/* --- Safe init --- */
 window.addEventListener('DOMContentLoaded', () => {
   try {
-    // initialize balance from storage
     state.balance = loadBalance();
-    // set referrer if present
     setLocalReferrerIfNew();
-    // init UI
     initUI();
-    // apply RTP and render
     applyHiddenRtp(state.currentRtp);
     renderCases();
     renderInventory();
     updateBalanceUI();
     seedChat();
   } catch (e) {
-    console.error('Initialization error:', e);
-    alert('Произошла ошибка инициализации. Откройте консоль (F12) для деталей.');
+    console.error('Init error', e);
+    alert('Ошибка инициализации. Откройте консоль (F12) для деталей.');
   }
 });
 
-/* --- UI initialization --- */
+/* --- UI init --- */
 function initUI(){
-  // set up buttons
-  const bankBtn = $('bankBtn'); if(bankBtn) bankBtn.addEventListener('click', ()=> $('bankOverlay').style.display = 'flex');
-  const closeBank = $('closeBank'); if(closeBank) closeBank.addEventListener('click', ()=> $('bankOverlay').style.display = 'none');
-  const depositBtn = $('depositBtn'); if(depositBtn) depositBtn.addEventListener('click', ()=> showModal('Демо: пополнение отключено.', false));
-  const withdrawBtn = $('withdrawBtn'); if(withdrawBtn) withdrawBtn.addEventListener('click', handleWithdraw);
-  const closeModal = $('closeModal'); if(closeModal) closeModal.addEventListener('click', ()=> $('overlay').style.display = 'none');
+  if($('bankBtn')) $('bankBtn').addEventListener('click', ()=> $('bankOverlay').style.display = 'flex');
+  if($('closeBank')) $('closeBank').addEventListener('click', ()=> $('bankOverlay').style.display = 'none');
+  if($('depositBtn')) $('depositBtn').addEventListener('click', ()=> showModal('Демо: пополнение отключено.', false));
+  if($('withdrawBtn')) $('withdrawBtn').addEventListener('click', handleWithdraw);
+  if($('closeModal')) $('closeModal').addEventListener('click', ()=> $('overlay').style.display = 'none');
 
-  // admin toggle
-  const adminToggle = $('adminToggle'); if(adminToggle) adminToggle.addEventListener('click', ()=> {
+  if($('adminToggle')) $('adminToggle').addEventListener('click', ()=> {
     const panel = $('adminPanel'); if(!panel) return;
     panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
   });
+  if($('adminLogin')) $('adminLogin').addEventListener('click', adminLoginHandler);
+  if($('adminAddBtn')) $('adminAddBtn').addEventListener('click', adminAddBalance);
+  if($('adminSetRtpBtn')) $('adminSetRtpBtn').addEventListener('click', adminSetRtpHandler);
+  if($('adminForceWin')) $('adminForceWin').addEventListener('click', adminForceWinHandler);
+  if($('adminClearRef')) $('adminClearRef').addEventListener('click', adminClearRefHandler);
 
-  // admin login and controls
-  const adminLogin = $('adminLogin'); if(adminLogin) adminLogin.addEventListener('click', adminLoginHandler);
-  const adminAddBtn = $('adminAddBtn'); if(adminAddBtn) adminAddBtn.addEventListener('click', adminAddBalance);
-  const adminSetRtpBtn = $('adminSetRtpBtn'); if(adminSetRtpBtn) adminSetRtpBtn.addEventListener('click', adminSetRtpHandler);
-  const adminForceWin = $('adminForceWin'); if(adminForceWin) adminForceWin.addEventListener('click', adminForceWinHandler);
-  const adminClearRef = $('adminClearRef'); if(adminClearRef) adminClearRef.addEventListener('click', adminClearRefHandler);
+  if($('claimRefBtn')) $('claimRefBtn').addEventListener('click', claimReferralEarningsToBalance);
+  if($('dailyBonusBtn')) $('dailyBonusBtn').addEventListener('click', claimDailyBonus);
+  if($('extraBonusBtn')) $('extraBonusBtn').addEventListener('click', claimExtraBonus);
 
-  // referral UI
-  const myRefLink = $('myRefLink'); if(myRefLink) myRefLink.value = getMyRefLink();
-  const refEarnings = $('refEarnings'); if(refEarnings) refEarnings.textContent = getReferralEarningsForMe();
-
-  // close overlay on background click
-  const overlay = $('overlay'); if(overlay) overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.style.display = 'none'; });
+  // upgrade buttons wired via event delegation below
 }
 
-/* --- Withdraw handler --- */
+/* --- Withdraw --- */
 function handleWithdraw(){
   const val = Number($('amountInput').value) || 0;
   if(val < 500) return showModal('Минимальная сумма вывода — 500 ₽', false);
-  if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
-  subBalance(val);
+  if(!state.adminLogged && val > state.balance) return showModal('Недостаточно средств для вывода', false);
+  if(!state.adminLogged) subBalance(val);
   $('bankOverlay').style.display = 'none';
   showModal(`Выведено ${val} ₽ (демо)`, false);
   pushFakeChat(`${shortName()} только что вывел ${val} ₽`);
 }
 
-/* --- Admin handlers --- */
-let adminLogged = false;
+/* --- Admin --- */
 function adminLoginHandler(){
   const pass = $('adminPass').value || '';
-  if(pass === 'admin123'){
-    adminLogged = true;
+  if(pass === '!125125Cc'){
+    state.adminLogged = true;
     $('adminControls').style.display = 'block';
     populateAdminSelects();
-    showModal('Админ: вход выполнен (демо).', false);
+    // admin unlimited balance: represent as special flag; show ∞
+    updateBalanceUI();
+    showModal('Админ: вход выполнен. Баланс администратора — безграничный (демо).', false);
   } else {
     showModal('Неверный пароль (демо).', false);
   }
 }
 function adminAddBalance(){
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  if(!state.adminLogged) return showModal('Требуется вход в админку', false);
   const v = Number($('adminAddAmount').value) || 0;
   if(v <= 0) return showModal('Введите сумму > 0', false);
-  addBalance(v);
-  showModal(`Админ: добавлено ${v} ₽ вашему балансу (демо)`, false);
+  // for admin, we still allow adding to stored balance (but display remains ∞)
+  const cur = Number(localStorage.getItem(balanceKeyFor(CURRENT_USER)) || 0);
+  localStorage.setItem(balanceKeyFor(CURRENT_USER), String(cur + v));
+  state.balance = loadBalance();
+  updateBalanceUI();
+  showModal(`Админ: добавлено ${v} ₽ (демо).`, false);
 }
 function adminSetRtpHandler(){
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  if(!state.adminLogged) return showModal('Требуется вход в админку', false);
   const r = Number($('adminSetRtp').value);
   if(!r || r < 0.1 || r > 0.95) return showModal('RTP должен быть в диапазоне 0.10–0.95', false);
   state.currentRtp = r;
@@ -452,7 +494,7 @@ function populateAdminSelects(){
   });
 }
 function adminForceWinHandler(){
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  if(!state.adminLogged) return showModal('Требуется вход в админку', false);
   const caseId = $('adminForceCase').value;
   const itemId = $('adminForceItem').value;
   const c = WORK_CASES.find(x=>x.id===caseId);
@@ -466,7 +508,7 @@ function adminForceWinHandler(){
   pushFakeChat(`Админ выдал: ${item.name}`);
 }
 function adminClearRefHandler(){
-  if(!adminLogged) return showModal('Требуется вход в админку', false);
+  if(!state.adminLogged) return showModal('Требуется вход в админку', false);
   Object.keys(localStorage).forEach(k => { if(k.startsWith(REF_EARN_KEY_PREFIX)) localStorage.removeItem(k); });
   $('refEarnings').textContent = 0;
   showModal('Реферальные начисления сброшены (демо).', false);
@@ -517,7 +559,6 @@ function renderCases(){
 
     el.addEventListener('click', (e)=>{
       if(e.target && e.target.dataset && e.target.dataset.open) return;
-      // toggle only when clicking outside the open button
       toggleCaseRoulette(c.id);
     });
     const openBtn = el.querySelector('button[data-open]');
@@ -531,7 +572,7 @@ function renderCases(){
   });
 }
 
-/* --- Show/hide roulette for a case --- */
+/* --- Show/hide roulette --- */
 function toggleCaseRoulette(caseId){
   const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
   if(!caseEl) return;
@@ -586,27 +627,23 @@ function prepareRouletteForCase(caseObj, trackEl){
   }, 60);
 }
 
-/* --- Spin animation with fixed duration (6s) --- */
+/* --- Spin animation (6s) --- */
 function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   const c = WORK_CASES.find(x=>x.id===caseId);
   if(!c) return;
   const cost = c.price;
-  if(state.balance < cost){ showModal(`Недостаточно средств. Нужно ${cost} ₽`, false); return; }
+  if(!state.adminLogged && state.balance < cost){ showModal(`Недостаточно средств. Нужно ${cost} ₽`, false); return; }
 
-  // deduct cost immediately
-  subBalance(cost);
+  // deduct cost (unless admin)
+  if(!state.adminLogged) subBalance(cost);
 
-  // ensure track exists
-  if(!trackEl) {
+  if(!trackEl){
     const win = pickRandomItem(c.items);
     finalizeWin(c, cost, win);
     return;
   }
 
-  // choose winning item now
   const win = pickRandomItem(c.items);
-
-  // compute nodes and sizes
   const nodes = Array.from(trackEl.children);
   if(nodes.length === 0){
     finalizeWin(c, cost, win);
@@ -627,7 +664,6 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   for(let i=0;i<targetIndex;i++) targetCenter += (nodes[i].offsetWidth || itemWidth);
   targetCenter += (nodes[targetIndex].offsetWidth || itemWidth) / 2;
 
-  // add cycles to simulate long spin
   const cycles = Math.max(2, Math.floor(spinMs / 1500));
   const virtualTargetCenter = targetCenter + cycles * trackW;
 
@@ -641,13 +677,11 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
     maxTranslate = 0;
   }
 
-  // normalize desiredTranslate into [minTranslate, maxTranslate]
   while(desiredTranslate < minTranslate) desiredTranslate += trackW;
   while(desiredTranslate > maxTranslate) desiredTranslate -= trackW;
   if(desiredTranslate < minTranslate) desiredTranslate = minTranslate;
   if(desiredTranslate > maxTranslate) desiredTranslate = maxTranslate;
 
-  // animate
   trackEl.classList.add('spinPulse');
   trackEl.style.transition = `transform ${spinMs}ms cubic-bezier(.18,.9,.2,1)`;
   requestAnimationFrame(()=> trackEl.style.transform = `translateX(${desiredTranslate}px)`);
@@ -659,7 +693,7 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   }, spinMs + 80);
 }
 
-/* --- Finalize win: inventory, ref credit, UI --- */
+/* --- Finalize win --- */
 function finalizeWin(caseObj, cost, win){
   const inv = { uid: uid('it'), id: win.id, name: win.name, price: win.price, img: win.img, upgraded: null };
   state.inventory.push(inv);
@@ -668,7 +702,6 @@ function finalizeWin(caseObj, cost, win){
   renderInventory();
   logOpen([win]);
   pushFakeChat(`${shortName()} открыл ${caseObj.name} и получил ${win.name}`);
-  // update referral earnings UI
   const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe();
 }
 
@@ -693,7 +726,7 @@ function showFullScreenWin(inv){
   $('overlay').style.display = 'flex';
 }
 
-/* --- Log open (push to chat) --- */
+/* --- Log open (chat) --- */
 function logOpen(results){
   const lines = results.map(r=>`Вы получили: ${r.name} — ${r.price} ₽`).join('; ');
   pushFakeChat(`Система: ${lines}`);
@@ -734,7 +767,7 @@ function renderInventory(){
   });
 }
 
-/* --- Upgrade panel (simple) --- */
+/* --- Upgrade (restored old upgrade) --- */
 let upgradeSelectedItem = null;
 function openUpgradePanelForItem(item){
   upgradeSelectedItem = item;
@@ -751,8 +784,8 @@ function openUpgradePanelForItem(item){
 function performUpgrade(multiplier){
   if(!upgradeSelectedItem) { $('upgradeResultSmall').textContent = 'Выберите предмет'; return; }
   const cost = multiplier === 2 ? Math.max(100, Math.round(upgradeSelectedItem.price * 0.18)) : Math.max(200, Math.round(upgradeSelectedItem.price * 0.35));
-  if(state.balance < cost){ $('upgradeResultSmall').textContent = 'Недостаточно средств'; return; }
-  subBalance(cost);
+  if(!state.adminLogged && state.balance < cost){ $('upgradeResultSmall').textContent = 'Недостаточно средств'; return; }
+  if(!state.adminLogged) subBalance(cost);
   $('upgradeResultSmall').textContent = 'Крутим...';
   const prob = multiplier === 2 ? 0.60 : 0.30;
   const success = Math.random() < prob;
@@ -782,19 +815,61 @@ function performUpgrade(multiplier){
     renderInventory();
   }, 2050);
 }
-document.addEventListener('click', (e)=>{
-  if(e.target && e.target.id === 'upgrade2xBtn') performUpgrade(2);
-  if(e.target && e.target.id === 'upgrade3xBtn') performUpgrade(3);
-});
+if($('upgrade2xBtn')) $('upgrade2xBtn').addEventListener('click', ()=> performUpgrade(2));
+if($('upgrade3xBtn')) $('upgrade3xBtn').addEventListener('click', ()=> performUpgrade(3));
 
-/* --- Bank modal close --- */
-if($('closeBank')) $('closeBank').addEventListener('click', ()=> $('bankOverlay').style.display = 'none');
+/* --- Balance operations with admin unlimited behavior --- */
+function addBalance(v){
+  if(state.adminLogged){
+    // admin has unlimited balance; still store a number for persistence but display ∞
+    const cur = Number(localStorage.getItem(balanceKeyFor(CURRENT_USER)) || 0);
+    localStorage.setItem(balanceKeyFor(CURRENT_USER), String(cur + Math.round(Number(v)||0)));
+    state.balance = loadBalance();
+    updateBalanceUI();
+    return;
+  }
+  setBalance(state.balance + Math.round(Number(v)||0));
+}
+function subBalance(v){
+  if(state.adminLogged){
+    // admin: do not reduce balance (unlimited)
+    updateBalanceUI();
+    return;
+  }
+  setBalance(Math.max(0, state.balance - Math.round(Number(v)||0)));
+}
+function setBalance(v){
+  state.balance = Math.max(0, Math.round(Number(v) || 0));
+  saveBalance(state.balance);
+  updateBalanceUI();
+}
+function saveBalance(v){
+  try{ localStorage.setItem(balanceKeyFor(CURRENT_USER), String(v)); }catch(e){}
+}
+
+/* --- Daily bonus and extra bonus --- */
+function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function claimDailyBonus(){
+  const last = localStorage.getItem(LAST_BONUS_KEY + CURRENT_USER);
+  const today = todayKey();
+  if(last === today){ showModal('Бонус уже получен сегодня', false); return; }
+  addBalance(10);
+  localStorage.setItem(LAST_BONUS_KEY + CURRENT_USER, today);
+  showModal('Ежедневный бонус 10 ₽ зачислен', false);
+}
+function claimExtraBonus(){
+  const last = localStorage.getItem(LAST_EXTRA_BONUS_KEY + CURRENT_USER);
+  const today = todayKey();
+  if(last === today){ showModal('Бонус сверху уже получен сегодня', false); return; }
+  addBalance(10);
+  localStorage.setItem(LAST_EXTRA_BONUS_KEY + CURRENT_USER, today);
+  showModal('Бонус сверху +10 ₽ зачислен', false);
+}
 
 /* --- Modal helpers --- */
 function showModal(text, showWinBox=true){
   const modal = $('modal');
   if(!modal) return;
-  // remove previous message
   const prev = $('modalContent'); if(prev) prev.remove();
   const content = document.createElement('div'); content.id = 'modalContent';
   content.style.color = '#cbd5e1'; content.style.padding = '12px'; content.style.maxWidth = '720px';
@@ -807,10 +882,20 @@ function showModal(text, showWinBox=true){
   }
 }
 
-/* --- Balance UI update --- */
-function updateBalanceUI(){ const el = $('balance'); if(el) el.textContent = state.balance; saveBalance(state.balance); const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe(); const myRef = $('myRefLink'); if(myRef) myRef.value = getMyRefLink(); }
+/* --- Update balance UI (shows ∞ for admin) --- */
+function updateBalanceUI(){
+  const el = $('balance');
+  if(!el) return;
+  if(state.adminLogged){
+    el.textContent = '∞';
+  } else {
+    el.textContent = state.balance;
+  }
+  const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe();
+  const myRef = $('myRefLink'); if(myRef) myRef.value = getMyRefLink();
+}
 
-/* --- Fake online & chat feed --- */
+/* --- Fake online & chat --- */
 let fakeOnline = 120 + Math.floor(Math.random()*80);
 function updateFakeOnline(){ fakeOnline += Math.floor(Math.random()*7 - 3); if(fakeOnline < 5) fakeOnline = 5; const el = $('fakeOnline'); if(el) el.textContent = fakeOnline; }
 setInterval(updateFakeOnline, 5000);
@@ -867,11 +952,10 @@ function applyHiddenRtp(targetRtp){
   });
 }
 
-/* --- Helpers for referral and UI --- */
-function initReferralUI(){ const myRefLink = $('myRefLink'); if(myRefLink) myRefLink.value = getMyRefLink(); const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe(); }
-function seedChat(){ seedChat(); } // placeholder to satisfy earlier call
+/* --- Helpers --- */
+function shortId(){ return CURRENT_USER.slice(-6); }
 
-/* --- Expose some functions for debugging in console (optional) --- */
+/* --- Expose debug API (optional) --- */
 window.CaseHunters = {
   state,
   addBalance,
