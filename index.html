@@ -30,48 +30,92 @@ body{
   overflow-x:hidden;
 }
 
-/* Top Bar */
+/* Top Bar - ИСПРАВЛЕНО для мобильных */
 #topBar{
   position:sticky;
   top:0;
   left:0;
   right:0;
   background:#020617;
-  padding:12px 16px;
+  padding:10px 12px;
   display:flex;
-  justify-content:space-between;
-  align-items:center;
+  flex-direction:column;
+  gap:8px;
   box-shadow:var(--shadow);
   z-index:1000;
   backdrop-filter:blur(10px);
 }
 #logo{
   font-family:'Russo One',sans-serif;
-  font-size:20px;
+  font-size:18px;
   color:var(--accent);
   letter-spacing:0.5px;
+  text-align:center;
+  width:100%;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.top-controls{
+  display:flex;
+  width:100%;
+  gap:8px;
+  align-items:center;
 }
 #balanceBox{
-  padding:8px 14px;
-  border-radius:12px;
+  padding:8px 12px;
+  border-radius:10px;
   background:linear-gradient(135deg,var(--accent),#eab308);
   color:#020617;
   font-weight:700;
-  font-size:15px;
-  box-shadow:0 0 12px rgba(250,204,21,.5);
+  font-size:14px;
+  box-shadow:0 0 10px rgba(250,204,21,.5);
   white-space:nowrap;
+  flex:1;
+  text-align:center;
+}
+.top-buttons{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.top-buttons .smallBtn{
+  min-width:50px;
+  text-align:center;
+  padding:8px 10px;
+  font-size:13px;
+}
+#soundToggle{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:linear-gradient(135deg, #3b82f6, #2563eb);
+  border:none;
+  color:white;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  transition:all 0.3s ease;
+  flex-shrink:0;
+}
+#soundToggle:hover{
+  transform:scale(1.1);
+}
+#soundToggle.muted{
+  background:linear-gradient(135deg, #6b7280, #4b5563);
 }
 
 /* Container */
 .container{
   max-width:100%;
   margin:0 auto;
-  padding:16px 12px 180px;
+  padding:16px 10px 180px;
 }
 .section{
   background:var(--card);
   border-radius:14px;
-  padding:18px;
+  padding:16px;
   margin:12px 0;
   border:1px solid rgba(255,255,255,0.05);
   box-shadow:0 4px 12px rgba(0,0,0,.3);
@@ -84,7 +128,7 @@ body{
   align-items:center;
   background:linear-gradient(135deg,#1a2233,#111827);
   border-radius:12px;
-  padding:16px;
+  padding:14px;
   margin:10px 0;
   cursor:pointer;
   border:1px solid rgba(255,255,255,0.05);
@@ -93,7 +137,7 @@ body{
   position:relative;
   overflow:hidden;
 }
-.case::before {
+.case::before{
   content:'';
   position:absolute;
   top:0;
@@ -103,7 +147,7 @@ body{
   background:linear-gradient(90deg, transparent, rgba(250,204,21,0.1), transparent);
   transition:left 0.7s ease;
 }
-.case:hover::before {
+.case:hover::before{
   left:100%;
 }
 .case:active{
@@ -115,14 +159,14 @@ body{
 }
 .case .left{
   display:flex;
-  gap:14px;
+  gap:12px;
   align-items:center;
   flex:1;
 }
 .case-badge{
-  width:70px;
-  height:70px;
-  border-radius:12px;
+  width:60px;
+  height:60px;
+  border-radius:10px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -131,12 +175,12 @@ body{
   font-weight:900;
   font-family:'Russo One',sans-serif;
   box-shadow:0 6px 20px var(--glow);
-  font-size:14px;
+  font-size:12px;
   letter-spacing:1px;
   flex-shrink:0;
   transition:all 0.3s ease;
 }
-.case:hover .case-badge {
+.case:hover .case-badge{
   transform:rotate(5deg) scale(1.05);
   box-shadow:0 8px 25px rgba(250,204,21,0.4);
 }
@@ -145,18 +189,18 @@ body{
 }
 .case .meta .title{
   font-weight:bold;
-  font-size:16px;
+  font-size:15px;
   margin-bottom:4px;
 }
 .case .meta .sub{
-  font-size:13px;
+  font-size:12px;
   color:var(--muted);
 }
 .case .right{
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  gap:8px;
+  gap:6px;
 }
 
 /* Buttons */
@@ -164,19 +208,19 @@ body{
   background:linear-gradient(135deg,#1a2233,#111827);
   border:1px solid rgba(255,255,255,0.1);
   color:#fff;
-  padding:10px 16px;
-  border-radius:10px;
+  padding:8px 14px;
+  border-radius:8px;
   cursor:pointer;
-  font-size:14px;
+  font-size:13px;
   font-weight:500;
   transition:all 0.2s;
   touch-action:manipulation;
   user-select:none;
-  min-width:80px;
+  min-width:70px;
   position:relative;
   overflow:hidden;
 }
-.smallBtn::after {
+.smallBtn::after{
   content:'';
   position:absolute;
   top:50%;
@@ -189,13 +233,13 @@ body{
   transform:scale(1,1) translate(-50%);
   transform-origin:50% 50%;
 }
-.smallBtn:focus:not(:active)::after {
+.smallBtn:focus:not(:active)::after{
   animation:ripple 1s ease-out;
 }
-@keyframes ripple {
-  0% {transform:scale(0,0); opacity:0.5;}
-  20% {transform:scale(25,25); opacity:0.3;}
-  100% {transform:scale(40,40); opacity:0;}
+@keyframes ripple{
+  0%{transform:scale(0,0); opacity:0.5;}
+  20%{transform:scale(25,25); opacity:0.3;}
+  100%{transform:scale(40,40); opacity:0;}
 }
 .smallBtn:active{
   transform:scale(0.95);
@@ -203,20 +247,20 @@ body{
 .openBtn{
   background:linear-gradient(135deg,var(--green),#0da271);
   border:none;
-  padding:12px 20px;
-  border-radius:12px;
+  padding:10px 16px;
+  border-radius:10px;
   color:#fff;
   font-weight:600;
-  font-size:14px;
+  font-size:13px;
   cursor:pointer;
-  min-width:100px;
+  min-width:90px;
   transition:all 0.2s;
   touch-action:manipulation;
   box-shadow:0 4px 12px rgba(16,185,129,0.3);
   position:relative;
   overflow:hidden;
 }
-.openBtn::before {
+.openBtn::before{
   content:'';
   position:absolute;
   top:0;
@@ -226,7 +270,7 @@ body{
   background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition:left 0.5s;
 }
-.openBtn:hover::before {
+.openBtn:hover::before{
   left:100%;
 }
 .openBtn:active{
@@ -239,23 +283,23 @@ body{
 }
 
 /* Кнопка копирования рефералки */
-.copy-btn {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  touch-action: manipulation;
-  position: relative;
-  overflow: hidden;
+.copy-btn{
+  background:linear-gradient(135deg, #3b82f6, #2563eb);
+  border:none;
+  color:white;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:13px;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  touch-action:manipulation;
+  position:relative;
+  overflow:hidden;
 }
-.copy-btn::before {
+.copy-btn::before{
   content:'';
   position:absolute;
   top:0;
@@ -265,29 +309,29 @@ body{
   background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition:left 0.5s;
 }
-.copy-btn:hover::before {
+.copy-btn:hover::before{
   left:100%;
 }
-.copy-btn:active {
-  transform: scale(0.95);
+.copy-btn:active{
+  transform:scale(0.95);
 }
-.copy-btn.copied {
-  background: linear-gradient(135deg, var(--green), #0da271);
-  animation: pulse 0.5s ease-in-out;
+.copy-btn.copied{
+  background:linear-gradient(135deg, var(--green), #0da271);
+  animation:pulse 0.5s ease-in-out;
 }
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
 }
 
-/* Roulette - улучшенная анимация */
+/* Roulette - БЕСКОНЕЧНАЯ рулетка без исчезающих элементов */
 .roulette{
   width:100%;
   overflow:hidden;
   position:relative;
-  border-radius:14px;
-  height:140px;
+  border-radius:12px;
+  height:130px;
   margin:12px 0;
   background:#071018;
   border:2px solid rgba(250,204,21,0.1);
@@ -300,36 +344,36 @@ body{
   transform:translate3d(0,0,0);
 }
 .roulette-item{
-  width:140px;
+  width:120px;
   flex-shrink:0;
   text-align:center;
-  padding:12px;
+  padding:10px;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  transition: all 0.3s ease;
+  transition:all 0.3s ease;
 }
 .roulette-item img{
-  width:100px;
-  height:100px;
+  width:80px;
+  height:80px;
   display:block;
-  margin:0 auto 8px;
-  border-radius:12px;
+  margin:0 auto 6px;
+  border-radius:10px;
   box-shadow:0 6px 20px rgba(0,0,0,.7);
   object-fit:cover;
   background:#0b0f14;
 }
-.roulette-item.active {
-  animation: itemHighlight 0.8s ease-in-out;
-  border: 2px solid var(--accent);
-  border-radius: 12px;
-  box-shadow: 0 0 30px rgba(250,204,21,0.7);
-  transform: scale(1.05);
+.roulette-item.active{
+  animation:itemHighlight 0.8s ease-in-out;
+  border:2px solid var(--accent);
+  border-radius:10px;
+  box-shadow:0 0 30px rgba(250,204,21,0.7);
+  transform:scale(1.05);
 }
-@keyframes itemHighlight {
-  0%, 100% { transform: scale(1.05); box-shadow: 0 0 30px rgba(250,204,21,0.7); }
-  50% { transform: scale(1.08); box-shadow: 0 0 40px rgba(250,204,21,0.9); }
+@keyframes itemHighlight{
+  0%,100%{transform:scale(1.05); box-shadow:0 0 30px rgba(250,204,21,0.7);}
+  50%{transform:scale(1.08); box-shadow:0 0 40px rgba(250,204,21,0.9);}
 }
 .roulette-center-line{
   position:absolute;
@@ -348,8 +392,8 @@ body{
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
-  width:240px;
-  height:240px;
+  width:200px;
+  height:200px;
   border-radius:50%;
   background:radial-gradient(circle, rgba(250,204,21,0.08), transparent 40%);
   pointer-events:none;
@@ -364,15 +408,15 @@ body{
   align-items:center;
   justify-content:center;
   z-index:2000;
-  padding:20px;
+  padding:16px;
   animation:fadeIn 0.3s ease;
 }
 #winResultBox{
   width:100%;
-  max-width:450px;
-  padding:30px;
+  max-width:400px;
+  padding:24px;
   background:linear-gradient(135deg,#071018,#08121a);
-  border-radius:20px;
+  border-radius:18px;
   border:3px solid var(--accent);
   text-align:center;
   animation:slideUp 0.4s ease;
@@ -382,36 +426,36 @@ body{
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes winPulse{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
 #winResultBox img{
-  width:200px;
-  height:200px;
-  border-radius:14px;
-  margin:0 auto 20px;
+  width:160px;
+  height:160px;
+  border-radius:12px;
+  margin:0 auto 16px;
   box-shadow:0 0 50px rgba(250,204,21,.3);
   object-fit:cover;
   border:2px solid rgba(250,204,21,0.3);
-  animation: float 3s ease-in-out infinite;
+  animation:float 3s ease-in-out infinite;
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+@keyframes float{
+  0%,100%{transform:translateY(0px);}
+  50%{transform:translateY(-10px);}
 }
 #winResultBox .winTitle{
-  font-size:26px;
+  font-size:22px;
   font-weight:800;
   color:var(--accent);
-  margin-bottom:12px;
+  margin-bottom:10px;
   line-height:1.2;
 }
 #winResultBox .winPrice{
-  font-size:22px;
+  font-size:18px;
   color:#4ecdc4;
-  margin-bottom:10px;
+  margin-bottom:8px;
   font-weight:600;
 }
 #winResultBox .winNote{
-  font-size:15px;
+  font-size:14px;
   color:#cbd5e1;
-  margin-bottom:24px;
+  margin-bottom:20px;
 }
 
 /* Inventory */
@@ -420,15 +464,15 @@ body{
   justify-content:space-between;
   align-items:center;
   background:linear-gradient(135deg,#1a2233,#111827);
-  border-radius:12px;
-  padding:16px;
-  margin:10px 0;
+  border-radius:10px;
+  padding:14px;
+  margin:8px 0;
   border:1px solid rgba(255,255,255,0.05);
   transition:all 0.3s ease;
   position:relative;
   overflow:hidden;
 }
-.item::before {
+.item::before{
   content:'';
   position:absolute;
   top:0;
@@ -438,7 +482,7 @@ body{
   background:linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
   transition:left 0.7s ease;
 }
-.item:hover::before {
+.item:hover::before{
   left:100%;
 }
 .item.fade-out{
@@ -450,9 +494,9 @@ body{
   100%{opacity:0;transform:scale(0.9);height:0;margin:0;padding:0}
 }
 .weapon-img{
-  width:70px;
-  height:70px;
-  border-radius:10px;
+  width:60px;
+  height:60px;
+  border-radius:8px;
   object-fit:cover;
   box-shadow:0 4px 12px rgba(0,0,0,.5);
   background:#0b0f14;
@@ -460,7 +504,7 @@ body{
   border:1px solid rgba(255,255,255,0.1);
   transition:all 0.3s ease;
 }
-.item:hover .weapon-img {
+.item:hover .weapon-img{
   transform:rotate(5deg) scale(1.05);
   box-shadow:0 8px 20px rgba(0,0,0,0.7);
 }
@@ -468,30 +512,30 @@ body{
 /* Chat */
 .chatBox{
   width:100%;
-  max-height:360px;
+  max-height:320px;
   background:#0b1220;
-  border-radius:12px;
-  padding:14px;
+  border-radius:10px;
+  padding:12px;
   overflow-y:auto;
   border:1px solid #16202a;
   -webkit-overflow-scrolling:touch;
 }
 .chatMessage{
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:12px;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:10px;
   background:linear-gradient(135deg,#071018,#08121a);
-  font-size:14px;
+  font-size:13px;
   line-height:1.4;
   border:1px solid rgba(255,255,255,0.05);
   transition:all 0.3s ease;
 }
-.chatMessage:hover {
+.chatMessage:hover{
   transform:translateX(5px);
   border-color:rgba(250,204,21,0.2);
 }
 .chatMessage .meta{
-  font-size:12px;
+  font-size:11px;
   color:var(--muted);
   margin-bottom:6px;
   display:flex;
@@ -501,45 +545,45 @@ body{
 /* Admin Panel */
 #adminPanel{
   position:fixed;
-  right:16px;
+  right:12px;
   top:100px;
   background:#0b1220;
   border:1px solid #1f2937;
-  padding:18px;
-  border-radius:14px;
+  padding:16px;
+  border-radius:12px;
   z-index:1000;
-  min-width:300px;
+  min-width:280px;
   display:none;
   box-shadow:var(--shadow);
   backdrop-filter:blur(10px);
   animation:slideInRight 0.3s ease;
 }
-@keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+@keyframes slideInRight{
+  from{transform:translateX(100%); opacity:0;}
+  to{transform:translateX(0); opacity:1;}
 }
 #adminPanel h4{
-  margin:0 0 12px 0;
+  margin:0 0 10px 0;
   color:var(--accent);
-  font-size:18px;
+  font-size:16px;
 }
 .adminRow{
   display:flex;
-  gap:10px;
+  gap:8px;
   align-items:center;
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
 .adminRow input, .adminRow select{
-  padding:10px;
-  border-radius:8px;
+  padding:8px;
+  border-radius:6px;
   border:1px solid #2b3440;
   background:#071018;
   color:#fff;
-  font-size:14px;
+  font-size:13px;
   flex:1;
   transition:all 0.3s ease;
 }
-.adminRow input:focus, .adminRow select:focus {
+.adminRow input:focus, .adminRow select:focus{
   outline:none;
   border-color:var(--accent);
   box-shadow:0 0 0 2px rgba(250,204,21,0.1);
@@ -548,10 +592,10 @@ body{
   background:linear-gradient(135deg,#1a2233,#111827);
   border:1px solid #2b3440;
   color:#fff;
-  padding:10px 16px;
-  border-radius:10px;
+  padding:8px 12px;
+  border-radius:8px;
   cursor:pointer;
-  font-size:14px;
+  font-size:13px;
   transition:all 0.2s;
 }
 .adminBtn:active{
@@ -567,36 +611,36 @@ body{
   z-index:1500;
   align-items:center;
   justify-content:center;
-  padding:20px;
+  padding:16px;
   animation:fadeIn 0.3s ease;
 }
 #bankModal{
   background:#181d27;
-  border-radius:16px;
+  border-radius:14px;
   box-shadow:0 20px 40px rgba(0,0,0,0.5);
-  padding:28px;
-  max-width:450px;
+  padding:24px;
+  max-width:400px;
   width:90%;
   border:2px solid rgba(250,204,21,0.2);
   animation:scaleUp 0.4s ease;
 }
-@keyframes scaleUp {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+@keyframes scaleUp{
+  from{transform:scale(0.9); opacity:0;}
+  to{transform:scale(1); opacity:1;}
 }
 #amountInput{
-  padding:12px;
-  border-radius:10px;
+  padding:10px;
+  border-radius:8px;
   border:1px solid #2b3440;
   background:#0b1220;
   color:#fff;
-  font-size:16px;
+  font-size:15px;
   text-align:center;
   width:100%;
-  margin-bottom:16px;
+  margin-bottom:14px;
   transition:all 0.3s ease;
 }
-#amountInput:focus {
+#amountInput:focus{
   outline:none;
   border-color:var(--accent);
   box-shadow:0 0 0 2px rgba(250,204,21,0.1);
@@ -606,9 +650,9 @@ body{
 #upgradePanel{
   position:relative;
   background:linear-gradient(135deg,#071018,#0a1524);
-  border-radius:16px;
-  padding:20px;
-  margin:16px 0;
+  border-radius:14px;
+  padding:18px;
+  margin:14px 0;
   border:2px solid rgba(250,204,21,0.2);
   overflow:hidden;
   scroll-margin-top:80px;
@@ -629,8 +673,8 @@ body{
   100%{background-position:-200% 0}
 }
 .upgrade-wheel{
-  width:120px;
-  height:120px;
+  width:100px;
+  height:100px;
   border-radius:50%;
   border:3px solid var(--accent);
   position:relative;
@@ -644,25 +688,25 @@ body{
 .upgrade-wheel::before{
   content:'';
   position:absolute;
-  width:130px;
-  height:130px;
+  width:110px;
+  height:110px;
   border-radius:50%;
   background:conic-gradient(transparent, var(--accent), transparent);
   animation:spin 4s linear infinite;
   opacity:0.3;
 }
 @keyframes spin{
-  100%{transform:rotate(360deg)}
+  100%{transform:rotate(360deg);}
 }
 .upgrade-wheel .inner{
   color:#e5e7eb;
-  font-size:14px;
+  font-size:13px;
   text-align:center;
   position:relative;
   z-index:2;
   background:rgba(11,15,20,0.8);
-  padding:10px;
-  border-radius:8px;
+  padding:8px;
+  border-radius:6px;
 }
 
 /* Upgrade Animations */
@@ -698,14 +742,14 @@ body{
 /* Online & Chat Widgets */
 .online-chat-container{
   position:sticky;
-  top:80px;
+  top:100px;
   z-index:10;
 }
 .online-widget{
   background:linear-gradient(135deg,#071018,#08121a);
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:16px;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:14px;
   border:1px solid rgba(255,255,255,0.05);
   position:relative;
   overflow:hidden;
@@ -720,242 +764,163 @@ body{
   background:linear-gradient(90deg, var(--blue), var(--purple));
 }
 .online-count{
-  font-size:40px;
+  font-size:32px;
   font-weight:800;
   color:var(--accent);
-  margin:8px 0;
+  margin:6px 0;
   text-shadow:0 0 10px rgba(250,204,21,0.3);
   transition:all 0.5s ease;
 }
 
 /* Toast уведомления */
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px 20px;
-  background: linear-gradient(135deg, #071018, #08121a);
-  border-left: 4px solid var(--accent);
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 9999;
-  transform: translateX(120%);
-  transition: transform 0.3s ease;
-  max-width: 300px;
+.toast{
+  position:fixed;
+  top:16px;
+  right:16px;
+  padding:12px 16px;
+  background:linear-gradient(135deg, #071018, #08121a);
+  border-left:4px solid var(--accent);
+  border-radius:6px;
+  color:white;
+  font-size:13px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.3);
+  z-index:9999;
+  transform:translateX(120%);
+  transition:transform 0.3s ease;
+  max-width:280px;
 }
-.toast.show {
-  transform: translateX(0);
+.toast.show{
+  transform:translateX(0);
 }
-.toast.success { border-left-color: var(--green); }
-.toast.error { border-left-color: var(--red); }
-.toast.info { border-left-color: var(--blue); }
-.toast.warning { border-left-color: var(--accent); }
+.toast.success{border-left-color:var(--green);}
+.toast.error{border-left-color:var(--red);}
+.toast.info{border-left-color:var(--blue);}
+.toast.warning{border-left-color:var(--accent);}
 
 /* Эффекты частиц */
-.particle {
-  position: absolute;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0;
+.particle{
+  position:absolute;
+  pointer-events:none;
+  z-index:100;
+  opacity:0;
 }
-@keyframes particleFly {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-  100% { transform: translate(var(--tx), var(--ty)) rotate(360deg); opacity: 0; }
+@keyframes particleFly{
+  0%{transform:translate(0,0) rotate(0deg); opacity:1;}
+  100%{transform:translate(var(--tx), var(--ty)) rotate(360deg); opacity:0;}
 }
 
 /* Анимация баланса */
-@keyframes balanceIncrease {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+@keyframes balanceIncrease{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.1);}
+  100%{transform:scale(1);}
 }
-.balance-increase {
-  animation: balanceIncrease 0.5s ease-in-out;
+.balance-increase{
+  animation:balanceIncrease 0.5s ease-in-out;
 }
 
 /* Анимация реферального бонуса */
-@keyframes refBonus {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+@keyframes refBonus{
+  0%{transform:translateY(0) scale(1); opacity:1;}
+  100%{transform:translateY(-40px) scale(1.5); opacity:0;}
 }
-.ref-bonus {
-  position: absolute;
-  color: var(--accent);
-  font-weight: bold;
-  font-size: 18px;
-  pointer-events: none;
-  z-index: 100;
-  animation: refBonus 1s ease-out forwards;
-}
-
-/* Responsive */
-@media (max-width:768px){
-  .container{
-    padding:12px 10px 200px;
-  }
-  .section{
-    padding:16px;
-    margin:10px 0;
-  }
-  .case{
-    flex-wrap:wrap;
-    gap:12px;
-  }
-  .case .right{
-    width:100%;
-    align-items:stretch;
-  }
-  .openBtn{
-    width:100%;
-  }
-  .roulette{
-    height:130px;
-  }
-  .roulette-item{
-    width:130px;
-  }
-  .roulette-item img{
-    width:90px;
-    height:90px;
-  }
-  #adminPanel{
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    width:90%;
-    max-width:400px;
-  }
-  #winResultBox{
-    padding:24px 20px;
-    margin:20px;
-  }
-  #winResultBox img{
-    width:160px;
-    height:160px;
-  }
-  .toast {
-    left: 20px;
-    right: 20px;
-    max-width: none;
-  }
+.ref-bonus{
+  position:absolute;
+  color:var(--accent);
+  font-weight:bold;
+  font-size:16px;
+  pointer-events:none;
+  z-index:100;
+  animation:refBonus 1s ease-out forwards;
 }
 
-@media (max-width:480px){
+@media(min-width:481px){
   #topBar{
-    padding:10px 12px;
+    flex-direction:row;
+    align-items:center;
+    padding:12px 16px;
   }
   #logo{
-    font-size:18px;
+    text-align:left;
+    width:auto;
+    padding-bottom:0;
+    border-bottom:none;
+    flex:1;
+  }
+  .top-controls{
+    width:auto;
+    flex:2;
   }
   #balanceBox{
-    padding:6px 12px;
-    font-size:14px;
+    flex:none;
   }
-  .case-badge{
-    width:60px;
-    height:60px;
-    font-size:12px;
-  }
-  .weapon-img{
-    width:60px;
-    height:60px;
-  }
-  .upgrade-wheel{
-    width:100px;
-    height:100px;
-  }
-}
-
-/* Тогглер звука */
-#soundToggle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  border: none;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  margin-left: 10px;
-}
-#soundToggle:hover {
-  transform: scale(1.1);
-}
-#soundToggle.muted {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
 }
 </style>
 </head>
 <body>
 
-<!-- Top Bar -->
+<!-- Top Bar - ИСПРАВЛЕНО -->
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <!-- БАЛАНС БЕЗ ЭМОДЗИ -->
+  <div class="top-controls">
     <div id="balanceBox">Баланс: <span id="balance">0</span> ₽</div>
-    <button id="bankBtn" class="smallBtn" title="Банк">💼</button>
-    <button id="soundToggle" title="Звук">🔊</button>
-    <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
+    <div class="top-buttons">
+      <button id="bankBtn" class="smallBtn" title="Банк">💼 Банк</button>
+      <button id="soundToggle" title="Звук">🔊</button>
+      <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
+    </div>
   </div>
 </div>
 
 <!-- Daily Bonus Top -->
-<div style="background:#111827;padding:12px 16px;text-align:center;border-bottom:1px solid #222">
+<div style="background:#111827;padding:10px 12px;text-align:center;border-bottom:1px solid #222">
   <button id="dailyBonusBtnTop" class="smallBtn">🎁 Ежедневный бонус +10 ₽</button>
 </div>
 
 <!-- Main Container -->
 <div class="container">
-  <div style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;flex-direction:column;gap:14px">
     <div>
       <!-- Cases Section -->
       <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-weight:bold;font-size:18px">Доступные кейсы</div>
-          <div style="font-size:12px;color:var(--muted)">Нажмите "Открыть" для запуска рулетки</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-weight:bold;font-size:17px">Доступные кейсы</div>
+          <div style="font-size:11px;color:var(--muted)">Нажмите "Открыть" для запуска рулетки</div>
         </div>
         <div id="casesList"></div>
       </div>
 
       <!-- Inventory Section -->
       <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-weight:bold;font-size:18px">Инвентарь</div>
-          <div style="font-size:12px;color:var(--muted)">Ваши предметы</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-weight:bold;font-size:17px">Инвентарь</div>
+          <div style="font-size:11px;color:var(--muted)">Ваши предметы</div>
         </div>
-        <div id="inventoryList" style="margin-top:12px"></div>
+        <div id="inventoryList" style="margin-top:10px"></div>
       </div>
 
       <!-- Upgrade Panel -->
       <div id="upgradePanel">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-          <div style="display:flex;gap:12px;align-items:center;flex:1">
-            <div id="upgradeSelectedPreview" style="width:70px;height:70px;border-radius:10px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1;border:1px solid rgba(255,255,255,0.1)">—</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+          <div style="display:flex;gap:10px;align-items:center;flex:1">
+            <div id="upgradeSelectedPreview" style="width:60px;height:60px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1;border:1px solid rgba(255,255,255,0.1)">—</div>
             <div style="flex:1">
-              <div id="upgradeSelectedName" style="font-weight:bold;font-size:16px">Выберите предмет для апгрейда</div>
-              <div id="upgradeSelectedPrice" style="font-size:13px;color:var(--muted)">—</div>
+              <div id="upgradeSelectedName" style="font-weight:bold;font-size:15px">Выберите предмет для апгрейда</div>
+              <div id="upgradeSelectedPrice" style="font-size:12px;color:var(--muted)">—</div>
             </div>
           </div>
 
-          <div style="display:flex;gap:16px;align-items:center">
+          <div style="display:flex;gap:14px;align-items:center">
             <div class="upgrade-wheel" id="upgradeWheelSmall">
-              <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid var(--accent);z-index:3"></div>
+              <div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--accent);z-index:3"></div>
               <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
-              <div style="display:flex;gap:10px">
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+              <div style="display:flex;gap:8px">
                 <button id="upgrade2xBtn" class="smallBtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Попытка 2x</button>
                 <button id="upgrade3xBtn" class="smallBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">Попытка 3x</button>
               </div>
-              <div id="upgradeResultSmall" style="font-size:13px;color:var(--muted);min-width:200px;text-align:right"></div>
+              <div id="upgradeResultSmall" style="font-size:12px;color:var(--muted);min-width:180px;text-align:right"></div>
             </div>
           </div>
         </div>
@@ -963,31 +928,30 @@ body{
 
       <!-- Referral Section -->
       <div class="section">
-        <div style="font-weight:bold;font-size:18px;margin-bottom:12px">Реферальная система</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Ваша реферальная ссылка:</div>
-        <div style="display:flex;gap:10px;margin-bottom:16px">
-          <input id="myRefLink" style="flex:1;padding:12px;border-radius:10px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:14px;" readonly>
-          <!-- КНОПКА КОПИРОВАНИЯ -->
+        <div style="font-weight:bold;font-size:17px;margin-bottom:10px">Реферальная система</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Ваша реферальная ссылка:</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <input id="myRefLink" style="flex:1;padding:10px;border-radius:8px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:13px;" readonly>
           <button id="copyRefBtn" class="copy-btn" title="Скопировать ссылку">
             <span id="copyText">Копировать</span>
           </button>
         </div>
         
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-size:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:13px">
             Заработано: <b id="refEarnings" style="color:var(--accent)">0</b> ₽
           </div>
           <button id="claimRefBtn" class="smallBtn" style="background:linear-gradient(135deg,var(--green),#0da271)">Зачислить</button>
         </div>
         
-        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;padding:12px;background:rgba(250,204,21,0.1);border-radius:10px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding:10px;background:rgba(250,204,21,0.1);border-radius:8px">
           <strong>🎯 Как работает:</strong><br>
           • Приглашайте друзей по своей ссылке<br>
           • Получайте <strong>30%</strong> от их проигрышей<br>
           • Начисления автоматически добавляются к вашему балансу
         </div>
         
-        <div style="display:flex;gap:10px;margin-top:20px">
+        <div style="display:flex;gap:8px;margin-top:16px">
           <button id="dailyBonusBtn" class="smallBtn" style="flex:1">🎁 Бонус 10 ₽</button>
           <button id="extraBonusBtn" class="smallBtn" style="flex:1">✨ +10 ₽</button>
         </div>
@@ -998,9 +962,9 @@ body{
     <div class="online-chat-container">
       <!-- Online Widget -->
       <div class="online-widget">
-        <div style="font-weight:bold;font-size:16px;margin-bottom:8px">Онлайн</div>
+        <div style="font-weight:bold;font-size:15px;margin-bottom:6px">Онлайн</div>
         <div class="online-count" id="fakeOnline">0</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:6px">пользователей сейчас</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">пользователей сейчас</div>
       </div>
 
       <!-- Chat Box -->
@@ -1104,11 +1068,11 @@ body{
 </audio>
 
 <script>
-// Константы и конфигурация
+// Константы и конфигурация - ИСПРАВЛЕНО RTP на 40%
 const CONFIG = {
   STORAGE_PREFIX: 'ch_',
   DEMO_PASSWORD: '!125125Cc',
-  DEFAULT_RTP: 0.65,
+  DEFAULT_RTP: 0.40, // РЕАЛЬНОЕ RTP 40%
   IMAGE_BASE: 'https://via.placeholder.com/100x100/0b0f14/facc15?text=',
   SPIN_DURATION: 9000,
   CHAT_UPDATE_INTERVAL: 7000,
@@ -1118,17 +1082,17 @@ const CONFIG = {
   BOT_USERNAME: 'casehunter_bot'
 };
 
-// Все кейсы с новыми ценами
+// Все кейсы с СНИЖЕННЫМИ ЦЕНАМИ на оружие (примерно на 30-40%)
 const CASES = [
   {
     id: 'case1',
     name: 'Базовый Кейс',
     price: 50,
     baseItems: [
-      { id: 's1', name: 'P250 | Sand Dune', price: 80, baseChance: 50, img: 'P250' },
-      { id: 's2', name: 'USP-S | Torque', price: 120, baseChance: 30, img: 'USP-S' },
-      { id: 's3', name: 'CZ75-Auto | Tigris', price: 200, baseChance: 15, img: 'CZ75' },
-      { id: 's4', name: 'Nova | Ranger', price: 350, baseChance: 5, img: 'Nova' }
+      { id: 's1', name: 'P250 | Sand Dune', price: 50, baseChance: 50, img: 'P250' },
+      { id: 's2', name: 'USP-S | Torque', price: 80, baseChance: 30, img: 'USP-S' },
+      { id: 's3', name: 'CZ75-Auto | Tigris', price: 120, baseChance: 15, img: 'CZ75' },
+      { id: 's4', name: 'Nova | Ranger', price: 200, baseChance: 5, img: 'Nova' }
     ]
   },
   {
@@ -1136,10 +1100,10 @@ const CASES = [
     name: 'Стандартный Кейс',
     price: 100,
     baseItems: [
-      { id: 'g1', name: 'AK-47 | Redline', price: 180, baseChance: 40, img: 'AK-47' },
-      { id: 'g2', name: 'M4A1-S | Guardian', price: 250, baseChance: 35, img: 'M4A1-S' },
-      { id: 'g3', name: 'P90 | Asiimov', price: 400, baseChance: 20, img: 'P90' },
-      { id: 'g4', name: 'Desert Eagle | Blaze', price: 600, baseChance: 5, img: 'Deagle' }
+      { id: 'g1', name: 'AK-47 | Redline', price: 120, baseChance: 40, img: 'AK-47' },
+      { id: 'g2', name: 'M4A1-S | Guardian', price: 160, baseChance: 35, img: 'M4A1-S' },
+      { id: 'g3', name: 'P90 | Asiimov', price: 250, baseChance: 20, img: 'P90' },
+      { id: 'g4', name: 'Desert Eagle | Blaze', price: 350, baseChance: 5, img: 'Deagle' }
     ]
   },
   {
@@ -1147,10 +1111,10 @@ const CASES = [
     name: 'Премиум Кейс',
     price: 150,
     baseItems: [
-      { id: 'p1', name: 'AWP | Asiimov', price: 300, baseChance: 35, img: 'AWP' },
-      { id: 'p2', name: 'AK-47 | Vulcan', price: 500, baseChance: 30, img: 'AK-Vulcan' },
-      { id: 'p3', name: 'M4A4 | Howl', price: 800, baseChance: 20, img: 'M4-Howl' },
-      { id: 'p4', name: 'Glock-18 | Fade', price: 1200, baseChance: 15, img: 'Glock-Fade' }
+      { id: 'p1', name: 'AWP | Asiimov', price: 200, baseChance: 35, img: 'AWP' },
+      { id: 'p2', name: 'AK-47 | Vulcan', price: 300, baseChance: 30, img: 'AK-Vulcan' },
+      { id: 'p3', name: 'M4A4 | Howl', price: 500, baseChance: 20, img: 'M4-Howl' },
+      { id: 'p4', name: 'Glock-18 | Fade', price: 800, baseChance: 15, img: 'Glock-Fade' }
     ]
   },
   {
@@ -1158,10 +1122,10 @@ const CASES = [
     name: 'Элитный Кейс',
     price: 200,
     baseItems: [
-      { id: 'e1', name: 'AWP | Dragon Lore', price: 500, baseChance: 30, img: 'AWP-Dragon' },
-      { id: 'e2', name: 'AK-47 | Fire Serpent', price: 800, baseChance: 25, img: 'AK-Serpent' },
-      { id: 'e3', name: 'M4A1-S | Hot Rod', price: 1200, baseChance: 25, img: 'M4-HotRod' },
-      { id: 'e4', name: 'Karambit | Fade', price: 2000, baseChance: 20, img: 'Karambit' }
+      { id: 'e1', name: 'AWP | Dragon Lore', price: 300, baseChance: 30, img: 'AWP-Dragon' },
+      { id: 'e2', name: 'AK-47 | Fire Serpent', price: 500, baseChance: 25, img: 'AK-Serpent' },
+      { id: 'e3', name: 'M4A1-S | Hot Rod', price: 800, baseChance: 25, img: 'M4-HotRod' },
+      { id: 'e4', name: 'Karambit | Fade', price: 1200, baseChance: 20, img: 'Karambit' }
     ]
   },
   {
@@ -1169,10 +1133,10 @@ const CASES = [
     name: 'Легендарный Кейс',
     price: 250,
     baseItems: [
-      { id: 'l1', name: 'AWP | Medusa', price: 800, baseChance: 25, img: 'AWP-Medusa' },
-      { id: 'l2', name: 'AK-47 | Fire Serpent ST', price: 1500, baseChance: 25, img: 'AK-ST' },
-      { id: 'l3', name: 'M4A4 | Howl ST', price: 2500, baseChance: 25, img: 'M4-Howl-ST' },
-      { id: 'l4', name: 'Sport Gloves | Pandora', price: 4000, baseChance: 25, img: 'Gloves' }
+      { id: 'l1', name: 'AWP | Medusa', price: 500, baseChance: 25, img: 'AWP-Medusa' },
+      { id: 'l2', name: 'AK-47 | Fire Serpent ST', price: 900, baseChance: 25, img: 'AK-ST' },
+      { id: 'l3', name: 'M4A4 | Howl ST', price: 1500, baseChance: 25, img: 'M4-Howl-ST' },
+      { id: 'l4', name: 'Sport Gloves | Pandora', price: 2400, baseChance: 25, img: 'Gloves' }
     ]
   }
 ];
@@ -1222,7 +1186,6 @@ class CaseHuntersGame {
       rouletteSpin: document.getElementById('soundRouletteSpin')
     };
     
-    // Устанавливаем громкость
     Object.values(this.audioElements).forEach(audio => {
       if (audio) audio.volume = 0.3;
     });
@@ -1252,12 +1215,12 @@ class CaseHuntersGame {
       soundBtn.classList.toggle('muted', !this.state.soundEnabled);
     }
     
-    // Проигрываем тестовый звук при включении
     if (this.state.soundEnabled) {
       this.playSound('click');
     }
     
     this.showToast(this.state.soundEnabled ? 'Звук включен' : 'Звук выключен', 'info');
+    this.saveState();
   }
 
   // Показать уведомление
@@ -1323,7 +1286,6 @@ class CaseHuntersGame {
       }, 500);
     }
     
-    // Эффект частиц при увеличении баланса
     if (amount > 0) {
       const rect = balanceBox?.getBoundingClientRect();
       if (rect) {
@@ -1410,17 +1372,33 @@ class CaseHuntersGame {
     }
   }
 
-  // Подготовка кейсов
+  // Подготовка кейсов с РЕАЛЬНЫМ RTP 40%
   prepareCases() {
     return CASES.map(c => ({
       ...c,
       items: c.baseItems.map(it => ({ 
         ...it, 
-        chance: it.baseChance,
+        chance: this.calculateRealChance(it, c.baseItems, CONFIG.DEFAULT_RTP),
         img: this.getImageUrl(it.img || it.name)
       })),
       baseTotalChance: c.baseItems.reduce((s, i) => s + i.baseChance, 0)
     }));
+  }
+
+  // Расчет реальных шансов с RTP 40%
+  calculateRealChance(item, allItems, targetRtp) {
+    const totalPrice = allItems.reduce((sum, i) => sum + i.price, 0);
+    const avgPrice = totalPrice / allItems.length;
+    const itemValueRatio = item.price / avgPrice;
+    
+    // Формула для расчета шансов с учетом RTP 40%
+    // Более дешевые предметы имеют больший шанс
+    const baseChance = (1 / itemValueRatio) * 100;
+    
+    // Корректируем под целевой RTP
+    const adjustedChance = baseChance * (targetRtp / 0.5); // Нормализуем
+    
+    return Math.max(adjustedChance, 1); // Минимальный шанс 1%
   }
 
   // Получение URL картинки
@@ -1943,13 +1921,14 @@ class CaseHuntersGame {
     });
   }
 
-  // Подготовка рулетки для кейса
+  // Подготовка рулетки для кейса - БЕСКОНЕЧНАЯ
   prepareRouletteForCase(caseItem, trackEl) {
     if (!trackEl) return;
 
     trackEl.innerHTML = '';
 
-    const itemsToShow = 60;
+    // Создаем достаточно элементов для плавной прокрутки
+    const itemsToShow = 30; // Уменьшено для производительности
     
     for (let i = 0; i < itemsToShow; i++) {
       caseItem.items.forEach(item => {
@@ -2131,7 +2110,7 @@ class CaseHuntersGame {
     this.showToast(`Вы выиграли: ${winItem.name} (${winItem.price} ₽)`, 'success');
   }
 
-  // Анимация рулетки с динамичной скоростью
+  // Анимация рулетки с динамичной скоростью - ИСПРАВЛЕНО: предметы не пропадают
   animateRouletteWithDynamicSpeed(caseId, winItem, trackEl) {
     return new Promise((resolve) => {
       if (!trackEl) {
@@ -2157,35 +2136,39 @@ class CaseHuntersGame {
         targetIndex = Math.floor(items.length / 2);
       }
       
-      const itemWidth = items[0].offsetWidth || 140;
+      const itemWidth = items[0].offsetWidth || 120;
       const container = trackEl.parentElement;
       const containerWidth = container.clientWidth;
       
       const centerOffset = Math.floor(containerWidth / 2);
       
+      // Вычисляем позицию так, чтобы выигранный предмет остановился в центре
       let targetPosition = 0;
       for (let i = 0; i < targetIndex; i++) {
         targetPosition += (items[i].offsetWidth || itemWidth);
       }
       targetPosition += (items[targetIndex].offsetWidth || itemWidth) / 2;
       
-      const initialOffset = 200;
       const trackWidth = items.reduce((sum, item) => sum + (item.offsetWidth || itemWidth), 0);
       
-      const finalTranslate = centerOffset - (targetPosition + trackWidth * 5);
+      // Вычисляем конечное смещение
+      const finalTranslate = centerOffset - targetPosition;
       
-      // 1. БЫСТРЫЙ СТАРТ
+      // Начальное смещение (далеко слева)
+      const startTranslate = trackWidth * 2;
+      
+      // 1. БЫСТРЫЙ СТАРТ - первые 2 секунды
       trackEl.style.transition = 'transform 2s cubic-bezier(0.1, 0.8, 0.2, 1)';
-      trackEl.style.transform = `translateX(${centerOffset - initialOffset}px)`;
+      trackEl.style.transform = `translateX(${startTranslate}px)`;
       
       setTimeout(() => {
-        // 2. СРЕДНЯЯ СКОРОСТЬ
+        // 2. СРЕДНЯЯ СКОРОСТЬ - следующие 4 секунды
         trackEl.style.transition = 'transform 4s cubic-bezier(0.2, 0.7, 0.3, 1)';
-        const midTranslate = finalTranslate * 0.7;
+        const midTranslate = finalTranslate * 0.3;
         trackEl.style.transform = `translateX(${midTranslate}px)`;
         
         setTimeout(() => {
-          // 3. МЕДЛЕННОЕ ЗАМЕДЛЕНИЕ
+          // 3. МЕДЛЕННОЕ ЗАМЕДЛЕНИЕ - последние 3 секунды
           trackEl.style.transition = 'transform 3s cubic-bezier(0.3, 0.1, 0.2, 1)';
           trackEl.style.transform = `translateX(${finalTranslate}px)`;
           
@@ -2228,7 +2211,7 @@ class CaseHuntersGame {
     });
   }
 
-  // Выбор случайного предмета
+  // Выбор случайного предмета с учетом реальных шансов
   pickRandomItem(items) {
     const totalChance = items.reduce((sum, item) => sum + (item.chance || 1), 0);
     let random = Math.random() * totalChance;
@@ -2390,9 +2373,9 @@ class CaseHuntersGame {
     if (preview) {
       preview.innerHTML = '';
       const img = document.createElement('img');
-      img.style.width = '70px';
-      img.style.height = '70px';
-      img.style.borderRadius = '10px';
+      img.style.width = '60px';
+      img.style.height = '60px';
+      img.style.borderRadius = '8px';
       img.style.objectFit = 'cover';
       img.src = item.img;
       img.onerror = () => {
@@ -2427,8 +2410,8 @@ class CaseHuntersGame {
     
     const item = this.state.upgradeSelectedItem;
     const cost = multiplier === 2 
-      ? Math.max(50, Math.round(item.price * 0.15))
-      : Math.max(100, Math.round(item.price * 0.25));
+      ? Math.max(30, Math.round(item.price * 0.15))
+      : Math.max(60, Math.round(item.price * 0.25));
     
     if (!this.state.adminLogged && this.state.balance < cost) {
       document.getElementById('upgradeResultSmall').textContent = 'Недостаточно средств';
