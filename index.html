@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8" />
-<title>Case Hunters — Demo</title>
+<title>Case Hunters</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 <style>
@@ -180,7 +180,7 @@ body{
   transform:none;
 }
 
-/* Roulette */
+/* Roulette - долгая анимация */
 .roulette{
   width:100%;
   overflow:hidden;
@@ -306,6 +306,15 @@ body{
   padding:16px;
   margin:10px 0;
   border:1px solid rgba(255,255,255,0.05);
+  transition:all 0.3s ease;
+}
+.item.fade-out{
+  animation:fadeOutItem 0.5s ease forwards;
+}
+@keyframes fadeOutItem{
+  0%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.95)}
+  100%{opacity:0;transform:scale(0.9);height:0;margin:0;padding:0}
 }
 .weapon-img{
   width:70px;
@@ -427,7 +436,7 @@ body{
   margin-bottom:16px;
 }
 
-/* Upgrade Panel */
+/* Upgrade Panel - вверху после инвентаря */
 #upgradePanel{
   position:relative;
   background:linear-gradient(135deg,#071018,#0a1524);
@@ -436,6 +445,7 @@ body{
   margin:16px 0;
   border:2px solid rgba(250,204,21,0.2);
   overflow:hidden;
+  scroll-margin-top:80px; /* Для плавного скролла */
 }
 #upgradePanel::before{
   content:'';
@@ -463,7 +473,7 @@ body{
   justify-content:center;
   background:radial-gradient(circle,#111827,#020617);
   box-shadow:0 0 30px rgba(250,204,21,0.3);
-  transition:transform 2s cubic-bezier(0.2,0.9,0.2,1);
+  transition:transform 3s cubic-bezier(0.2,0.9,0.2,1);
 }
 .upgrade-wheel::before{
   content:'';
@@ -472,7 +482,7 @@ body{
   height:130px;
   border-radius:50%;
   background:conic-gradient(transparent, var(--accent), transparent);
-  animation:spin 3s linear infinite;
+  animation:spin 4s linear infinite;
   opacity:0.3;
 }
 @keyframes spin{
@@ -489,22 +499,34 @@ body{
   border-radius:8px;
 }
 
-/* Upgrade Animation */
+/* Upgrade Animations */
 @keyframes upgradeSuccess{
   0%{transform:scale(1);box-shadow:0 0 20px rgba(250,204,21,0.3)}
-  50%{transform:scale(1.1);box-shadow:0 0 40px rgba(250,204,21,0.6)}
+  50%{transform:scale(1.15);box-shadow:0 0 60px rgba(250,204,21,0.8)}
   100%{transform:scale(1);box-shadow:0 0 20px rgba(250,204,21,0.3)}
 }
 @keyframes upgradeFail{
-  0%{transform:scale(1);box-shadow:0 0 20px rgba(239,68,68,0.3)}
-  50%{transform:scale(0.95);box-shadow:0 0 40px rgba(239,68,68,0.6)}
-  100%{transform:scale(1);box-shadow:0 0 20px rgba(239,68,68,0.3)}
+  0%{transform:scale(1);filter:brightness(1)}
+  25%{transform:scale(1.05);filter:brightness(1.2)}
+  50%{transform:scale(0.95);filter:brightness(1.5)}
+  75%{transform:scale(1.02);filter:brightness(1.8)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+@keyframes itemBurn{
+  0%{transform:scale(1);filter:brightness(1)}
+  25%{transform:scale(1.1);filter:brightness(1.5)}
+  50%{transform:scale(1);filter:brightness(2)}
+  75%{transform:scale(0.9);filter:brightness(2.5)}
+  100%{transform:scale(0);filter:brightness(3);opacity:0}
 }
 .upgrade-success{
-  animation:upgradeSuccess 0.5s ease-in-out;
+  animation:upgradeSuccess 0.8s ease-in-out;
 }
 .upgrade-fail{
-  animation:upgradeFail 0.5s ease-in-out;
+  animation:upgradeFail 0.8s ease-in-out;
+}
+.item-burn{
+  animation:itemBurn 1s ease-in-out forwards;
 }
 
 /* Online & Chat Widgets */
@@ -693,6 +715,13 @@ body{
           <button id="claimRefBtn" class="smallBtn" style="background:linear-gradient(135deg,var(--green),#0da271)">Зачислить</button>
         </div>
         
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;padding:12px;background:rgba(250,204,21,0.1);border-radius:10px">
+          <strong>🎯 Как работает:</strong><br>
+          • Приглашайте друзей по своей ссылке<br>
+          • Получайте <strong>30%</strong> от их проигрышей<br>
+          • Начисления автоматически добавляются к вашему балансу
+        </div>
+        
         <div style="display:flex;gap:10px;margin-top:20px">
           <button id="dailyBonusBtn" class="smallBtn" style="flex:1">🎁 Бонус 10 ₽</button>
           <button id="extraBonusBtn" class="smallBtn" style="flex:1">✨ +10 ₽</button>
@@ -789,12 +818,13 @@ const CONFIG = {
   STORAGE_PREFIX: 'ch_',
   DEMO_PASSWORD: '!125125Cc',
   DEFAULT_RTP: 0.65,
-  IMAGE_BASE: 'https://via.placeholder.com/100x100/0b0f14/facc15?text=', // Placeholder для демо
-  SPIN_DURATION: 6000,
+  IMAGE_BASE: 'https://via.placeholder.com/100x100/0b0f14/facc15?text=',
+  SPIN_DURATION: 9000, // Долгая рулетка - 9 секунд
   CHAT_UPDATE_INTERVAL: 7000,
   REFERRAL_PERCENT: 0.30, // 30% от проигрыша
   MIN_WITHDRAWAL: 500,
-  MIN_DEPOSIT: 100
+  MIN_DEPOSIT: 100,
+  BOT_USERNAME: 'casehunter_bot'
 };
 
 // Все кейсы с новыми ценами 50, 100, 150, 200, 250 ₽
@@ -896,6 +926,11 @@ class CaseHuntersGame {
     return id;
   }
 
+  // Генерация реферальной ссылки для Telegram бота
+  getReferralLink() {
+    return `https://t.me/${CONFIG.BOT_USERNAME}?start=${this.userId}`;
+  }
+
   // Загрузка состояния
   loadState() {
     try {
@@ -949,7 +984,7 @@ class CaseHuntersGame {
   setupReferrer() {
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const referrer = urlParams.get('ref');
+      const referrer = urlParams.get('ref') || urlParams.get('start');
       
       if (referrer && referrer !== this.userId) {
         const referrerKey = CONFIG.STORAGE_PREFIX + 'referrer_' + this.userId;
@@ -1322,7 +1357,7 @@ class CaseHuntersGame {
         openBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           this.showCaseRoulette(caseItem.id);
-          this.openCaseWithTimedSpin(caseItem.id, track, CONFIG.SPIN_DURATION);
+          this.openCaseWithTimedSpin(caseItem.id, track);
         });
       }
 
@@ -1340,7 +1375,7 @@ class CaseHuntersGame {
 
     trackEl.innerHTML = '';
 
-    const itemsToShow = 20;
+    const itemsToShow = 30; // Больше элементов для долгой анимации
     
     for (let i = 0; i < itemsToShow; i++) {
       caseItem.items.forEach(item => {
@@ -1448,8 +1483,8 @@ class CaseHuntersGame {
     roulette.style.display = 'block';
   }
 
-  // Открытие кейса с анимацией
-  async openCaseWithTimedSpin(caseId, trackEl, spinMs) {
+  // Открытие кейса с долгой анимацией
+  async openCaseWithTimedSpin(caseId, trackEl) {
     const caseItem = this.cases.find(c => c.id === caseId);
     if (!caseItem) return;
     
@@ -1472,7 +1507,8 @@ class CaseHuntersGame {
     
     const winItem = this.pickRandomItem(caseItem.items);
     
-    await this.animateRoulette(caseId, winItem, spinMs);
+    // Долгая анимация - 9 секунд
+    await this.animateRoulette(caseId, winItem, CONFIG.SPIN_DURATION);
     
     const inventoryItem = {
       uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
@@ -1500,7 +1536,7 @@ class CaseHuntersGame {
     }
   }
 
-  // Анимация рулетки
+  // Долгая анимация рулетки
   animateRoulette(caseId, winItem, duration) {
     return new Promise((resolve) => {
       const track = document.querySelector(`.track[data-case="${caseId}"]`);
@@ -1535,7 +1571,8 @@ class CaseHuntersGame {
       }
       targetCenter += (items[targetIndex].offsetWidth || itemWidth) / 2;
       
-      const cycles = 5;
+      // Много оборотов для долгой анимации
+      const cycles = 8;
       const trackWidth = items.reduce((sum, item) => sum + (item.offsetWidth || itemWidth), 0);
       const virtualTargetCenter = targetCenter + cycles * trackWidth;
       
@@ -1546,7 +1583,8 @@ class CaseHuntersGame {
         desiredTranslate += trackWidth;
       }
       
-      track.style.transition = `transform ${duration}ms cubic-bezier(0.18, 0.9, 0.2, 1)`;
+      // Долгая анимация с замедлением в конце
+      track.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
       requestAnimationFrame(() => {
         track.style.transform = `translateX(${desiredTranslate}px)`;
       });
@@ -1634,6 +1672,7 @@ class CaseHuntersGame {
     [...this.state.inventory].reverse().forEach(item => {
       const itemElement = document.createElement('div');
       itemElement.className = 'item';
+      itemElement.dataset.uid = item.uid;
       
       itemElement.innerHTML = `
         <div class="left">
@@ -1684,7 +1723,7 @@ class CaseHuntersGame {
     this.pushFakeChat(`${this.getRandomName()} продал ${item.name} за ${item.price} ₽`);
   }
 
-  // Открытие панели апгрейда
+  // Открытие панели апгрейда с плавным скроллом
   openUpgradePanelForItem(item) {
     this.state.upgradeSelectedItem = item;
     
@@ -1708,15 +1747,21 @@ class CaseHuntersGame {
     document.getElementById('upgradeResultSmall').textContent = '';
     document.getElementById('upgradeInnerSmall').textContent = 'Апгрейд';
     
-    document.getElementById('upgradePanel').style.display = 'block';
-    
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: 'smooth'
+    // Плавный скролл к панели апгрейда
+    const upgradePanel = document.getElementById('upgradePanel');
+    upgradePanel.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' 
     });
+    
+    // Подсвечиваем панель
+    upgradePanel.style.boxShadow = '0 0 30px rgba(250, 204, 21, 0.3)';
+    setTimeout(() => {
+      upgradePanel.style.boxShadow = '';
+    }, 1500);
   }
 
-  // Выполнение апгрейда
+  // Выполнение апгрейда с сгоранием предмета при неудаче
   performUpgrade(multiplier) {
     if (!this.state.upgradeSelectedItem) {
       document.getElementById('upgradeResultSmall').textContent = 'Выберите предмет';
@@ -1737,13 +1782,15 @@ class CaseHuntersGame {
       this.subBalance(cost);
     }
     
-    document.getElementById('upgradeResultSmall').textContent = 'Крутим...';
+    document.getElementById('upgradeResultSmall').textContent = '🔄 Запускаем апгрейд...';
+    document.getElementById('upgrade2xBtn').disabled = true;
+    document.getElementById('upgrade3xBtn').disabled = true;
     
     const probability = multiplier === 2 ? 0.60 : 0.35;
     const success = Math.random() < probability;
     
     const wheel = document.getElementById('upgradeWheelSmall');
-    const baseSpins = 3 + Math.floor(Math.random() * 3);
+    const baseSpins = 4 + Math.floor(Math.random() * 4); // Больше оборотов
     let finalAngle;
     
     if (success) {
@@ -1753,7 +1800,7 @@ class CaseHuntersGame {
     }
     
     if (wheel) {
-      wheel.style.transition = 'transform 2000ms cubic-bezier(.2,.9,.2,1)';
+      wheel.style.transition = 'transform 3s cubic-bezier(.2,.9,.2,1)';
       wheel.style.transform = `rotate(${finalAngle}deg)`;
     }
     
@@ -1770,10 +1817,11 @@ class CaseHuntersGame {
         
         setTimeout(() => {
           wheel.classList.remove('upgrade-success', 'upgrade-fail');
-        }, 500);
+        }, 800);
       }
       
       if (success) {
+        // Успешный апгрейд
         item.price = Math.round(item.price * multiplier);
         item.upgraded = item.upgraded || { times: 0, multiplier: 1 };
         item.upgraded.times += 1;
@@ -1785,16 +1833,40 @@ class CaseHuntersGame {
         
         this.pushFakeChat(`${this.getRandomName()} успешно апгрейднул ${item.name} до ${item.price} ₽`);
       } else {
+        // Неудача - предмет сгорает
+        const itemElement = document.querySelector(`.item[data-uid="${item.uid}"]`);
+        if (itemElement) {
+          itemElement.classList.add('item-burn');
+        }
+        
         document.getElementById('upgradeResultSmall').textContent = 
-          '😔 Неудача. Попробуйте снова или продайте предмет.';
-        this.pushFakeChat(`${this.getRandomName()} неудачно апгрейднул ${item.name}`);
+          '💥 Неудача! Предмет сгорел.';
+        document.getElementById('upgradeSelectedPreview').innerHTML = '💥';
+        document.getElementById('upgradeSelectedName').textContent = 'Предмет сгорел';
+        document.getElementById('upgradeSelectedPrice').textContent = '—';
+        
+        this.pushFakeChat(`${this.getRandomName()} неудачно апгрейднул ${item.name} - предмет сгорел`);
+        
+        // Удаляем предмет из инвентаря через секунду (после анимации)
+        setTimeout(() => {
+          const itemIndex = this.state.inventory.findIndex(invItem => invItem.uid === item.uid);
+          if (itemIndex !== -1) {
+            this.state.inventory.splice(itemIndex, 1);
+            this.saveState();
+            this.renderInventory();
+          }
+          this.state.upgradeSelectedItem = null;
+        }, 1000);
       }
       
       this.saveState();
       this.renderInventory();
       this.updateUI();
       
-    }, 2050);
+      document.getElementById('upgrade2xBtn').disabled = false;
+      document.getElementById('upgrade3xBtn').disabled = false;
+      
+    }, 3100);
   }
 
   // Обновление UI
@@ -1811,7 +1883,7 @@ class CaseHuntersGame {
     
     const refLinkElement = document.getElementById('myRefLink');
     if (refLinkElement) {
-      refLinkElement.value = `${window.location.origin}${window.location.pathname}?ref=${this.userId}`;
+      refLinkElement.value = this.getReferralLink();
     }
   }
 
@@ -1914,7 +1986,8 @@ class CaseHuntersGame {
     const initialMessages = [
       'Добро пожаловать в Case Hunters! 🎮',
       'Открывайте кейсы и выигрывайте крутые предметы! 💰',
-      'Не забывайте про ежедневные бонусы! 🎁'
+      'Приглашайте друзей и получайте 30% от их проигрышей! 👥',
+      'Апгрейд предметов с риском сгорания - проверьте свою удачу! ⚡'
     ];
     
     initialMessages.forEach((msg, i) => {
@@ -1938,12 +2011,27 @@ class CaseHuntersGame {
         `${this.getRandomName()} открыл кейс и получил ${randomItem}`,
         this.getRandomName()
       );
-    }, 10000);
+    }, 12000);
     
     setInterval(() => {
       const amount = 500 + Math.floor(Math.random() * 1000);
       this.pushFakeChat(
         `${this.getRandomName()} вывел ${amount} ₽`,
+        this.getRandomName()
+      );
+    }, 18000);
+    
+    setInterval(() => {
+      const messages = [
+        'успешно апгрейднул предмет до 2x! 🎉',
+        'попытался апгрейднуть предмет и он сгорел 💥',
+        'продал предмет и заработал крутые деньги 💰',
+        'пригласил друга и получил реферальный бонус 👥'
+      ];
+      
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      this.pushFakeChat(
+        `${this.getRandomName()} ${randomMessage}`,
         this.getRandomName()
       );
     }, 15000);
@@ -1984,7 +2072,8 @@ class CaseHuntersGame {
   getRandomName() {
     const names = [
       'Иван_92', 'Anna_Pro', 'GamerMax', 'Oleg_CS', 'Vlad99',
-      'Katya', 'Pro_Player', 'Rus_Bot', 'Sniper', 'Hunter'
+      'Katya', 'Pro_Player', 'Rus_Bot', 'Sniper', 'Hunter',
+      'CaseMaster', 'Lucky_Shot', 'TradeKing', 'SkinGod', 'RoulettePro'
     ];
     return names[Math.floor(Math.random() * names.length)];
   }
@@ -1995,7 +2084,7 @@ class CaseHuntersGame {
     
     const updateOnline = () => {
       onlineCount += Math.floor(Math.random() * 7) - 3;
-      onlineCount = Math.max(50, Math.min(300, onlineCount));
+      onlineCount = Math.max(50, Math.min(350, onlineCount));
       
       const onlineElement = document.getElementById('fakeOnline');
       if (onlineElement) {
@@ -2037,39 +2126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(errorDiv);
   }
 });
-
-// Глобальные хелперы для обработки событий
-window.handleWithdraw = function() {
-  const amountInput = document.getElementById('amountInput');
-  if (!amountInput) return;
-  
-  const amount = parseInt(amountInput.value) || 0;
-  if (amount < 500) {
-    alert('Минимальная сумма вывода — 500 ₽');
-    return;
-  }
-  
-  app?.subBalance(amount);
-  document.getElementById('bankOverlay').style.display = 'none';
-  app?.showMessage(`Выведено ${amount} ₽`, false);
-  app?.pushFakeChat('Игрок вывел ' + amount + ' ₽');
-};
-
-// Если нужно сохранить совместимость со старым кодом
-window.adminLoginHandler = function() {
-  const password = document.getElementById('adminPass')?.value || '';
-  
-  if (password === '!125125Cc') {
-    if (app) {
-      app.state.adminLogged = true;
-      app.updateBalanceUI();
-    }
-    document.getElementById('adminControls').style.display = 'block';
-    alert('Админ: вход выполнен. Баланс администратора — безграничный (демо).');
-  } else {
-    alert('Неверный пароль (демо).');
-  }
-};
 </script>
 </body>
 </html>
