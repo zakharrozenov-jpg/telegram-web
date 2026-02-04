@@ -180,6 +180,28 @@ body{
   transform:none;
 }
 
+/* Кнопка копирования рефералки */
+.copy-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  touch-action: manipulation;
+}
+.copy-btn:active {
+  transform: scale(0.95);
+}
+.copy-btn.copied {
+  background: linear-gradient(135deg, var(--green), #0da271);
+}
+
 /* Roulette - долгая анимация */
 .roulette{
   width:100%;
@@ -207,6 +229,7 @@ body{
   flex-direction:column;
   align-items:center;
   justify-content:center;
+  transition: all 0.3s ease;
 }
 .roulette-item img{
   width:100px;
@@ -217,6 +240,16 @@ body{
   box-shadow:0 6px 20px rgba(0,0,0,.7);
   object-fit:cover;
   background:#0b0f14;
+}
+.roulette-item.active {
+  animation: itemHighlight 0.8s ease-in-out;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(250,204,21,0.5);
+}
+@keyframes itemHighlight {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 .roulette-center-line{
   position:absolute;
@@ -642,7 +675,8 @@ body{
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;align-items:center;gap:12px">
-    <div id="balanceBox"><span style="font-size:16px;">💵</span> <span id="balance">0</span> ₽</div>
+    <!-- БАЛАНС БЕЗ ЭМОДЗИ -->
+    <div id="balanceBox">Баланс: <span id="balance">0</span> ₽</div>
     <button id="bankBtn" class="smallBtn" title="Банк">💼</button>
     <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
   </div>
@@ -706,7 +740,13 @@ body{
       <div class="section">
         <div style="font-weight:bold;font-size:18px;margin-bottom:12px">Реферальная система</div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Ваша реферальная ссылка:</div>
-        <input id="myRefLink" style="width:100%;padding:12px;border-radius:10px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:14px;margin-bottom:16px" readonly>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <input id="myRefLink" style="flex:1;padding:12px;border-radius:10px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:14px;" readonly>
+          <!-- КНОПКА КОПИРОВАНИЯ -->
+          <button id="copyRefBtn" class="copy-btn" title="Скопировать ссылку">
+            <span id="copyText">Копировать</span>
+          </button>
+        </div>
         
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div style="font-size:14px">
@@ -1025,6 +1065,50 @@ class CaseHuntersGame {
     // Апгрейд
     document.getElementById('upgrade2xBtn')?.addEventListener('click', () => this.performUpgrade(2));
     document.getElementById('upgrade3xBtn')?.addEventListener('click', () => this.performUpgrade(3));
+
+    // Копирование реферальной ссылки
+    document.getElementById('copyRefBtn')?.addEventListener('click', () => this.copyReferralLink());
+  }
+
+  // Копирование реферальной ссылки
+  copyReferralLink() {
+    const refLink = document.getElementById('myRefLink');
+    const copyBtn = document.getElementById('copyRefBtn');
+    const copyText = document.getElementById('copyText');
+    
+    if (!refLink || !copyBtn || !copyText) return;
+    
+    refLink.select();
+    refLink.setSelectionRange(0, 99999);
+    
+    try {
+      navigator.clipboard.writeText(refLink.value).then(() => {
+        copyBtn.classList.add('copied');
+        copyText.textContent = 'Скопировано!';
+        
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyText.textContent = 'Копировать';
+        }, 2000);
+        
+        this.showMessage('Ссылка скопирована в буфер обмена!', false);
+      }).catch(err => {
+        // Fallback для старых браузеров
+        document.execCommand('copy');
+        copyBtn.classList.add('copied');
+        copyText.textContent = 'Скопировано!';
+        
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyText.textContent = 'Копировать';
+        }, 2000);
+        
+        this.showMessage('Ссылка скопирована в буфер обмена!', false);
+      });
+    } catch (error) {
+      console.error('Error copying text:', error);
+      this.showMessage('Ошибка копирования', false);
+    }
   }
 
   // Показать банк модалку
@@ -1375,12 +1459,13 @@ class CaseHuntersGame {
 
     trackEl.innerHTML = '';
 
-    const itemsToShow = 30; // Больше элементов для долгой анимации
+    const itemsToShow = 50; // Больше элементов для долгой анимации
     
     for (let i = 0; i < itemsToShow; i++) {
       caseItem.items.forEach(item => {
         const el = document.createElement('div');
         el.className = 'roulette-item';
+        el.dataset.itemId = item.id;
 
         const img = document.createElement('img');
         img.className = 'weapon-img';
@@ -1507,8 +1592,8 @@ class CaseHuntersGame {
     
     const winItem = this.pickRandomItem(caseItem.items);
     
-    // Долгая анимация - 9 секунд
-    await this.animateRoulette(caseId, winItem, CONFIG.SPIN_DURATION);
+    // Долгая анимация - 9 секунд с выделением выигранного предмета
+    await this.animateRouletteWithHighlight(caseId, winItem, CONFIG.SPIN_DURATION, trackEl);
     
     const inventoryItem = {
       uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
@@ -1536,31 +1621,35 @@ class CaseHuntersGame {
     }
   }
 
-  // Долгая анимация рулетки
-  animateRoulette(caseId, winItem, duration) {
+  // Долгая анимация рулетки с подсветкой выигранного предмета
+  animateRouletteWithHighlight(caseId, winItem, duration, trackEl) {
     return new Promise((resolve) => {
-      const track = document.querySelector(`.track[data-case="${caseId}"]`);
-      if (!track) {
+      if (!trackEl) {
         resolve();
         return;
       }
       
-      const items = Array.from(track.children);
+      const items = Array.from(trackEl.children);
       if (items.length === 0) {
         resolve();
         return;
       }
       
-      let targetIndex = items.findIndex(item => 
-        item.textContent.includes(winItem.name)
-      );
+      // Находим первый элемент с выигранным предметом
+      let targetIndex = -1;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].dataset.itemId === winItem.id) {
+          targetIndex = i;
+          break;
+        }
+      }
       
       if (targetIndex === -1) {
         targetIndex = Math.floor(items.length / 2);
       }
       
       const itemWidth = items[0].offsetWidth || 140;
-      const container = track.parentElement;
+      const container = trackEl.parentElement;
       const containerWidth = container.clientWidth;
       
       const centerOffset = Math.floor(containerWidth / 2);
@@ -1572,7 +1661,7 @@ class CaseHuntersGame {
       targetCenter += (items[targetIndex].offsetWidth || itemWidth) / 2;
       
       // Много оборотов для долгой анимации
-      const cycles = 8;
+      const cycles = 10;
       const trackWidth = items.reduce((sum, item) => sum + (item.offsetWidth || itemWidth), 0);
       const virtualTargetCenter = targetCenter + cycles * trackWidth;
       
@@ -1584,13 +1673,28 @@ class CaseHuntersGame {
       }
       
       // Долгая анимация с замедлением в конце
-      track.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
+      trackEl.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
       requestAnimationFrame(() => {
-        track.style.transform = `translateX(${desiredTranslate}px)`;
+        trackEl.style.transform = `translateX(${desiredTranslate}px)`;
       });
       
+      // Подсвечиваем выигранный элемент в конце
       setTimeout(() => {
-        track.style.transition = '';
+        // Убираем выделение со всех элементов
+        items.forEach(item => item.classList.remove('active'));
+        
+        // Выделяем выигранный элемент
+        const winningElements = items.filter(item => item.dataset.itemId === winItem.id);
+        if (winningElements.length > 0) {
+          // Берем элемент, который оказался ближе всего к центру
+          winningElements[0].classList.add('active');
+        }
+        
+        trackEl.style.transition = '';
+        resolve();
+      }, duration - 300); // За 300мс до конца начинаем подсвечивать
+      
+      setTimeout(() => {
         resolve();
       }, duration + 100);
     });
