@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8" />
-<title>Case Hunters — Demo (Working)</title>
+<title>Case Hunters — Demo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 <style>
@@ -23,7 +23,7 @@ body{
   color:#fff;
 }
 #topBar{
-  position:relative;          /* больше не фиксированный */
+  position:relative;
   top:0;
   left:0;
   right:0;
@@ -134,7 +134,7 @@ body{
 }
 .case-badge .label{transform:translateY(1px)}
 
-/* рулетка только внутри кейса, не уходит вправо */
+/* рулетка строго внутри кейса */
 .roulette{
   overflow:hidden;
   position:relative;
@@ -142,9 +142,9 @@ body{
   height:120px;
   margin:12px 0;
   background:linear-gradient(180deg,#071018,#071018);
-  width:100%;              /* по ширине кейса */
-  max-width:none;          /* без ограничения */
+  width:100%;
   border:2px solid rgba(250,204,21,0.08);
+  box-sizing:border-box;
 }
 .track{
   display:flex;
@@ -522,7 +522,6 @@ body{
 </div>
 
 <script>
-/* --- Утилиты и идентификация пользователя --- */
 function uid(prefix='u'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
 const USER_ID_KEY = 'ch_userid';
 function getUserId(){
@@ -532,14 +531,12 @@ function getUserId(){
 }
 const CURRENT_USER = getUserId();
 
-/* --- Keys --- */
 const BALANCE_KEY_PREFIX = 'ch_balance_';
 const REF_KEY_PREFIX = 'ch_referrer_';
 const REF_EARN_KEY_PREFIX = 'ch_refearn_';
 const LAST_BONUS_KEY = 'ch_lastBonus_';
 const LAST_EXTRA_BONUS_KEY = 'ch_lastExtraBonus_';
 
-/* --- Balance helpers --- */
 function balanceKeyFor(userId){ return BALANCE_KEY_PREFIX + userId; }
 function refKeyFor(userId){ return REF_KEY_PREFIX + userId; }
 function refEarnKeyFor(userId){ return REF_EARN_KEY_PREFIX + userId; }
@@ -553,7 +550,6 @@ function loadBalance(){
   }catch(e){ return 0; }
 }
 
-/* --- State --- */
 let state = {
   balance: 0,
   inventory: [],
@@ -561,7 +557,6 @@ let state = {
   adminLogged: false
 };
 
-/* --- Referral helpers --- */
 function getReferrerFromUrl(){
   try{
     const p = new URLSearchParams(window.location.search);
@@ -615,7 +610,6 @@ function creditReferrerIfApplicable(cost, winPrice){
   }catch(e){}
 }
 
-/* --- Image helpers --- */
 const IMAGE_BASE = '/assets/cs/';
 function imgPath(name){ return IMAGE_BASE + name; }
 function placeholderDataUrl(name){
@@ -630,7 +624,6 @@ function safeSetImg(imgEl, src, name){
   imgEl.onerror = function(){ imgEl.onerror = null; imgEl.src = placeholderDataUrl(name); };
 }
 
-/* --- Cases data --- */
 const BASE_CASES = [
   { id:'case0', name:'Starter Case', price:120, baseItems:[
     { id:'s1', name:'P250 | Sand Dune', price:220, img: imgPath('p250_sanddune.png'), baseChance:55 },
@@ -673,10 +666,8 @@ const WORK_CASES = BASE_CASES.map(c => {
   return { ...c, items, baseTotalChance: items.reduce((s,i)=>s+i.baseChance,0) };
 });
 
-/* --- DOM helper --- */
 function $(id){ return document.getElementById(id); }
 
-/* --- Init --- */
 window.addEventListener('DOMContentLoaded', () => {
   try {
     state.balance = loadBalance();
@@ -693,7 +684,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* --- UI init --- */
 function initUI(){
   if($('bankBtn')) $('bankBtn').addEventListener('click', ()=> $('bankOverlay').style.display = 'flex');
   if($('closeBank')) $('closeBank').addEventListener('click', ()=> $('bankOverlay').style.display = 'none');
@@ -720,7 +710,6 @@ function initUI(){
   if($('upgrade3xBtn')) $('upgrade3xBtn').addEventListener('click', ()=> performUpgrade(3));
 }
 
-/* --- Withdraw --- */
 function handleWithdraw(){
   const val = Number($('amountInput').value) || 0;
   if(val < 500) return showModal('Минимальная сумма вывода — 500 ₽', false);
@@ -731,7 +720,6 @@ function handleWithdraw(){
   pushFakeChat(`${shortName()} только что вывел ${val} ₽`);
 }
 
-/* --- Admin --- */
 function adminLoginHandler(){
   const pass = $('adminPass').value || '';
   if(pass === '!125125Cc'){
@@ -795,7 +783,6 @@ function adminClearRefHandler(){
   showModal('Реферальные начисления сброшены (демо).', false);
 }
 
-/* --- Render cases --- */
 function renderCases(){
   const container = $('casesList');
   if(!container) return;
@@ -832,7 +819,6 @@ function renderCases(){
     centerCol.style.flex = '1';
     centerCol.style.display = 'flex';
     centerCol.style.flexDirection = 'column';
-    /* убрали дублирование названия кейса */
     centerCol.appendChild(rouletteWrap);
 
     el.appendChild(left);
@@ -856,7 +842,6 @@ function renderCases(){
   });
 }
 
-/* --- Show/hide roulette --- */
 function toggleCaseRoulette(caseId){
   const caseEl = document.querySelector(`.case[data-id="${caseId}"]`);
   if(!caseEl) return;
@@ -874,7 +859,7 @@ function showCaseRoulette(caseId){
   roulette.style.display = 'block';
 }
 
-/* --- Prepare roulette items (не уходит вправо) --- */
+/* рулетка строго внутри кейса, не уходит вправо */
 function prepareRouletteForCase(caseObj, trackEl){
   if(!trackEl) return;
   trackEl.innerHTML = '';
@@ -895,18 +880,20 @@ function prepareRouletteForCase(caseObj, trackEl){
   setTimeout(()=> {
     const container = trackEl.parentElement;
     if(!container) return;
+    container.style.overflow = 'hidden';
     const containerW = container.clientWidth;
     const trackW = Array.from(trackEl.children).reduce((s, n) => s + (n.offsetWidth || 120), 0);
 
     const minT = containerW - trackW;
     const maxT = 0;
+
     trackEl.dataset.minTranslate = String(minT);
     trackEl.dataset.maxTranslate = String(maxT);
-    trackEl.style.transform = 'translateX(0)';
+
+    trackEl.style.transform = `translateX(${maxT}px)`;
   }, 60);
 }
 
-/* --- Spin animation (6s) --- */
 function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   const c = WORK_CASES.find(x=>x.id===caseId);
   if(!c) return;
@@ -966,7 +953,6 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   }, spinMs + 80);
 }
 
-/* --- Finalize win --- */
 function finalizeWin(caseObj, cost, win){
   const inv = { uid: uid('it'), id: win.id, name: win.name, price: win.price, img: win.img, upgraded: null };
   state.inventory.push(inv);
@@ -978,7 +964,6 @@ function finalizeWin(caseObj, cost, win){
   const refE = $('refEarnings'); if(refE) refE.textContent = getReferralEarningsForMe();
 }
 
-/* --- Pick random item by chance --- */
 function pickRandomItem(items){
   const total = items.reduce((s,it)=>s + (it.chance || 1),0);
   let r = Math.random()*total;
@@ -989,7 +974,6 @@ function pickRandomItem(items){
   return JSON.parse(JSON.stringify(items[items.length-1]));
 }
 
-/* --- Show full-screen win --- */
 function showFullScreenWin(inv){
   safeSetImg($('winImg'), inv.img, inv.name);
   $('winTitle').textContent = inv.name;
@@ -999,13 +983,11 @@ function showFullScreenWin(inv){
   $('overlay').style.display = 'flex';
 }
 
-/* --- Log open (chat) --- */
 function logOpen(results){
   const lines = results.map(r=>`Вы получили: ${r.name} — ${r.price} ₽`).join('; ');
   pushFakeChat(`Система: ${lines}`);
 }
 
-/* --- Inventory render --- */
 function renderInventory(){
   const container = $('inventoryList');
   if(!container) return;
@@ -1040,7 +1022,6 @@ function renderInventory(){
   });
 }
 
-/* --- Upgrade --- */
 let upgradeSelectedItem = null;
 function openUpgradePanelForItem(item){
   upgradeSelectedItem = item;
@@ -1089,7 +1070,6 @@ function performUpgrade(multiplier){
   }, 2050);
 }
 
-/* --- Balance operations (админ = бесконечный) --- */
 function addBalance(v){
   if(state.adminLogged){
     const cur = Number(localStorage.getItem(balanceKeyFor(CURRENT_USER)) || 0);
@@ -1113,7 +1093,6 @@ function setBalance(v){
   updateBalanceUI();
 }
 
-/* --- Daily bonus and extra bonus --- */
 function todayKey(){
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1135,7 +1114,6 @@ function claimExtraBonus(){
   showModal('Бонус сверху +10 ₽ зачислен', false);
 }
 
-/* --- Modal helpers --- */
 function showModal(text, showWinBox=true){
   const modal = $('modal');
   if(!modal) return;
@@ -1154,7 +1132,6 @@ function showModal(text, showWinBox=true){
   }
 }
 
-/* --- Update balance UI --- */
 function updateBalanceUI(){
   const el = $('balance');
   if(!el) return;
@@ -1167,7 +1144,6 @@ function updateBalanceUI(){
   const myRef = $('myRefLink'); if(myRef) myRef.value = getMyRefLink();
 }
 
-/* --- Fake online & chat --- */
 let fakeOnline = 120 + Math.floor(Math.random()*80);
 function updateFakeOnline(){
   fakeOnline += Math.floor(Math.random()*7 - 3);
@@ -1212,7 +1188,6 @@ function seedChat(){
   }, 7000 + Math.random()*8000);
 }
 
-/* --- Hidden RTP adjustments --- */
 function applyHiddenRtp(targetRtp){
   WORK_CASES.forEach(c => {
     const items = c.items;
@@ -1228,7 +1203,6 @@ function applyHiddenRtp(targetRtp){
   });
 }
 
-/* --- Debug API --- */
 window.CaseHunters = {
   state,
   addBalance,
