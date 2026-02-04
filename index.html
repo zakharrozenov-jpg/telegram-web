@@ -136,13 +136,14 @@ body{
 
 /* рулетка строго внутри кейса */
 .roulette{
+  width:100%;
+  max-width:100%;
   overflow:hidden;
   position:relative;
   border-radius:14px;
   height:120px;
   margin:12px 0;
-  background:linear-gradient(180deg,#071018,#071018);
-  width:100%;
+  background:#071018;
   border:2px solid rgba(250,204,21,0.08);
   box-sizing:border-box;
 }
@@ -862,27 +863,47 @@ function showCaseRoulette(caseId){
 /* рулетка строго внутри кейса, не уходит вправо */
 function prepareRouletteForCase(caseObj, trackEl){
   if(!trackEl) return;
+
   trackEl.innerHTML = '';
+
   const items = [];
   for(let i=0;i<20;i++) caseObj.items.forEach(it => items.push(it));
+
   items.forEach(it=>{
-    const el = document.createElement('div'); el.className = 'roulette-item';
-    const img = document.createElement('img'); img.className='weapon-img';
+    const el = document.createElement('div');
+    el.className = 'roulette-item';
+
+    const img = document.createElement('img');
+    img.className='weapon-img';
     safeSetImg(img, it.img, it.name);
     el.appendChild(img);
-    const name = document.createElement('div'); name.style.fontSize='12px'; name.style.marginTop='6px'; name.textContent = it.name;
-    const price = document.createElement('div'); price.className='small'; price.textContent = it.price + ' ₽';
-    el.appendChild(name); el.appendChild(price);
+
+    const name = document.createElement('div');
+    name.style.fontSize='12px';
+    name.style.marginTop='6px';
+    name.textContent = it.name;
+
+    const price = document.createElement('div');
+    price.className='small';
+    price.textContent = it.price + ' ₽';
+
+    el.appendChild(name);
+    el.appendChild(price);
+
     trackEl.appendChild(el);
   });
+
   trackEl.style.transition = '';
   trackEl.style.transform = 'translateX(0)';
-  setTimeout(()=> {
+
+  setTimeout(()=>{
     const container = trackEl.parentElement;
     if(!container) return;
+
     container.style.overflow = 'hidden';
+
     const containerW = container.clientWidth;
-    const trackW = Array.from(trackEl.children).reduce((s, n) => s + (n.offsetWidth || 120), 0);
+    const trackW = Array.from(trackEl.children).reduce((s,n)=> s + (n.offsetWidth || 120), 0);
 
     const minT = containerW - trackW;
     const maxT = 0;
@@ -893,7 +914,6 @@ function prepareRouletteForCase(caseObj, trackEl){
     trackEl.style.transform = `translateX(${maxT}px)`;
   }, 60);
 }
-
 function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   const c = WORK_CASES.find(x=>x.id===caseId);
   if(!c) return;
@@ -941,6 +961,9 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   while(desiredTranslate > maxTranslate) desiredTranslate -= trackW;
   if(desiredTranslate < minTranslate) desiredTranslate = minTranslate;
   if(desiredTranslate > maxTranslate) desiredTranslate = maxTranslate;
+  while(desiredTranslate < minTranslate) desiredTranslate += trackW;
+while(desiredTranslate > maxTranslate) desiredTranslate -= trackW;
+
 
   trackEl.classList.add('spinPulse');
   trackEl.style.transition = `transform ${spinMs}ms cubic-bezier(.18,.9,.2,1)`;
