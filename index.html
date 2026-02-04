@@ -286,7 +286,7 @@ body{
   transform:none;
 }
 
-/* Roulette - ПОД кейсом */
+/* Roulette - ПОД кейсом БЕЗ ПРОБЕЛОВ */
 .case-roulette{
   width:100%;
   overflow:hidden;
@@ -307,6 +307,7 @@ body{
   position:absolute;
   left:0;
   top:0;
+  gap:0; /* Убираем пробелы между элементами */
 }
 .roulette-item{
   width:120px;
@@ -319,16 +320,25 @@ body{
   justify-content:center;
   transition:all 0.3s ease;
   position:relative;
+  border:1px solid transparent;
+  margin:0; /* Убираем отступы */
 }
-.roulette-item img{
+.roulette-item .item-visual{
   width:80px;
   height:80px;
-  display:block;
-  margin:0 auto 6px;
   border-radius:10px;
+  background:linear-gradient(135deg,#0b0f14,#111827);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 6px;
   box-shadow:0 6px 20px rgba(0,0,0,.7);
-  object-fit:cover;
-  background:#0b0f14;
+  border:1px solid rgba(255,255,255,0.1);
+  font-size:10px;
+  font-weight:bold;
+  color:#facc15;
+  text-align:center;
+  padding:5px;
 }
 .roulette-item.active{
   animation:itemHighlight 0.8s ease-in-out;
@@ -1104,7 +1114,8 @@ const CONFIG = {
   STORAGE_PREFIX: 'ch_',
   DEMO_PASSWORD: '!125125Cc',
   DEFAULT_RTP: 0.40,
-  IMAGE_BASE: 'https://via.placeholder.com/100x100/0b0f14/facc15?text=',
+  UPGRADE_RTP_2X: 0.50, // 50% для 2x
+  UPGRADE_RTP_3X: 0.20, // 20% для 3x
   SPIN_DURATION: 9000,
   CHAT_UPDATE_INTERVAL: 7000,
   REFERRAL_PERCENT: 0.30,
@@ -1120,10 +1131,10 @@ const CASES = [
     name: 'Базовый Кейс',
     price: 50,
     baseItems: [
-      { id: 's1', name: 'P250 | Sand Dune', price: 50, baseChance: 50, img: 'P250' },
-      { id: 's2', name: 'USP-S | Torque', price: 80, baseChance: 30, img: 'USP-S' },
-      { id: 's3', name: 'CZ75-Auto | Tigris', price: 120, baseChance: 15, img: 'CZ75' },
-      { id: 's4', name: 'Nova | Ranger', price: 200, baseChance: 5, img: 'Nova' }
+      { id: 's1', name: 'P250 | Sand Dune', price: 50, baseChance: 50 },
+      { id: 's2', name: 'USP-S | Torque', price: 80, baseChance: 30 },
+      { id: 's3', name: 'CZ75-Auto | Tigris', price: 120, baseChance: 15 },
+      { id: 's4', name: 'Nova | Ranger', price: 200, baseChance: 5 }
     ]
   },
   {
@@ -1131,10 +1142,10 @@ const CASES = [
     name: 'Стандартный Кейс',
     price: 100,
     baseItems: [
-      { id: 'g1', name: 'AK-47 | Redline', price: 120, baseChance: 40, img: 'AK-47' },
-      { id: 'g2', name: 'M4A1-S | Guardian', price: 160, baseChance: 35, img: 'M4A1-S' },
-      { id: 'g3', name: 'P90 | Asiimov', price: 250, baseChance: 20, img: 'P90' },
-      { id: 'g4', name: 'Desert Eagle | Blaze', price: 350, baseChance: 5, img: 'Deagle' }
+      { id: 'g1', name: 'AK-47 | Redline', price: 120, baseChance: 40 },
+      { id: 'g2', name: 'M4A1-S | Guardian', price: 160, baseChance: 35 },
+      { id: 'g3', name: 'P90 | Asiimov', price: 250, baseChance: 20 },
+      { id: 'g4', name: 'Desert Eagle | Blaze', price: 350, baseChance: 5 }
     ]
   },
   {
@@ -1142,10 +1153,10 @@ const CASES = [
     name: 'Премиум Кейс',
     price: 150,
     baseItems: [
-      { id: 'p1', name: 'AWP | Asiimov', price: 200, baseChance: 35, img: 'AWP' },
-      { id: 'p2', name: 'AK-47 | Vulcan', price: 300, baseChance: 30, img: 'AK-Vulcan' },
-      { id: 'p3', name: 'M4A4 | Howl', price: 500, baseChance: 20, img: 'M4-Howl' },
-      { id: 'p4', name: 'Glock-18 | Fade', price: 800, baseChance: 15, img: 'Glock-Fade' }
+      { id: 'p1', name: 'AWP | Asiimov', price: 200, baseChance: 35 },
+      { id: 'p2', name: 'AK-47 | Vulcan', price: 300, baseChance: 30 },
+      { id: 'p3', name: 'M4A4 | Howl', price: 500, baseChance: 20 },
+      { id: 'p4', name: 'Glock-18 | Fade', price: 800, baseChance: 15 }
     ]
   },
   {
@@ -1153,10 +1164,10 @@ const CASES = [
     name: 'Элитный Кейс',
     price: 200,
     baseItems: [
-      { id: 'e1', name: 'AWP | Dragon Lore', price: 300, baseChance: 30, img: 'AWP-Dragon' },
-      { id: 'e2', name: 'AK-47 | Fire Serpent', price: 500, baseChance: 25, img: 'AK-Serpent' },
-      { id: 'e3', name: 'M4A1-S | Hot Rod', price: 800, baseChance: 25, img: 'M4-HotRod' },
-      { id: 'e4', name: 'Karambit | Fade', price: 1200, baseChance: 20, img: 'Karambit' }
+      { id: 'e1', name: 'AWP | Dragon Lore', price: 300, baseChance: 30 },
+      { id: 'e2', name: 'AK-47 | Fire Serpent', price: 500, baseChance: 25 },
+      { id: 'e3', name: 'M4A1-S | Hot Rod', price: 800, baseChance: 25 },
+      { id: 'e4', name: 'Karambit | Fade', price: 1200, baseChance: 20 }
     ]
   },
   {
@@ -1164,15 +1175,15 @@ const CASES = [
     name: 'Легендарный Кейс',
     price: 250,
     baseItems: [
-      { id: 'l1', name: 'AWP | Medusa', price: 500, baseChance: 25, img: 'AWP-Medusa' },
-      { id: 'l2', name: 'AK-47 | Fire Serpent ST', price: 900, baseChance: 25, img: 'AK-ST' },
-      { id: 'l3', name: 'M4A4 | Howl ST', price: 1500, baseChance: 25, img: 'M4-Howl-ST' },
-      { id: 'l4', name: 'Sport Gloves | Pandora', price: 2400, baseChance: 25, img: 'Gloves' }
+      { id: 'l1', name: 'AWP | Medusa', price: 500, baseChance: 25 },
+      { id: 'l2', name: 'AK-47 | Fire Serpent ST', price: 900, baseChance: 25 },
+      { id: 'l3', name: 'M4A4 | Howl ST', price: 1500, baseChance: 25 },
+      { id: 'l4', name: 'Sport Gloves | Pandora', price: 2400, baseChance: 25 }
     ]
   }
 ];
 
-// Основной класс приложения - УПРОЩЕННАЯ ВЕРСИЯ
+// Основной класс приложения
 class CaseHuntersGame {
   constructor() {
     this.state = {
@@ -1181,31 +1192,12 @@ class CaseHuntersGame {
       currentRtp: CONFIG.DEFAULT_RTP,
       adminLogged: false,
       upgradeSelectedItem: null,
-      soundEnabled: false // Звук отключен по умолчанию
+      soundEnabled: false
     };
     
     this.userId = this.getUserId();
     this.cases = this.prepareCases();
     this.placeholderCache = new Map();
-    this.loadingSteps = 0;
-    this.totalLoadingSteps = 10; // Количество шагов загрузки
-  }
-
-  // Обновление прогресса загрузки
-  updateLoadingProgress(step, message = '') {
-    this.loadingSteps = step;
-    const progress = (step / this.totalLoadingSteps) * 100;
-    
-    const progressBar = document.getElementById('loadingProgress');
-    const loadingText = document.getElementById('loadingText');
-    
-    if (progressBar) {
-      progressBar.style.width = `${progress}%`;
-    }
-    
-    if (loadingText && message) {
-      loadingText.textContent = message;
-    }
   }
 
   // Инициализация
@@ -1240,7 +1232,6 @@ class CaseHuntersGame {
       
       this.updateLoadingProgress(10, 'Завершение...');
       
-      // Скрываем загрузку
       setTimeout(() => {
         document.getElementById('loadingOverlay').classList.add('fade-out');
         setTimeout(() => {
@@ -1252,6 +1243,21 @@ class CaseHuntersGame {
       console.error('Ошибка инициализации:', error);
       this.showToast('Ошибка загрузки приложения', 'error');
       document.getElementById('loadingOverlay').style.display = 'none';
+    }
+  }
+
+  // Обновление прогресса загрузки
+  updateLoadingProgress(step, message = '') {
+    const progress = (step / 10) * 100;
+    const progressBar = document.getElementById('loadingProgress');
+    const loadingText = document.getElementById('loadingText');
+    
+    if (progressBar) {
+      progressBar.style.width = `${progress}%`;
+    }
+    
+    if (loadingText && message) {
+      loadingText.textContent = message;
     }
   }
 
@@ -1362,20 +1368,19 @@ class CaseHuntersGame {
     }
   }
 
-  // Подготовка кейсов с реальным RTP 40%
+  // Подготовка кейсов
   prepareCases() {
     return CASES.map(c => ({
       ...c,
       items: c.baseItems.map(it => ({ 
         ...it, 
-        chance: this.calculateRealChance(it, c.baseItems, CONFIG.DEFAULT_RTP),
-        imgText: it.img || it.name.substring(0, 20)
+        chance: this.calculateRealChance(it, c.baseItems, CONFIG.DEFAULT_RTP)
       })),
       baseTotalChance: c.baseItems.reduce((s, i) => s + i.baseChance, 0)
     }));
   }
 
-  // Расчет реальных шансов с RTP 40%
+  // Расчет реальных шансов
   calculateRealChance(item, allItems, targetRtp) {
     const totalPrice = allItems.reduce((sum, i) => sum + i.price, 0);
     const avgPrice = totalPrice / allItems.length;
@@ -1507,7 +1512,7 @@ class CaseHuntersGame {
       document.getElementById('overlay').style.display = 'none';
     });
 
-    // Апгрейд
+    // Апгрейд с новыми RTP
     document.getElementById('upgrade2xBtn')?.addEventListener('click', () => {
       this.performUpgrade(2);
     });
@@ -1701,7 +1706,7 @@ class CaseHuntersGame {
       id: item.id,
       name: item.name,
       price: item.price,
-      img: this.createPlaceholder(item.imgText),
+      img: this.createPlaceholder(item.name),
       upgraded: null
     };
 
@@ -1840,7 +1845,7 @@ class CaseHuntersGame {
     }
   }
 
-  // Рендер кейсов - ОПТИМИЗИРОВАННАЯ версия
+  // Рендер кейсов - УЛУЧШЕННАЯ ВЕРСИЯ БЕЗ ПРОБЕЛОВ
   async renderCases() {
     const container = document.getElementById('casesList');
     if (!container) return;
@@ -1877,12 +1882,11 @@ class CaseHuntersGame {
       
       container.appendChild(caseElement);
       
-      // Отложенная загрузка рулетки
       const rouletteWrap = caseElement.querySelector(`#roulette-${caseItem.id}`);
       const track = rouletteWrap.querySelector('.roulette-track');
       
-      // Создаем простую рулетку без изображений
-      this.prepareSimpleRoulette(caseItem, track);
+      // Создаем плотную рулетку без пробелов
+      this.prepareDenseRoulette(caseItem, track);
 
       const openBtn = caseElement.querySelector(`[data-open="${caseItem.id}"]`);
       if (openBtn) {
@@ -1900,38 +1904,38 @@ class CaseHuntersGame {
     }
   }
 
-  // Подготовка простой рулетки без изображений
-  prepareSimpleRoulette(caseItem, trackEl) {
+  // Подготовка плотной рулетки без пробелов
+  prepareDenseRoulette(caseItem, trackEl) {
     if (!trackEl) return;
 
     trackEl.innerHTML = '';
     
-    // Создаем только текст элементы для скорости
-    const itemsToShow = 8; // Меньше элементов для скорости
+    // Создаем много повторяющихся элементов для плавной анимации
+    const repetitions = 12; // Больше повторений для плавности
+    const itemWidth = 120; // Ширина одного элемента
     
-    for (let i = 0; i < itemsToShow; i++) {
+    // Вычисляем общую ширину для расчета позиций
+    const totalItems = caseItem.items.length * repetitions;
+    const totalWidth = totalItems * itemWidth;
+    
+    for (let i = 0; i < repetitions; i++) {
       for (const item of caseItem.items) {
         const el = document.createElement('div');
         el.className = 'roulette-item';
         el.dataset.itemId = item.id;
         el.dataset.index = i;
 
-        // Вместо изображения - цветной блок с текстом
-        const placeholder = document.createElement('div');
-        placeholder.style.width = '80px';
-        placeholder.style.height = '80px';
-        placeholder.style.borderRadius = '10px';
-        placeholder.style.backgroundColor = '#0b0f14';
-        placeholder.style.display = 'flex';
-        placeholder.style.alignItems = 'center';
-        placeholder.style.justifyContent = 'center';
-        placeholder.style.color = '#facc15';
-        placeholder.style.fontSize = '12px';
-        placeholder.style.fontWeight = 'bold';
-        placeholder.style.textAlign = 'center';
-        placeholder.textContent = item.name.split('|')[0].trim();
+        // Визуализация предмета
+        const visual = document.createElement('div');
+        visual.className = 'item-visual';
         
-        el.appendChild(placeholder);
+        // Сокращаем имя для отображения
+        const shortName = item.name.length > 15 
+          ? item.name.substring(0, 12) + '...' 
+          : item.name;
+        
+        visual.textContent = shortName;
+        el.appendChild(visual);
         
         const nameDiv = document.createElement('div');
         nameDiv.textContent = item.name;
@@ -1949,6 +1953,9 @@ class CaseHuntersGame {
         trackEl.appendChild(el);
       }
     }
+    
+    // Устанавливаем начальную позицию так, чтобы рулетка начиналась за пределами экрана слева
+    trackEl.style.transform = `translateX(${totalWidth * 0.3}px)`;
   }
 
   // Переключение рулетки кейса
@@ -1996,14 +2003,14 @@ class CaseHuntersGame {
     }
     
     // Анимация рулетки
-    await this.animateRouletteWithDynamicSpeed(caseId, winItem, trackEl);
+    await this.animateRouletteDense(caseId, winItem, trackEl);
     
     const inventoryItem = {
       uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
       id: winItem.id,
       name: winItem.name,
       price: winItem.price,
-      img: this.createPlaceholder(winItem.imgText),
+      img: this.createPlaceholder(winItem.name),
       upgraded: null
     };
     
@@ -2037,8 +2044,8 @@ class CaseHuntersGame {
     this.showToast(`Вы выиграли: ${winItem.name} (${winItem.price} ₽)`, 'success');
   }
 
-  // Анимация рулетки с динамичной скоростью
-  animateRouletteWithDynamicSpeed(caseId, winItem, trackEl) {
+  // Анимация плотной рулетки
+  animateRouletteDense(caseId, winItem, trackEl) {
     return new Promise((resolve) => {
       if (!trackEl) {
         resolve();
@@ -2051,34 +2058,37 @@ class CaseHuntersGame {
         return;
       }
       
-      let targetIndex = -1;
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].dataset.itemId === winItem.id) {
-          targetIndex = i;
-          break;
-        }
+      // Находим все элементы с выигранным предметом
+      const winningElements = items.filter(item => item.dataset.itemId === winItem.id);
+      if (winningElements.length === 0) {
+        resolve();
+        return;
       }
       
+      // Выбираем случайный выигранный элемент из середины рулетки
+      const middleIndex = Math.floor(winningElements.length / 2);
+      const targetElement = winningElements[middleIndex];
+      
+      // Находим индекс целевого элемента
+      const targetIndex = items.indexOf(targetElement);
       if (targetIndex === -1) {
-        targetIndex = Math.floor(items.length / 2);
+        resolve();
+        return;
       }
       
-      const itemWidth = items[0].offsetWidth || 120;
+      const itemWidth = 120; // Фиксированная ширина элемента
       const container = trackEl.parentElement;
       const containerWidth = container.clientWidth;
       
+      // Позиция центра контейнера
       const centerOffset = Math.floor(containerWidth / 2);
       
-      let targetPosition = 0;
-      for (let i = 0; i < targetIndex; i++) {
-        targetPosition += (items[i].offsetWidth || itemWidth);
-      }
-      targetPosition += (items[targetIndex].offsetWidth || itemWidth) / 2;
-      
-      const trackWidth = items.reduce((sum, item) => sum + (item.offsetWidth || itemWidth), 0);
-      
+      // Вычисляем позицию, чтобы целевой элемент оказался в центре
+      const targetPosition = targetIndex * itemWidth + itemWidth / 2;
       const finalTranslate = centerOffset - targetPosition;
-      const startTranslate = trackWidth * 2;
+      
+      // Начальная позиция (далеко справа)
+      const startTranslate = -containerWidth * 3;
       
       // 1. БЫСТРЫЙ СТАРТ
       trackEl.style.transition = 'transform 2s cubic-bezier(0.1, 0.8, 0.2, 1)';
@@ -2087,7 +2097,7 @@ class CaseHuntersGame {
       setTimeout(() => {
         // 2. СРЕДНЯЯ СКОРОСТЬ
         trackEl.style.transition = 'transform 4s cubic-bezier(0.2, 0.7, 0.3, 1)';
-        const midTranslate = finalTranslate * 0.3;
+        const midTranslate = finalTranslate * 0.4;
         trackEl.style.transform = `translateX(${midTranslate}px)`;
         
         setTimeout(() => {
@@ -2096,26 +2106,29 @@ class CaseHuntersGame {
           trackEl.style.transform = `translateX(${finalTranslate}px)`;
           
           setTimeout(() => {
+            // Снимаем активный класс со всех элементов
             items.forEach(item => item.classList.remove('active'));
             
-            const winningElements = items.filter(item => item.dataset.itemId === winItem.id);
-            if (winningElements.length > 0) {
-              let closestToCenter = winningElements[0];
-              let minDistance = Infinity;
+            // Находим элемент, который сейчас ближе всего к центру
+            let closestToCenter = null;
+            let minDistance = Infinity;
+            
+            winningElements.forEach(el => {
+              const rect = el.getBoundingClientRect();
+              const center = container.getBoundingClientRect().left + containerWidth / 2;
+              const distance = Math.abs(rect.left + rect.width / 2 - center);
               
-              winningElements.forEach(el => {
-                const rect = el.getBoundingClientRect();
-                const center = container.getBoundingClientRect().left + containerWidth / 2;
-                const distance = Math.abs(rect.left + rect.width / 2 - center);
-                
-                if (distance < minDistance) {
-                  minDistance = distance;
-                  closestToCenter = el;
-                }
-              });
-              
+              if (distance < minDistance) {
+                minDistance = distance;
+                closestToCenter = el;
+              }
+            });
+            
+            // Активируем ближайший элемент
+            if (closestToCenter) {
               closestToCenter.classList.add('active');
               
+              // Эффект частиц на выигранном предмете
               const rect = closestToCenter.getBoundingClientRect();
               this.createParticles(
                 rect.left + rect.width / 2,
@@ -2312,7 +2325,7 @@ class CaseHuntersGame {
     }, 1500);
   }
 
-  // Выполнение апгрейда
+  // Выполнение апгрейда с НОВЫМИ RTP
   performUpgrade(multiplier) {
     if (!this.state.upgradeSelectedItem) {
       document.getElementById('upgradeResultSmall').textContent = 'Выберите предмет';
@@ -2337,7 +2350,8 @@ class CaseHuntersGame {
     document.getElementById('upgrade2xBtn').disabled = true;
     document.getElementById('upgrade3xBtn').disabled = true;
     
-    const probability = multiplier === 2 ? 0.60 : 0.35;
+    // НОВЫЕ RTP: 50% для 2x, 20% для 3x
+    const probability = multiplier === 2 ? CONFIG.UPGRADE_RTP_2X : CONFIG.UPGRADE_RTP_3X;
     const success = Math.random() < probability;
     
     const wheel = document.getElementById('upgradeWheelSmall');
