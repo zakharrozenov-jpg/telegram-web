@@ -16,64 +16,349 @@
   --glow: rgba(250,204,21,0.18);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue";background:var(--bg);color:#fff;padding-top:180px}
-#topBar{position:fixed;top:70px;left:0;right:0;background:#020617;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.6);z-index:60}
-#logo{font-family:'Russo One',sans-serif;font-size:22px;color:var(--accent)}
-#balanceBox{padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
+body{
+  margin:0;
+  font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue";
+  background:var(--bg);
+  color:#fff;
+}
+#topBar{
+  position:relative;          /* больше не фиксированный */
+  top:0;
+  left:0;
+  right:0;
+  background:#020617;
+  padding:12px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  z-index:10;
+}
+#logo{
+  font-family:'Russo One',sans-serif;
+  font-size:22px;
+  color:var(--accent);
+}
+#balanceBox{
+  padding:8px 14px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),#eab308);
+  color:#020617;
+  font-weight:bold;
+  box-shadow:0 0 15px rgba(250,204,21,.6);
+}
 .small{font-size:12px;opacity:.85;color:#d1d5db}
-.container{max-width:980px;margin:0 auto;padding:20px 12px 160px}
-.section{background:var(--card);border-radius:16px;padding:14px;margin:12px 0}
-.case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
+#dailyBonusTop{
+  background:#111827;
+  padding:10px 14px;
+  text-align:center;
+  border-bottom:1px solid #222;
+}
+.container{
+  max-width:980px;
+  margin:0 auto;
+  padding:20px 12px 160px;
+}
+.section{
+  background:var(--card);
+  border-radius:16px;
+  padding:14px;
+  margin:12px 0;
+}
+.case,.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#1f2937;
+  border-radius:12px;
+  padding:10px;
+  margin:8px 0;
+  cursor:pointer;
+}
 .case:hover{background:#374151}
-.case .left, .item .left{display:flex;gap:12px;align-items:center}
-.case .meta, .item .meta{display:flex;flex-direction:column}
+.case .left, .item .left{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.case .meta, .item .meta{
+  display:flex;
+  flex-direction:column;
+}
 .case .meta .title, .item .meta .title{font-weight:bold}
 .case .meta .sub, .item .meta .sub{font-size:12px;color:var(--muted)}
-.smallBtn{background:#111827;border:1px solid #2b3440;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-.openBtn{background:var(--green);border:none;padding:10px 14px;border-radius:12px;color:#fff;font-weight:bold;font-size:14px;cursor:pointer}
+.smallBtn{
+  background:#111827;
+  border:1px solid #2b3440;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.openBtn{
+  background:var(--green);
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  color:#fff;
+  font-weight:bold;
+  font-size:14px;
+  cursor:pointer;
+}
 .openBtn:disabled{opacity:.5;cursor:not-allowed}
-.weapon-img{width:64px;height:64px;border-radius:8px;object-fit:cover;box-shadow:0 0 8px #0008;background:#0b0f14;display:block}
-.case-badge{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#facc15,#eab308);color:#000;font-weight:900;font-family:'Russo One',sans-serif;box-shadow:0 6px 18px var(--glow);font-size:14px;letter-spacing:1px;position:relative}
+.weapon-img{
+  width:64px;
+  height:64px;
+  border-radius:8px;
+  object-fit:cover;
+  box-shadow:0 0 8px #0008;
+  background:#0b0f14;
+  display:block;
+}
+.case-badge{
+  width:64px;
+  height:64px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#facc15,#eab308);
+  color:#000;
+  font-weight:900;
+  font-family:'Russo One',sans-serif;
+  box-shadow:0 6px 18px var(--glow);
+  font-size:14px;
+  letter-spacing:1px;
+  position:relative;
+}
 .case-badge .label{transform:translateY(1px)}
 
-/* roulette inside case only */
-.roulette{overflow:hidden;position:relative;border-radius:14px;height:120px;margin:12px 0;background:linear-gradient(180deg,#071018,#071018);width:100%;max-width:720px;border:2px solid rgba(250,204,21,0.08)}
-.track{display:flex;transform:translateX(0);will-change:transform}
-.roulette-item{width:120px;flex-shrink:0;text-align:center;font-size:12px;padding:8px}
-.roulette-item img{width:84px;height:84px;display:block;margin:0 auto 6px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.6)}
-.roulette-center-line{position:absolute;left:50%;top:0;transform:translateX(-50%);width:6px;height:100%;background:linear-gradient(180deg,var(--yellow-line),rgba(250,204,21,0.6));box-shadow:0 0 18px rgba(250,204,21,0.25);pointer-events:none;border-radius:3px}
-.roulette-glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(250,204,21,0.06), transparent 40%);pointer-events:none}
-
-/* spin pulse */
+/* рулетка только внутри кейса, не уходит вправо */
+.roulette{
+  overflow:hidden;
+  position:relative;
+  border-radius:14px;
+  height:120px;
+  margin:12px 0;
+  background:linear-gradient(180deg,#071018,#071018);
+  width:100%;              /* по ширине кейса */
+  max-width:none;          /* без ограничения */
+  border:2px solid rgba(250,204,21,0.08);
+}
+.track{
+  display:flex;
+  transform:translateX(0);
+  will-change:transform;
+}
+.roulette-item{
+  width:120px;
+  flex-shrink:0;
+  text-align:center;
+  font-size:12px;
+  padding:8px;
+}
+.roulette-item img{
+  width:84px;
+  height:84px;
+  display:block;
+  margin:0 auto 6px;
+  border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.6);
+}
+.roulette-center-line{
+  position:absolute;
+  left:50%;
+  top:0;
+  transform:translateX(-50%);
+  width:6px;
+  height:100%;
+  background:linear-gradient(180deg,var(--yellow-line),rgba(250,204,21,0.6));
+  box-shadow:0 0 18px rgba(250,204,21,0.25);
+  pointer-events:none;
+  border-radius:3px;
+}
+.roulette-glow{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(250,204,21,0.06), transparent 40%);
+  pointer-events:none;
+}
 @keyframes spinPulse {0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
 .track.spinPulse{animation:spinPulse 900ms ease-in-out}
 
 /* full-screen win overlay */
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:120;padding:20px}
-#modal{background:transparent;border-radius:18px;padding:0;width:100%;max-width:980px;display:flex;align-items:center;justify-content:center}
-#winResultBox{width:100%;max-width:820px;padding:28px;background:linear-gradient(180deg,#071018,#08121a);border-radius:14px;border:4px solid var(--accent);text-align:center;display:none;animation:winPulse 0.6s ease-in-out;color:#fff}
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:120;
+  padding:20px;
+}
+#modal{
+  background:transparent;
+  border-radius:18px;
+  padding:0;
+  width:100%;
+  max-width:980px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#winResultBox{
+  width:100%;
+  max-width:820px;
+  padding:28px;
+  background:linear-gradient(180deg,#071018,#08121a);
+  border-radius:14px;
+  border:4px solid var(--accent);
+  text-align:center;
+  display:none;
+  animation:winPulse 0.6s ease-in-out;
+  color:#fff;
+}
 @keyframes winPulse{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
-#winResultBox img{width:220px;height:220px;border-radius:12px;margin:0 auto 14px;box-shadow:0 0 40px rgba(250,204,21,.18)}
+#winResultBox img{
+  width:220px;
+  height:220px;
+  border-radius:12px;
+  margin:0 auto 14px;
+  box-shadow:0 0 40px rgba(250,204,21,.18);
+}
 #winResultBox .winTitle{font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px}
 #winResultBox .winPrice{font-size:20px;color:#4ecdc4;margin-bottom:6px}
 #winResultBox .winNote{font-size:14px;color:#cbd5e1}
 
 /* admin panel */
-#adminPanel{position:fixed;right:18px;top:120px;background:#0b1220;border:1px solid #1f2937;padding:12px;border-radius:10px;z-index:60;min-width:260px;display:none}
+#adminPanel{
+  position:fixed;
+  right:18px;
+  top:120px;
+  background:#0b1220;
+  border:1px solid #1f2937;
+  padding:12px;
+  border-radius:10px;
+  z-index:60;
+  min-width:260px;
+  display:none;
+}
 #adminPanel h4{margin:0 0 8px 0}
-.adminRow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.adminRow input, .adminRow select{padding:6px;border-radius:6px;border:none;background:#071018;color:#fff}
-.adminBtn{background:#111827;border:1px solid #2b3440;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+.adminRow{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.adminRow input, .adminRow select{
+  padding:6px;
+  border-radius:6px;
+  border:none;
+  background:#071018;
+  color:#fff;
+}
+.adminBtn{
+  background:#111827;
+  border:1px solid #2b3440;
+  color:#fff;
+  padding:8px 10px;
+  border-radius:8px;
+  cursor:pointer;
+}
 
 /* chat & fake online */
-.side-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
-.chatBox{width:320px;max-height:360px;background:#0b1220;border-radius:10px;padding:10px;overflow:auto;border:1px solid #16202a}
-.chatMessage{padding:8px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg,#071018,#08121a);font-size:13px}
-.chatMessage .meta{font-size:12px;color:#9ca3af;margin-bottom:6px}
-.onlineBox{background:#071018;border-radius:10px;padding:10px;color:#cbd5e1;font-size:13px;min-width:160px}
-.referral{margin-top:18px;text-align:center;color:#cbd5e1;font-size:13px}
-.referral a{color:var(--accent);text-decoration:none;font-weight:bold}
-.footerNote{font-size:12px;color:var(--muted);text-align:center;margin:18px 0}
+.side-row{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+.chatBox{
+  width:320px;
+  max-height:360px;
+  background:#0b1220;
+  border-radius:10px;
+  padding:10px;
+  overflow:auto;
+  border:1px solid #16202a;
+}
+.chatMessage{
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:8px;
+  background:linear-gradient(180deg,#071018,#08121a);
+  font-size:13px;
+}
+.chatMessage .meta{
+  font-size:12px;
+  color:#9ca3af;
+  margin-bottom:6px;
+}
+.onlineBox{
+  background:#071018;
+  border-radius:10px;
+  padding:10px;
+  color:#cbd5e1;
+  font-size:13px;
+  min-width:160px;
+}
+.referral{
+  margin-top:18px;
+  text-align:center;
+  color:#cbd5e1;
+  font-size:13px;
+}
+.referral a{
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:bold;
+}
+.footerNote{
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+  margin:18px 0;
+}
+
+/* upgrade */
+#upgradePanel{
+  max-width:980px;
+  margin:18px auto 40px auto;
+  background:#071018;
+  border-top:6px solid var(--yellow-line);
+  border-radius:12px;
+  padding:12px 18px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+.upgrade-wheel{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  border:4px solid var(--accent);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle,#111827,#020617);
+  box-shadow:0 0 18px rgba(250,204,21,0.25);
+}
+.upgrade-wheel .inner{
+  color:#e5e7eb;
+  font-size:14px;
+  text-align:center;
+}
+
 @media (max-width:980px){
   .container{padding:20px 12px 220px}
   .chatBox{width:100%}
@@ -81,6 +366,7 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 </style>
 </head>
 <body>
+
 <div id="topBar">
   <div id="logo">CASE HUNTERS</div>
   <div style="display:flex;align-items:center;gap:12px">
@@ -88,6 +374,10 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
     <button id="bankBtn" class="smallBtn">💼</button>
     <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
   </div>
+</div>
+
+<div id="dailyBonusTop">
+  <button id="dailyBonusBtnTop" class="smallBtn">Ежедневный бонус +10 ₽</button>
 </div>
 
 <div class="container">
@@ -112,7 +402,9 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
       <div class="section" id="refSection" style="margin-top:12px">
         <div style="font-weight:bold">Реферальная система</div>
         <div class="small" style="margin-top:8px">Ваша реферальная ссылка (делитесь с друзьями):</div>
-        <div style="margin-top:8px"><input id="myRefLink" style="width:100%;padding:8px;border-radius:8px;border:none;background:#071018;color:#fff" readonly></div>
+        <div style="margin-top:8px">
+          <input id="myRefLink" style="width:100%;padding:8px;border-radius:8px;border:none;background:#071018;color:#fff" readonly>
+        </div>
         <div class="small" style="margin-top:8px">Вы получаете <b>40%</b> от проигрыша приглашённого (начисляется на баланс реферера).</div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <div class="small">Заработано по рефералам: <b id="refEarnings">0</b> ₽</div>
@@ -174,7 +466,9 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 <div id="bankOverlay" style="display:none;position:fixed;inset:0;z-index:110;align-items:center;justify-content:center;">
   <div id="bankModal" style="background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;max-width:420px;width:90%;">
     <div style="font-weight:bold;font-size:18px;margin-bottom:8px">Банк (демо)</div>
-    <div style="margin-bottom:10px;color:#9ca3af;text-align:center">Пополнение временно отключено в демо-режиме. Минимальный депозит в рабочей версии — 100 ₽. Вывод доступен от 500 ₽.</div>
+    <div style="margin-bottom:10px;color:#9ca3af;text-align:center">
+      Пополнение временно отключено в демо-режиме. Минимальный депозит в рабочей версии — 100 ₽. Вывод доступен от 500 ₽.
+    </div>
     <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
       <input id="amountInput" type="number" min="100" step="50" value="500" style="padding:8px;border-radius:8px;border:none;background:#0b1220;color:#fff;width:120px;text-align:center" />
       <button id="depositBtn" class="smallBtn">Пополнить (демо)</button>
@@ -200,8 +494,8 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
-<!-- Upgrade panel (restored old upgrade UI) -->
-<div id="upgradePanel" style="max-width:980px;margin:18px auto 40px auto;background:#071018;border-top:6px solid var(--yellow-line);border-radius:12px;padding:12px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+<!-- Upgrade panel -->
+<div id="upgradePanel">
   <div class="left">
     <div style="display:flex;gap:12px;align-items:center">
       <div id="upgradeSelectedPreview" style="width:64px;height:64px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1">—</div>
@@ -228,15 +522,6 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 </div>
 
 <script>
-/* -------------------------
-   Обновлённый рабочий код
-   - админ пароль: !125125Cc
-   - админ = безграничный баланс (отображается как ∞)
-   - восстановлен старый апгрейд (2x/3x)
-   - ежедневный бонус 10 ₽ и дополнительный бонус сверху +10 ₽
-   - реферальная система: 40% от проигрыша; можно "зачислить" заработанное на баланс
-   ------------------------- */
-
 /* --- Утилиты и идентификация пользователя --- */
 function uid(prefix='u'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
 const USER_ID_KEY = 'ch_userid';
@@ -266,9 +551,6 @@ function loadBalance(){
     const n = Number(raw);
     return Number.isFinite(n) ? n : 0;
   }catch(e){ return 0; }
-}
-function saveBalance(v){
-  try{ localStorage.setItem(balanceKeyFor(CURRENT_USER), String(v)); }catch(e){}
 }
 
 /* --- State --- */
@@ -326,7 +608,6 @@ function creditReferrerIfApplicable(cost, winPrice){
   if(loss <= 0) return;
   const reward = Math.round(loss * 0.40);
   addReferralEarnings(ref, reward);
-  // also credit ref's balance if they exist on same browser
   try{
     const refBalKey = balanceKeyFor(ref);
     const cur = Number(localStorage.getItem(refBalKey) || 0);
@@ -395,7 +676,7 @@ const WORK_CASES = BASE_CASES.map(c => {
 /* --- DOM helper --- */
 function $(id){ return document.getElementById(id); }
 
-/* --- Safe init --- */
+/* --- Init --- */
 window.addEventListener('DOMContentLoaded', () => {
   try {
     state.balance = loadBalance();
@@ -433,8 +714,10 @@ function initUI(){
   if($('claimRefBtn')) $('claimRefBtn').addEventListener('click', claimReferralEarningsToBalance);
   if($('dailyBonusBtn')) $('dailyBonusBtn').addEventListener('click', claimDailyBonus);
   if($('extraBonusBtn')) $('extraBonusBtn').addEventListener('click', claimExtraBonus);
+  if($('dailyBonusBtnTop')) $('dailyBonusBtnTop').addEventListener('click', claimDailyBonus);
 
-  // upgrade buttons wired via event delegation below
+  if($('upgrade2xBtn')) $('upgrade2xBtn').addEventListener('click', ()=> performUpgrade(2));
+  if($('upgrade3xBtn')) $('upgrade3xBtn').addEventListener('click', ()=> performUpgrade(3));
 }
 
 /* --- Withdraw --- */
@@ -455,7 +738,6 @@ function adminLoginHandler(){
     state.adminLogged = true;
     $('adminControls').style.display = 'block';
     populateAdminSelects();
-    // admin unlimited balance: represent as special flag; show ∞
     updateBalanceUI();
     showModal('Админ: вход выполнен. Баланс администратора — безграничный (демо).', false);
   } else {
@@ -466,7 +748,6 @@ function adminAddBalance(){
   if(!state.adminLogged) return showModal('Требуется вход в админку', false);
   const v = Number($('adminAddAmount').value) || 0;
   if(v <= 0) return showModal('Введите сумму > 0', false);
-  // for admin, we still allow adding to stored balance (but display remains ∞)
   const cur = Number(localStorage.getItem(balanceKeyFor(CURRENT_USER)) || 0);
   localStorage.setItem(balanceKeyFor(CURRENT_USER), String(cur + v));
   state.balance = loadBalance();
@@ -530,7 +811,10 @@ function renderCases(){
     meta.innerHTML = `<div class="title">${c.name}</div><div class="sub">Цена: ${c.price} ₽</div>`;
     left.appendChild(meta);
 
-    const right = document.createElement('div'); right.style.display='flex'; right.style.flexDirection='column'; right.style.alignItems='flex-end';
+    const right = document.createElement('div');
+    right.style.display='flex';
+    right.style.flexDirection='column';
+    right.style.alignItems='flex-end';
     right.innerHTML = `<div class="small">Предметов: ${c.items.length}</div><div style="margin-top:6px"><button class="smallBtn" data-open="${c.id}">Открыть</button></div>`;
 
     const rouletteWrap = document.createElement('div');
@@ -548,7 +832,7 @@ function renderCases(){
     centerCol.style.flex = '1';
     centerCol.style.display = 'flex';
     centerCol.style.flexDirection = 'column';
-    centerCol.appendChild(meta.cloneNode(true));
+    /* убрали дублирование названия кейса */
     centerCol.appendChild(rouletteWrap);
 
     el.appendChild(left);
@@ -590,7 +874,7 @@ function showCaseRoulette(caseId){
   roulette.style.display = 'block';
 }
 
-/* --- Prepare roulette items --- */
+/* --- Prepare roulette items (не уходит вправо) --- */
 function prepareRouletteForCase(caseObj, trackEl){
   if(!trackEl) return;
   trackEl.innerHTML = '';
@@ -613,17 +897,12 @@ function prepareRouletteForCase(caseObj, trackEl){
     if(!container) return;
     const containerW = container.clientWidth;
     const trackW = Array.from(trackEl.children).reduce((s, n) => s + (n.offsetWidth || 120), 0);
-    if(trackW <= containerW){
-      const centerPos = (containerW - trackW)/2;
-      trackEl.style.transform = `translateX(${centerPos}px)`;
-      trackEl.dataset.minTranslate = trackEl.dataset.maxTranslate = String(centerPos);
-    } else {
-      const minT = containerW - trackW;
-      const maxT = 0;
-      trackEl.dataset.minTranslate = String(minT);
-      trackEl.dataset.maxTranslate = String(maxT);
-      trackEl.style.transform = 'translateX(0)';
-    }
+
+    const minT = containerW - trackW;
+    const maxT = 0;
+    trackEl.dataset.minTranslate = String(minT);
+    trackEl.dataset.maxTranslate = String(maxT);
+    trackEl.style.transform = 'translateX(0)';
   }, 60);
 }
 
@@ -634,7 +913,6 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
   const cost = c.price;
   if(!state.adminLogged && state.balance < cost){ showModal(`Недостаточно средств. Нужно ${cost} ₽`, false); return; }
 
-  // deduct cost (unless admin)
   if(!state.adminLogged) subBalance(cost);
 
   if(!trackEl){
@@ -669,13 +947,8 @@ function openCaseWithTimedSpin(caseId, trackEl, spinMs = 6000){
 
   let desiredTranslate = centerOffset - virtualTargetCenter;
 
-  let minTranslate, maxTranslate;
-  if(trackW <= containerW){
-    minTranslate = maxTranslate = (containerW - trackW) / 2;
-  } else {
-    minTranslate = containerW - trackW;
-    maxTranslate = 0;
-  }
+  const minTranslate = containerW - trackW;
+  const maxTranslate = 0;
 
   while(desiredTranslate < minTranslate) desiredTranslate += trackW;
   while(desiredTranslate > maxTranslate) desiredTranslate -= trackW;
@@ -767,7 +1040,7 @@ function renderInventory(){
   });
 }
 
-/* --- Upgrade (restored old upgrade) --- */
+/* --- Upgrade --- */
 let upgradeSelectedItem = null;
 function openUpgradePanelForItem(item){
   upgradeSelectedItem = item;
@@ -815,13 +1088,10 @@ function performUpgrade(multiplier){
     renderInventory();
   }, 2050);
 }
-if($('upgrade2xBtn')) $('upgrade2xBtn').addEventListener('click', ()=> performUpgrade(2));
-if($('upgrade3xBtn')) $('upgrade3xBtn').addEventListener('click', ()=> performUpgrade(3));
 
-/* --- Balance operations with admin unlimited behavior --- */
+/* --- Balance operations (админ = бесконечный) --- */
 function addBalance(v){
   if(state.adminLogged){
-    // admin has unlimited balance; still store a number for persistence but display ∞
     const cur = Number(localStorage.getItem(balanceKeyFor(CURRENT_USER)) || 0);
     localStorage.setItem(balanceKeyFor(CURRENT_USER), String(cur + Math.round(Number(v)||0)));
     state.balance = loadBalance();
@@ -832,7 +1102,6 @@ function addBalance(v){
 }
 function subBalance(v){
   if(state.adminLogged){
-    // admin: do not reduce balance (unlimited)
     updateBalanceUI();
     return;
   }
@@ -840,15 +1109,15 @@ function subBalance(v){
 }
 function setBalance(v){
   state.balance = Math.max(0, Math.round(Number(v) || 0));
-  saveBalance(state.balance);
+  try{ localStorage.setItem(balanceKeyFor(CURRENT_USER), String(state.balance)); }catch(e){}
   updateBalanceUI();
-}
-function saveBalance(v){
-  try{ localStorage.setItem(balanceKeyFor(CURRENT_USER), String(v)); }catch(e){}
 }
 
 /* --- Daily bonus and extra bonus --- */
-function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
 function claimDailyBonus(){
   const last = localStorage.getItem(LAST_BONUS_KEY + CURRENT_USER);
   const today = todayKey();
@@ -878,11 +1147,14 @@ function showModal(text, showWinBox=true){
   if(showWinBox) $('winResultBox').style.display = 'none';
   $('overlay').style.display = 'flex';
   if(!showWinBox){
-    setTimeout(()=> { if($('overlay') && $('overlay').style.display === 'flex') $('overlay').style.display = 'none'; content.remove(); }, 2200);
+    setTimeout(()=> {
+      if($('overlay') && $('overlay').style.display === 'flex') $('overlay').style.display = 'none';
+      content.remove();
+    }, 2200);
   }
 }
 
-/* --- Update balance UI (shows ∞ for admin) --- */
+/* --- Update balance UI --- */
 function updateBalanceUI(){
   const el = $('balance');
   if(!el) return;
@@ -897,7 +1169,11 @@ function updateBalanceUI(){
 
 /* --- Fake online & chat --- */
 let fakeOnline = 120 + Math.floor(Math.random()*80);
-function updateFakeOnline(){ fakeOnline += Math.floor(Math.random()*7 - 3); if(fakeOnline < 5) fakeOnline = 5; const el = $('fakeOnline'); if(el) el.textContent = fakeOnline; }
+function updateFakeOnline(){
+  fakeOnline += Math.floor(Math.random()*7 - 3);
+  if(fakeOnline < 5) fakeOnline = 5;
+  const el = $('fakeOnline'); if(el) el.textContent = fakeOnline;
+}
 setInterval(updateFakeOnline, 5000);
 updateFakeOnline();
 
@@ -952,10 +1228,7 @@ function applyHiddenRtp(targetRtp){
   });
 }
 
-/* --- Helpers --- */
-function shortId(){ return CURRENT_USER.slice(-6); }
-
-/* --- Expose debug API (optional) --- */
+/* --- Debug API --- */
 window.CaseHunters = {
   state,
   addBalance,
