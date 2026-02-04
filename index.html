@@ -21,7 +21,8 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 #logo{font-family:'Russo One',sans-serif;font-size:22px;color:var(--accent)}
 #balanceBox{padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#eab308);color:#020617;font-weight:bold;box-shadow:0 0 15px rgba(250,204,21,.6)}
 .small{font-size:12px;opacity:.85;color:#d1d5db}
-.section{background:var(--card);border-radius:16px;padding:14px;margin:12px auto;width:min(96vw,760px)}
+.container{max-width:980px;margin:0 auto;padding:20px 12px 120px}
+.section{background:var(--card);border-radius:16px;padding:14px;margin:12px auto}
 .case,.item{display:flex;justify-content:space-between;align-items:center;background:#1f2937;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}
 .case:hover{background:#374151}
 .case .left, .item .left{display:flex;gap:12px;align-items:center}
@@ -34,7 +35,8 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 .weapon-img{width:64px;height:64px;border-radius:8px;object-fit:cover;box-shadow:0 0 8px #0008;background:#0b0f14;display:block}
 .case-badge{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#facc15,#eab308);color:#000;font-weight:900;font-family:'Russo One',sans-serif;box-shadow:0 6px 18px rgba(250,204,21,.18);font-size:14px;letter-spacing:1px;position:relative}
 .case-badge .label{transform:translateY(1px)}
-.roulette{overflow:hidden;position:relative;border:2px solid var(--accent);border-radius:14px;height:100px;margin:13px 0;background:linear-gradient(180deg,#071018, #071018);width:100%}
+/* roulette inside case only */
+.roulette{overflow:hidden;position:relative;border:2px solid var(--accent);border-radius:14px;height:100px;margin:13px 0;background:linear-gradient(180deg,#071018, #071018);width:100%;max-width:720px}
 .track{display:flex;transform:translateX(0);will-change:transform}
 .roulette-item{width:90px;flex-shrink:0;text-align:center;font-size:11px;padding:6px}
 .roulette-item img{width:60px;height:60px;display:block;margin:0 auto 4px;border-radius:8px;box-shadow:0 0 7px #000b}
@@ -46,25 +48,39 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
 #winResultBox .winTitle{font-size:20px;font-weight:bold;color:var(--accent);margin-bottom:5px}
 #winResultBox .winPrice{font-size:16px;color:#4ecdc4}
 
-/* Upgrade panel fixed at bottom with yellow top line */
+/* Upgrade panel as normal block at bottom of main content (not fixed) */
 #upgradePanel{
-  position:fixed;left:0;right:0;bottom:0;background:#071018;border-top:6px solid var(--yellow-line);padding:12px 18px;z-index:80;
-  display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;
+  margin:18px auto 40px auto;
+  background:#071018;
+  border-top:6px solid var(--yellow-line);
+  border-radius:12px;
+  padding:12px 18px;
+  max-width:980px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
 }
-#upgradePanel .panel-inner{max-width:980px;width:100%;display:flex;gap:12px;align-items:center;justify-content:space-between}
 #upgradePanel .left{display:flex;gap:12px;align-items:center}
-#upgradePanel .small{color:#cbd5e1}
-.upgrade-wheel{width:180px;height:180px;border-radius:50%;position:relative;margin:0;background:conic-gradient(#0b1220 0 25%, #071018 25% 50%, #0b1220 50% 75%, #071018 75% 100%);box-shadow:0 8px 40px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.upgrade-wheel{width:140px;height:140px;border-radius:50%;position:relative;margin:0;background:conic-gradient(#0b1220 0 25%, #071018 25% 50%, #0b1220 50% 75%, #071018 75% 100%);box-shadow:0 8px 40px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .upgrade-wheel .pointer{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid var(--accent);z-index:20}
 .upgrade-wheel .inner{width:60%;height:60%;border-radius:50%;background:rgba(2,6,11,.8);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#cbd5e1;font-size:13px;text-align:center;padding:6px}
 
-/* responsive */
-@media (max-width:640px){
-  #upgradePanel .panel-inner{flex-direction:column;align-items:center}
-  .roulette-item{width:80px}
-}
+/* chat & fake online */
+.side-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.chatBox{width:320px;max-height:360px;background:#0b1220;border-radius:10px;padding:10px;overflow:auto;border:1px solid #16202a}
+.chatMessage{padding:8px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg,#071018,#08121a);font-size:13px}
+.chatMessage .meta{font-size:12px;color:#9ca3af;margin-bottom:6px}
+.onlineBox{background:#071018;border-radius:10px;padding:10px;color:#cbd5e1;font-size:13px;min-width:160px}
 .referral{margin-top:18px;text-align:center;color:#cbd5e1;font-size:13px}
 .referral a{color:var(--accent);text-decoration:none;font-weight:bold}
+.footerNote{font-size:12px;color:var(--muted);text-align:center;margin:18px 0}
+@media (max-width:980px){
+  .container{padding:20px 12px 220px}
+  .chatBox{width:100%}
+  #upgradePanel{flex-direction:column;align-items:center}
+}
 </style>
 </head>
 <body>
@@ -81,31 +97,77 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
-<div style="padding:20px 12px 260px;">
-  <div class="section" id="casesSection">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-weight:bold">Доступные кейсы</div>
-      <div class="small">Нажмите на кейс, чтобы открыть</div>
+<div class="container">
+  <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+    <div style="flex:1;min-width:320px">
+      <div class="section" id="casesSection">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-weight:bold">Доступные кейсы</div>
+          <div class="small">Нажмите на кейс, чтобы открыть</div>
+        </div>
+        <div id="casesList"></div>
+      </div>
+
+      <div class="section" id="inventorySection">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-weight:bold">Инвентарь</div>
+          <div class="small">Ваши предметы</div>
+        </div>
+        <div id="inventoryList" style="margin-top:12px"></div>
+      </div>
+
+      <!-- Upgrade panel placed as normal block at bottom of main content -->
+      <div id="upgradePanel" aria-hidden="false">
+        <div class="left">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div id="upgradeSelectedPreview" style="width:64px;height:64px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1">—</div>
+            <div>
+              <div id="upgradeSelectedName" style="font-weight:bold">Выберите предмет для апгрейда</div>
+              <div class="small" id="upgradeSelectedPrice">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="upgrade-wheel" id="upgradeWheelSmall">
+            <div class="pointer"></div>
+            <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <div style="display:flex;gap:8px">
+              <button id="upgrade2xBtn" class="spin-btn">Попытка 2x</button>
+              <button id="upgrade3xBtn" class="spin-btn">Попытка 3x</button>
+            </div>
+            <div id="upgradeResultSmall" class="small" style="min-width:220px;text-align:right"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footerNote">Демо-страница: реальные игровые файлы не включены. Если у вас есть легальные изображения — положите их в папку <code>/assets/cs/</code> или укажите CDN.</div>
+
+      <div class="referral">
+        Реферальная ссылка: <a href="https://t.me/casehunters_bot?start=ref123" target="_blank">@casehunters_bot</a>
+      </div>
     </div>
-    <div id="casesList"></div>
-  </div>
 
-  <div class="section" id="inventorySection">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-weight:bold">Инвентарь</div>
-      <div class="small">Ваши предметы</div>
+    <!-- Right column: fake online + chat feed -->
+    <div style="width:340px;min-width:260px">
+      <div class="onlineBox" id="onlineBox">
+        <div style="font-weight:bold;margin-bottom:6px">Онлайн</div>
+        <div style="font-size:28px;font-weight:800" id="fakeOnline">0</div>
+        <div class="small" style="margin-top:6px">пользователей сейчас</div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="chatBox" id="chatBox" aria-live="polite">
+        <!-- messages appended here -->
+      </div>
     </div>
-    <div id="inventoryList" style="margin-top:12px"></div>
-  </div>
-
-  <div class="footerNote">Демо-страница: реальные игровые файлы не включены. Если у вас есть легальные изображения — положите их в папку <code>/assets/cs/</code> или укажите CDN.</div>
-
-  <div class="referral">
-    Приглашайте друзей и получайте бонусы — бот для рефералов: <a href="https://t.me/casehunters_bot" target="_blank">@casehunters_bot</a>
   </div>
 </div>
 
-<!-- Банк / пополнение / вывод (демо пополнение неактивно) -->
+<!-- Bank / demo -->
 <div id="bankOverlay" style="display:none;position:fixed;inset:0;z-index:40;justify-content:flex-end;align-items:flex-start;">
   <div id="bankModal" style="margin:110px 30px 0 0;background:#181d27;border-radius:13px;box-shadow:0 4px 32px #000b;padding:22px 32px;display:flex;flex-direction:column;align-items:center;">
     <div style="font-weight:bold;font-size:18px;margin-bottom:8px">Банк (демо)</div>
@@ -123,7 +185,7 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
-<!-- Оверлей модалки -->
+<!-- Modal overlay -->
 <div id="overlay">
   <div id="modal">
     <div style="padding:12px 18px;">
@@ -143,97 +205,63 @@ body{margin:0;font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helveti
   </div>
 </div>
 
-<!-- Upgrade panel fixed at bottom -->
-<div id="upgradePanel" aria-hidden="false">
-  <div class="panel-inner">
-    <div class="left">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div id="upgradeSelectedPreview" style="width:64px;height:64px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1">—</div>
-        <div>
-          <div id="upgradeSelectedName" style="font-weight:bold">Выберите предмет для апгрейда</div>
-          <div class="small" id="upgradeSelectedPrice">—</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:12px;align-items:center">
-      <div class="upgrade-wheel" id="upgradeWheelSmall">
-        <div class="pointer"></div>
-        <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
-        <div style="display:flex;gap:8px">
-          <button id="upgrade2xBtn" class="spin-btn">Попытка 2x</button>
-          <button id="upgrade3xBtn" class="spin-btn">Попытка 3x</button>
-        </div>
-        <div id="upgradeResultSmall" class="small" style="min-width:220px;text-align:right"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-/* --- Конфигурация изображений --- */
-const IMAGE_BASE = '/assets/cs/'; // замените на ваш CDN/путь с легальными изображениями
+/* --- Images base --- */
+const IMAGE_BASE = '/assets/cs/';
 function imgPath(name){ return IMAGE_BASE + name; }
 
-/* --- Кейсы с уникальными предметами, добавлен кейс с перчатками (gloves) --- */
+/* --- Cases: prices doubled compared to previous set (user requested doubling) --- */
+/* previous prices were: 50,90,180,450,1800,300 -> now doubled */
 const BASE_CASES = [
-  { id:'case0', name:'Starter Case', price:50, imgBadge:true, baseItems:[
-    { id:'s1', name:'P250 | Sand Dune', price:35, img: imgPath('p250_sanddune.png'), baseChance:60 },
-    { id:'s2', name:'USP-S | Torque', price:90, img: imgPath('usp_torque.png'), baseChance:30 },
-    { id:'s3', name:'Nova | Ranger', price:300, img: imgPath('nova_ranger.png'), baseChance:10 }
+  { id:'case0', name:'Starter Case', price:100, imgBadge:true, baseItems:[
+    { id:'s1', name:'P250 | Sand Dune', price:70, img: imgPath('p250_sanddune.png'), baseChance:60 },
+    { id:'s2', name:'USP-S | Torque', price:180, img: imgPath('usp_torque.png'), baseChance:30 },
+    { id:'s3', name:'Nova | Ranger', price:600, img: imgPath('nova_ranger.png'), baseChance:10 }
   ]},
-  { id:'case1', name:'Dust II Case', price:90, imgBadge:true, baseItems:[
-    { id:'g1', name:'AK-47 | Redline', price:100, img: imgPath('ak_redline.png'), baseChance:45 },
-    { id:'g2', name:'M4A1-S | Guardian', price:240, img: imgPath('m4_guardian.png'), baseChance:35 },
-    { id:'g3', name:'Desert Eagle | Blaze', price:650, img: imgPath('deagle_blaze.png'), baseChance:20 }
+  { id:'case1', name:'Dust II Case', price:180, imgBadge:true, baseItems:[
+    { id:'g1', name:'AK-47 | Redline', price:200, img: imgPath('ak_redline.png'), baseChance:45 },
+    { id:'g2', name:'M4A1-S | Guardian', price:480, img: imgPath('m4_guardian.png'), baseChance:35 },
+    { id:'g3', name:'Desert Eagle | Blaze', price:1300, img: imgPath('deagle_blaze.png'), baseChance:20 }
   ]},
-  { id:'case1b', name:'Classic Case', price:180, imgBadge:true, baseItems:[
-    { id:'c1', name:'AK-47 | Vulcan', price:900, img: imgPath('ak_vulcan.png'), baseChance:40 },
-    { id:'c2', name:'M4A4 | Howl', price:5000, img: imgPath('m4_howl.png'), baseChance:8 },
-    { id:'c3', name:'Glock-18 | Fade', price:1200, img: imgPath('glock_fade.png'), baseChance:52 }
+  { id:'case1b', name:'Classic Case', price:360, imgBadge:true, baseItems:[
+    { id:'c1', name:'AK-47 | Vulcan', price:1800, img: imgPath('ak_vulcan.png'), baseChance:40 },
+    { id:'c2', name:'M4A4 | Howl', price:10000, img: imgPath('m4_howl.png'), baseChance:8 },
+    { id:'c3', name:'Glock-18 | Fade', price:2400, img: imgPath('glock_fade.png'), baseChance:52 }
   ]},
-  { id:'case2', name:'Inferno Case', price:450, imgBadge:true, baseItems:[
-    { id:'p1', name:'AWP | Asiimov', price:2200, img: imgPath('awp_asiimov.png'), baseChance:20 },
-    { id:'p2', name:'AK-47 | Fire Serpent', price:9000, img: imgPath('ak_serpent.png'), baseChance:30 },
-    { id:'p3', name:'M4A1-S | Hot Rod', price:7000, img: imgPath('m4_hotrod.png'), baseChance:50 }
+  { id:'case2', name:'Inferno Case', price:900, imgBadge:true, baseItems:[
+    { id:'p1', name:'AWP | Asiimov', price:4400, img: imgPath('awp_asiimov.png'), baseChance:20 },
+    { id:'p2', name:'AK-47 | Fire Serpent', price:18000, img: imgPath('ak_serpent.png'), baseChance:30 },
+    { id:'p3', name:'M4A1-S | Hot Rod', price:14000, img: imgPath('m4_hotrod.png'), baseChance:50 }
   ]},
-  { id:'case3', name:'Mirage Case', price:1800, imgBadge:true, baseItems:[
-    { id:'l1', name:'AWP | Medusa', price:60000, img: imgPath('awp_medusa.png'), baseChance:5 },
-    { id:'l2', name:'AK-47 | Fire Serpent (StatTrak)', price:25000, img: imgPath('ak_serpent_st.png'), baseChance:25 },
-    { id:'l3', name:'M4A4 | Howl (StatTrak)', price:12000, img: imgPath('m4_howl_st.png'), baseChance:70 }
+  { id:'case3', name:'Mirage Case', price:3600, imgBadge:true, baseItems:[
+    { id:'l1', name:'AWP | Medusa', price:120000, img: imgPath('awp_medusa.png'), baseChance:5 },
+    { id:'l2', name:'AK-47 | Fire Serpent (StatTrak)', price:50000, img: imgPath('ak_serpent_st.png'), baseChance:25 },
+    { id:'l3', name:'M4A4 | Howl (StatTrak)', price:24000, img: imgPath('m4_howl_st.png'), baseChance:70 }
   ]},
-  // новый кейс с перчатками, цена кейса 300
-  { id:'gloveCase', name:'Glove Case', price:300, imgBadge:true, baseItems:[
-    { id:'gl1', name:'Sport Gloves | Pandora\'s Box', price:12000, img: imgPath('gloves_pandora.png'), baseChance:40 },
-    { id:'gl2', name:'Driver Gloves | King Snake', price:25000, img: imgPath('gloves_kingsnake.png'), baseChance:35 },
-    { id:'gl3', name:'Specialist Gloves | Crimson Kimono', price:45000, img: imgPath('gloves_crimson.png'), baseChance:25 }
+  // glove case doubled price -> 600
+  { id:'gloveCase', name:'Glove Case', price:600, imgBadge:true, baseItems:[
+    { id:'gl1', name:'Sport Gloves | Pandora\'s Box', price:24000, img: imgPath('gloves_pandora.png'), baseChance:40 },
+    { id:'gl2', name:'Driver Gloves | King Snake', price:50000, img: imgPath('gloves_kingsnake.png'), baseChance:35 },
+    { id:'gl3', name:'Specialist Gloves | Crimson Kimono', price:90000, img: imgPath('gloves_crimson.png'), baseChance:25 }
   ]}
 ];
 
-/* --- Рабочие кейсы (копии) --- */
 const WORK_CASES = BASE_CASES.map(c => {
   const items = c.baseItems.map(it => ({ ...it, chance: it.baseChance }));
   return { ...c, items, baseTotalChance: items.reduce((s,i)=>s+i.baseChance,0) };
 });
 
-/* --- Состояние --- */
+/* --- State --- */
 let state = {
-  balance: 1250,
-  selectedCaseId: null,
+  balance: loadBalance(), // persistent per earlier request
   inventory: [],
   currentRtp: 0.70
 };
 
-/* --- DOM --- */
+/* --- DOM refs --- */
 const balanceEl = document.getElementById('balance');
 const balanceSmallEl = document.getElementById('balanceSmall');
 const casesListEl = document.getElementById('casesList');
-const selectedCaseInfoEl = document.getElementById('selectedCaseInfo');
-const openOnceBtn = document.getElementById('openOnce');
-const openTenBtn = document.getElementById('openTen');
-const openLogEl = document.getElementById('openLog');
 const inventoryListEl = document.getElementById('inventoryList');
 const bankBtn = document.getElementById('bankBtn');
 const bankOverlay = document.getElementById('bankOverlay');
@@ -249,8 +277,10 @@ const winPrice = document.getElementById('winPrice');
 const closeModal = document.getElementById('closeModal');
 const bonusBtn = document.getElementById('bonusBtn');
 const bonusMsg = document.getElementById('bonusMsg');
+const chatBox = document.getElementById('chatBox');
+const fakeOnlineEl = document.getElementById('fakeOnline');
 
-/* Upgrade panel elements */
+/* Upgrade elements */
 const upgradeSelectedPreview = document.getElementById('upgradeSelectedPreview');
 const upgradeSelectedName = document.getElementById('upgradeSelectedName');
 const upgradeSelectedPrice = document.getElementById('upgradeSelectedPrice');
@@ -259,11 +289,28 @@ const upgrade3xBtn = document.getElementById('upgrade3xBtn');
 const upgradeResultSmall = document.getElementById('upgradeResultSmall');
 const upgradeInnerSmall = document.getElementById('upgradeInnerSmall');
 
-/* --- Utilities --- */
-function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
-function updateBalanceUI(){ balanceEl.textContent = state.balance; balanceSmallEl.textContent = state.balance; }
+/* --- Balance persistence helpers --- */
+const BALANCE_KEY = 'ch_balance';
+function loadBalance(){
+  try{
+    const raw = localStorage.getItem(BALANCE_KEY);
+    if(raw === null) return 0;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }catch(e){ return 0; }
+}
+function saveBalance(v){
+  try{ localStorage.setItem(BALANCE_KEY, String(v)); }catch(e){}
+}
+function setBalance(v){
+  state.balance = Math.max(0, Math.round(Number(v) || 0));
+  updateBalanceUI();
+  saveBalance(state.balance);
+}
+function addBalance(v){ setBalance(state.balance + Math.round(Number(v)||0)); }
+function subBalance(v){ setBalance(Math.max(0, state.balance - Math.round(Number(v)||0))); }
 
-/* --- Placeholder SVG generator (если картинка не доступна) --- */
+/* --- Image fallback --- */
 function placeholderDataUrl(name){
   const w = 256, h = 256;
   const bg = '#0b0f14';
@@ -281,7 +328,7 @@ function safeSetImg(imgEl, src, name){
   imgEl.onerror = function(){ imgEl.onerror = null; imgEl.src = placeholderDataUrl(name); };
 }
 
-/* --- Render cases: each case contains its own roulette block --- */
+/* --- Render cases (each case has its own roulette inside) --- */
 function renderCases(){
   casesListEl.innerHTML = '';
   WORK_CASES.forEach(c => {
@@ -302,12 +349,11 @@ function renderCases(){
     const rouletteWrap = document.createElement('div');
     rouletteWrap.className = 'roulette';
     rouletteWrap.style.marginTop = '12px';
-    rouletteWrap.style.display = 'none'; // hidden until case selected/opened
+    rouletteWrap.style.display = 'none';
     const track = document.createElement('div'); track.className = 'track';
     rouletteWrap.appendChild(track);
 
     el.appendChild(left);
-    // place roulette below left/meta inside a column layout
     const centerCol = document.createElement('div');
     centerCol.style.flex = '1';
     centerCol.style.display = 'flex';
@@ -315,16 +361,13 @@ function renderCases(){
     centerCol.appendChild(meta.cloneNode(true));
     centerCol.appendChild(rouletteWrap);
 
-    // assemble final layout: left + centerCol + right
-    el.innerHTML = ''; // clear
+    el.innerHTML = '';
     el.appendChild(left);
     el.appendChild(centerCol);
     el.appendChild(right);
 
-    // prepare roulette content for this case
     prepareRouletteForCase(c, track);
 
-    // click handlers
     el.addEventListener('click', (e)=>{
       if(e.target && e.target.dataset && e.target.dataset.open) return;
       toggleCaseRoulette(c.id);
@@ -332,7 +375,6 @@ function renderCases(){
     const openBtn = el.querySelector('button[data-open]');
     openBtn.addEventListener('click',(ev)=>{
       ev.stopPropagation();
-      // show roulette and open once
       showCaseRoulette(c.id);
       openCaseInContainer(c.id, track);
     });
@@ -347,7 +389,6 @@ function toggleCaseRoulette(caseId){
   if(!caseEl) return;
   const roulette = caseEl.querySelector('.roulette');
   if(!roulette) return;
-  // hide other cases' roulettes
   document.querySelectorAll('.case .roulette').forEach(r => { if(r !== roulette) r.style.display = 'none'; });
   roulette.style.display = (roulette.style.display === 'none' || roulette.style.display === '') ? 'block' : 'none';
 }
@@ -360,11 +401,11 @@ function showCaseRoulette(caseId){
   roulette.style.display = 'block';
 }
 
-/* --- Prepare roulette items for a specific case into provided track element --- */
+/* --- Prepare roulette for a case (limited track, centered, not full-screen) --- */
 function prepareRouletteForCase(caseObj, trackEl){
   trackEl.innerHTML = '';
   const items = [];
-  for(let i=0;i<30;i++) caseObj.items.forEach(it => items.push(it));
+  for(let i=0;i<18;i++) caseObj.items.forEach(it => items.push(it));
   items.forEach(it=>{
     const el = document.createElement('div'); el.className = 'roulette-item';
     const img = document.createElement('img'); img.className='weapon-img';
@@ -375,16 +416,74 @@ function prepareRouletteForCase(caseObj, trackEl){
     el.appendChild(name); el.appendChild(price);
     trackEl.appendChild(el);
   });
+  trackEl.style.transition = '';
   trackEl.style.transform = 'translateX(0)';
+  setTimeout(()=> {
+    const container = trackEl.parentElement;
+    const containerW = container.clientWidth;
+    const trackW = Array.from(trackEl.children).reduce((s, n) => s + (n.offsetWidth || 90), 0);
+    if(trackW <= containerW){
+      const centerPos = (containerW - trackW)/2;
+      trackEl.style.transform = `translateX(${centerPos}px)`;
+      trackEl.dataset.minTranslate = trackEl.dataset.maxTranslate = String(centerPos);
+    } else {
+      const minT = containerW - trackW;
+      const maxT = 0;
+      trackEl.dataset.minTranslate = String(minT);
+      trackEl.dataset.maxTranslate = String(maxT);
+      trackEl.style.transform = 'translateX(0)';
+    }
+  }, 50);
 }
 
-/* --- Open case: animate roulette inside that case's track --- */
+/* --- Animate roulette to item inside provided track (bounded) --- */
+function animateRouletteToInTrack(item, trackEl){
+  return new Promise(res=>{
+    const nodes = Array.from(trackEl.children);
+    if(nodes.length === 0){ res(); return; }
+    let targetIndex = nodes.findIndex(n => n.textContent.includes(item.name));
+    if(targetIndex === -1) targetIndex = Math.floor(nodes.length/2);
+
+    const itemWidth = nodes[0].offsetWidth || 90;
+    const container = trackEl.parentElement;
+    const containerW = container.clientWidth;
+    const trackW = nodes.reduce((s,n)=> s + (n.offsetWidth || itemWidth), 0);
+
+    const centerOffset = Math.floor(containerW / 2);
+
+    let targetCenter = 0;
+    for(let i=0;i<targetIndex;i++){
+      targetCenter += (nodes[i].offsetWidth || itemWidth);
+    }
+    targetCenter += (nodes[targetIndex].offsetWidth || itemWidth) / 2;
+
+    let desiredTranslate = centerOffset - targetCenter;
+
+    let minTranslate, maxTranslate;
+    if(trackW <= containerW){
+      minTranslate = maxTranslate = (containerW - trackW) / 2;
+    } else {
+      minTranslate = containerW - trackW;
+      maxTranslate = 0;
+    }
+
+    if(desiredTranslate < minTranslate) desiredTranslate = minTranslate;
+    if(desiredTranslate > maxTranslate) desiredTranslate = maxTranslate;
+
+    const duration = 1400 + Math.random()*600;
+    trackEl.style.transition = `transform ${duration}ms cubic-bezier(.2,.9,.2,1)`;
+    requestAnimationFrame(()=> trackEl.style.transform = `translateX(${desiredTranslate}px)`);
+    setTimeout(()=>{ trackEl.style.transition = ''; res(); }, duration + 50);
+  });
+}
+
+/* --- Open case inside container --- */
 function openCaseInContainer(caseId, trackEl){
   const c = WORK_CASES.find(x=>x.id===caseId);
   if(!c) return;
   const totalCost = c.price;
   if(state.balance < totalCost){ showModal(`Недостаточно средств. Нужно ${totalCost} ₽`, false); return; }
-  state.balance -= totalCost; updateBalanceUI();
+  subBalance(totalCost);
 
   const win = pickRandomItem(c.items);
   animateRouletteToInTrack(win, trackEl).then(()=> {
@@ -393,6 +492,8 @@ function openCaseInContainer(caseId, trackEl){
     showWin(inv);
     renderInventory();
     logOpen([win]);
+    // push fake chat message about win
+    pushFakeChat(`${shortName()} открыл ${c.name} и получил ${win.name}`);
   });
 }
 
@@ -405,24 +506,6 @@ function pickRandomItem(items){
     if(r <= 0) return JSON.parse(JSON.stringify(it));
   }
   return JSON.parse(JSON.stringify(items[items.length-1]));
-}
-
-/* --- animateRouletteToInTrack --- */
-function animateRouletteToInTrack(item, trackEl){
-  return new Promise(res=>{
-    const nodes = Array.from(trackEl.children);
-    let targetIndex = nodes.findIndex(n => n.textContent.includes(item.name));
-    if(targetIndex === -1) targetIndex = Math.floor(nodes.length/2);
-    const itemWidth = nodes[0].offsetWidth || 90;
-    const visibleWidth = trackEl.parentElement.offsetWidth || 300;
-    const centerOffset = Math.floor(visibleWidth/2);
-    const targetCenter = targetIndex * itemWidth + itemWidth/2;
-    const translateX = centerOffset - targetCenter;
-    const duration = 1600 + Math.random()*800;
-    trackEl.style.transition = `transform ${duration}ms cubic-bezier(.2,.9,.2,1)`;
-    requestAnimationFrame(()=> trackEl.style.transform = `translateX(${translateX}px)`);
-    setTimeout(()=>{ trackEl.style.transition = ''; res(); }, duration + 50);
-  });
 }
 
 /* --- showWin --- */
@@ -438,10 +521,10 @@ function showWin(inv){
 /* --- logOpen --- */
 function logOpen(results){
   const lines = results.map(r=>`Вы получили: <b>${r.name}</b> — ${r.price} ₽`).join('<br>');
-  openLogEl.innerHTML = lines;
+  document.getElementById('openLog').innerHTML = lines;
 }
 
-/* --- Inventory render with upgrade button that opens bottom panel --- */
+/* --- Inventory render & upgrade selection --- */
 function renderInventory(){
   inventoryListEl.innerHTML = '';
   if(state.inventory.length === 0){ inventoryListEl.innerHTML = '<div class="small">Пусто</div>'; return; }
@@ -458,10 +541,10 @@ function renderInventory(){
     const right = document.createElement('div'); right.style.display='flex'; right.style.flexDirection='column'; right.style.alignItems='flex-end';
     const sellBtn = document.createElement('button'); sellBtn.className='smallBtn'; sellBtn.textContent='Продать';
     sellBtn.addEventListener('click', ()=>{
-      state.balance += it.price;
+      addBalance(it.price);
       const idx = state.inventory.findIndex(x=>x.uid === it.uid);
       if(idx !== -1) state.inventory.splice(idx,1);
-      updateBalanceUI(); renderInventory();
+      renderInventory();
     });
 
     const upgBtn = document.createElement('button'); upgBtn.className='smallBtn'; upgBtn.style.marginTop='8px'; upgBtn.textContent='Апгрейд';
@@ -474,11 +557,10 @@ function renderInventory(){
   });
 }
 
-/* --- Upgrade panel logic (bottom) --- */
+/* --- Upgrade panel logic (non-fixed) --- */
 let upgradeSelectedItem = null;
 function openUpgradePanelForItem(item){
   upgradeSelectedItem = item;
-  // preview
   upgradeSelectedPreview.innerHTML = '';
   const img = document.createElement('img'); img.style.width='64px'; img.style.height='64px'; img.style.borderRadius='8px';
   safeSetImg(img, item.img, item.name);
@@ -487,16 +569,15 @@ function openUpgradePanelForItem(item){
   upgradeSelectedPrice.textContent = `${item.price} ₽`;
   upgradeResultSmall.textContent = '';
   upgradeInnerSmall.textContent = 'Апгрейд';
-  // scroll to bottom so user sees panel (mobile)
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
-/* --- Upgrade spin handlers (use same logic as modal) --- */
+/* --- performUpgrade --- */
 function performUpgrade(multiplier){
   if(!upgradeSelectedItem) { upgradeResultSmall.textContent = 'Выберите предмет в инвентаре'; return; }
   const cost = multiplier === 2 ? Math.max(100, Math.round(upgradeSelectedItem.price * 0.18)) : Math.max(200, Math.round(upgradeSelectedItem.price * 0.35));
   if(state.balance < cost){ upgradeResultSmall.textContent = 'Недостаточно средств для попытки'; return; }
-  state.balance -= cost; updateBalanceUI();
+  subBalance(cost);
   upgradeResultSmall.textContent = 'Крутим...';
   const prob = multiplier === 2 ? 0.60 : 0.30;
   const success = Math.random() < prob;
@@ -517,8 +598,10 @@ function performUpgrade(multiplier){
       upgradeSelectedItem.upgraded.multiplier *= multiplier;
       upgradeResultSmall.textContent = `Успех! Предмет умножен на ${multiplier}x. Новая цена: ${upgradeSelectedItem.price} ₽`;
       upgradeSelectedPrice.textContent = `${upgradeSelectedItem.price} ₽`;
+      pushFakeChat(`${shortName()} успешно апгрейднул ${upgradeSelectedItem.name} до ${upgradeSelectedItem.price} ₽`);
     } else {
       upgradeResultSmall.textContent = 'Неудача. Попробуйте снова или продайте предмет.';
+      pushFakeChat(`${shortName()} неудачно апгрейднул ${upgradeSelectedItem.name}`);
     }
     renderInventory();
   }, 2050);
@@ -526,7 +609,7 @@ function performUpgrade(multiplier){
 upgrade2xBtn.addEventListener('click', ()=> performUpgrade(2));
 upgrade3xBtn.addEventListener('click', ()=> performUpgrade(3));
 
-/* --- Bank / demo deposit/withdraw --- */
+/* --- Bank demo handlers --- */
 bankBtn.addEventListener('click', ()=> bankOverlay.style.display = 'flex');
 closeBank.addEventListener('click', ()=> bankOverlay.style.display = 'none');
 depositBtn.addEventListener('click', ()=> {
@@ -536,20 +619,25 @@ withdrawBtn.addEventListener('click', ()=> {
   const val = Number(amountInput.value) || 0;
   if(val < 500) return showModal('Минимальная сумма вывода — 500 ₽', false);
   if(val > state.balance) return showModal('Недостаточно средств для вывода', false);
-  state.balance -= val; updateBalanceUI(); bankOverlay.style.display = 'none'; showModal(`Выведено ${val} ₽ (демо)`, false);
+  subBalance(val);
+  bankOverlay.style.display = 'none';
+  showModal(`Выведено ${val} ₽ (демо)`, false);
+  pushFakeChat(`${shortName()} только что вывел ${val} ₽`);
 });
 
-/* --- Bonus 10 ₽ per day (anti-abuse by date) --- */
+/* --- Bonus 10 ₽ per day (anti-abuse) --- */
 function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 bonusBtn.addEventListener('click', ()=>{
   const last = localStorage.getItem('lastBonusDate');
   const today = todayKey();
   if(last === today){ bonusMsg.textContent = 'Бонус уже получен сегодня'; setTimeout(()=> bonusMsg.textContent = '', 2500); return; }
-  state.balance += 10; updateBalanceUI(); localStorage.setItem('lastBonusDate', today);
-  bonusMsg.textContent = 'Бонус 10 ₽ за сегодня зачислен'; setTimeout(()=> bonusMsg.textContent = '', 3000);
+  addBalance(10);
+  localStorage.setItem('lastBonusDate', today);
+  bonusMsg.textContent = 'Бонус 10 ₽ за сегодня зачислен';
+  setTimeout(()=> bonusMsg.textContent = '', 3000);
 });
 
-/* --- Helper: showModal --- */
+/* --- Modal helpers --- */
 function showModal(text, showWinBox=true){
   document.getElementById('modalContent').innerHTML = text;
   if(showWinBox) winResultBox.style.display = 'none';
@@ -558,7 +646,61 @@ function showModal(text, showWinBox=true){
 overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.style.display = 'none'; });
 closeModal.addEventListener('click', ()=> overlay.style.display = 'none');
 
-/* --- Init: apply hidden RTP adjustments (keeps house edge) and render --- */
+/* --- Balance UI --- */
+function updateBalanceUI(){ balanceEl.textContent = state.balance; balanceSmallEl.textContent = state.balance; saveBalance(state.balance); }
+
+/* --- Fake online & chat feed --- */
+let fakeOnline = 120 + Math.floor(Math.random()*80);
+function updateFakeOnline(){
+  // small random walk
+  fakeOnline += Math.floor(Math.random()*7 - 3);
+  if(fakeOnline < 5) fakeOnline = 5;
+  fakeOnlineEl.textContent = fakeOnline;
+}
+setInterval(updateFakeOnline, 5000);
+updateFakeOnline();
+
+const sampleWins = [
+  'AK-47 | Redline','AWP | Asiimov','Desert Eagle | Blaze','Glock-18 | Fade',
+  'AK-47 | Vulcan','M4A4 | Howl','AWP | Dragon Lore','Sport Gloves | Pandora\'s Box'
+];
+const sampleUsers = ['ivan_92','anna_pro','gamerMax','oleg_cs','vlad99','katya','pro_player','rus_bot'];
+function shortName(){ return sampleUsers[Math.floor(Math.random()*sampleUsers.length)]; }
+
+function pushFakeChat(text){
+  const el = document.createElement('div'); el.className = 'chatMessage';
+  const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `${shortName()} • ${new Date().toLocaleTimeString()}`;
+  const body = document.createElement('div'); body.textContent = text;
+  el.appendChild(meta); el.appendChild(body);
+  chatBox.appendChild(el);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+/* seed initial chat messages and periodic fake events */
+function seedChat(){
+  const initial = [
+    `${shortName()} открыл Dust II Case и получил AK-47 | Redline`,
+    `${shortName()} вывел 600 ₽`,
+    `${shortName()} открыл Glove Case и получил Sport Gloves | Pandora's Box`,
+    `${shortName()} продал предмет за 700 ₽`,
+    `${shortName()} открыл Inferno Case и получил AWP | Asiimov`
+  ];
+  initial.forEach((m,i)=> setTimeout(()=> pushFakeChat(m), 300*i));
+  // periodic messages
+  setInterval(()=> {
+    const r = Math.random();
+    if(r < 0.6){
+      const prize = sampleWins[Math.floor(Math.random()*sampleWins.length)];
+      pushFakeChat(`${shortName()} открыл кейс и получил ${prize}`);
+    } else {
+      const amount = 500 + Math.floor(Math.random()*201); // 500-700
+      pushFakeChat(`${shortName()} только что вывел ${amount} ₽`);
+    }
+  }, 8000 + Math.random()*8000);
+}
+seedChat();
+
+/* --- Init: apply hidden RTP adjustments and render --- */
 function applyHiddenRtp(targetRtp){
   WORK_CASES.forEach(c => {
     const items = c.items;
@@ -587,7 +729,6 @@ init();
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'b') bonusBtn.click();
   if(e.key === 'o') {
-    // open first visible case's roulette and open once
     const firstOpenBtn = document.querySelector('.case button[data-open]');
     if(firstOpenBtn) firstOpenBtn.click();
   }
