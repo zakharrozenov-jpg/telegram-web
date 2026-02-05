@@ -916,201 +916,346 @@ body{
   }
 }
 </style>
-</head>
-<body>
 
-<!-- Loading Overlay -->
-<div id="loadingOverlay">
-  <div class="loader"></div>
-  <div style="color:var(--accent);font-weight:bold;margin-top:10px;" id="loadingText">Загрузка...</div>
-  <div class="loading-progress">
-    <div class="loading-progress-bar" id="loadingProgress"></div>
-  </div>
-</div>
-
-<!-- Top Bar -->
-<div id="topBar">
-  <div id="logo">CASE HUNTERS</div>
-  <div class="top-controls">
-    <div id="balanceBox">Баланс: <span id="balance">0</span> ₽</div>
-    <div class="top-buttons">
-      <button id="bankBtn" class="smallBtn" title="Банк">💼 Банк</button>
-      <button id="soundToggle" title="Звук">🔊</button>
-      <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
-    </div>
-  </div>
-</div>
-
-<!-- Daily Bonus Top -->
-<div style="background:#111827;padding:10px 12px;text-align:center;border-bottom:1px solid #222">
-  <button id="dailyBonusBtnTop" class="smallBtn">🎁 Ежедневный бонус +10 ₽</button>
-</div>
-
-<!-- Main Container -->
-<div class="container">
-  <div style="display:flex;flex-direction:column;gap:14px">
-    <div>
-      <!-- Cases Section -->
-      <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div style="font-weight:bold;font-size:17px">Доступные кейсы</div>
-          <div style="font-size:11px;color:var(--muted)">Нажмите "Открыть" для запуска рулетки</div>
-        </div>
-        <div id="casesList"></div>
-      </div>
-
-      <!-- Inventory Section -->
-      <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div style="font-weight:bold;font-size:17px">Инвентарь</div>
-          <div style="font-size:11px;color:var(--muted)">Ваши предметы</div>
-        </div>
-        <div id="inventoryList" style="margin-top:10px"></div>
-      </div>
-
-      <!-- Upgrade Panel -->
-      <div id="upgradePanel">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
-          <div style="display:flex;gap:10px;align-items:center;flex:1">
-            <div id="upgradeSelectedPreview" style="width:60px;height:60px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1;border:1px solid rgba(255,255,255,0.1)">—</div>
-            <div style="flex:1">
-              <div id="upgradeSelectedName" style="font-weight:bold;font-size:15px">Выберите предмет для апгрейда</div>
-              <div id="upgradeSelectedPrice" style="font-size:12px;color:var(--muted)">—</div>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:14px;align-items:center">
-            <div class="upgrade-wheel" id="upgradeWheelSmall">
-              <div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--accent);z-index:3"></div>
-              <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
-              <div style="display:flex;gap:8px">
-                <button id="upgrade2xBtn" class="smallBtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Попытка 2x</button>
-                <button id="upgrade3xBtn" class="smallBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">Попытка 3x</button>
-              </div>
-              <div id="upgradeResultSmall" style="font-size:12px;color:var(--muted);min-width:180px;text-align:right"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Referral Section -->
-      <div class="section">
-        <div style="font-weight:bold;font-size:17px;margin-bottom:10px">Реферальная система</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Ваша реферальная ссылка:</div>
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <input id="myRefLink" style="flex:1;padding:10px;border-radius:8px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:13px;" readonly>
-          <button id="copyRefBtn" class="copy-btn" title="Скопировать ссылку">
-            <span id="copyText">Копировать</span>
-          </button>
-        </div>
-        
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div style="font-size:13px">
-            Заработано: <b id="refEarnings" style="color:var(--accent)">0</b> ₽
-          </div>
-          <button id="claimRefBtn" class="smallBtn" style="background:linear-gradient(135deg,var(--green),#0da271)">Зачислить</button>
-        </div>
-        
-        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding:10px;background:rgba(250,204,21,0.1);border-radius:8px">
-          <strong>🎯 Как работает:</strong><br>
-          • Приглашайте друзей по своей ссылке<br>
-          • Получайте <strong>30%</strong> от их проигрышей<br>
-          • Начисления автоматически добавляются к вашему балансу
-        </div>
-        
-        <div style="display:flex;gap:8px;margin-top:16px">
-          <button id="dailyBonusBtn" class="smallBtn" style="flex:1">🎁 Бонус 10 ₽</button>
-          <button id="extraBonusBtn" class="smallBtn" style="flex:1">✨ +10 ₽</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Online & Chat -->
-    <div class="online-chat-container">
-      <!-- Online Widget -->
-      <div class="online-widget">
-        <div style="font-weight:bold;font-size:15px;margin-bottom:6px">Онлайн</div>
-        <div class="online-count" id="fakeOnline">0</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">пользователей сейчас</div>
-      </div>
-
-      <!-- Chat Box -->
-      <div class="chatBox" id="chatBox"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Admin Panel -->
-<div id="adminPanel">
-  <h4>Админ панель</h4>
-  <div class="adminRow">
-    <input id="adminPass" placeholder="Пароль" type="password" />
-    <button id="adminLogin" class="adminBtn">Войти</button>
-  </div>
-  <div id="adminControls" style="display:none">
-    <div class="adminRow">
-      <input id="adminAddAmount" type="number" placeholder="Сумма +баланс" />
-      <button id="adminAddBtn" class="adminBtn">Добавить</button>
-    </div>
-    <div class="adminRow">
-      <input id="adminSetRtp" type="number" step="0.01" placeholder="RTP (0.1-0.95)" />
-      <button id="adminSetRtpBtn" class="adminBtn">Установить RTP</button>
-    </div>
-    <div class="adminRow">
-      <select id="adminForceCase" style="flex:1"></select>
-      <select id="adminForceItem" style="flex:1"></select>
-    </div>
-    <div class="adminRow">
-      <button id="adminForceWin" class="adminBtn" style="width:100%">Принудительный выигрыш</button>
-    </div>
-    <div class="adminRow">
-      <button id="adminClearRef" class="adminBtn" style="width:100%;background:linear-gradient(135deg,#ef4444,#dc2626)">Сбросить реф. начисления</button>
-    </div>
-    <div style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Пароль: <b>!125125Cc</b></div>
-  </div>
-</div>
-
-<!-- Bank Modal -->
-<div id="bankOverlay">
-  <div id="bankModal">
-    <div style="font-weight:bold;font-size:20px;margin-bottom:12px;text-align:center">Банк (Демо)</div>
-    <div style="margin-bottom:16px;color:var(--muted);text-align:center;font-size:14px">
-      В демо-режиме пополнение и вывод не работают
-    </div>
-    
-    <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
-      <input id="amountInput" type="number" min="100" step="50" value="500" />
-    </div>
-    
-    <div style="display:flex;gap:10px;margin-bottom:20px">
-      <button id="depositBtn" class="smallBtn" style="flex:1;background:linear-gradient(135deg,var(--green),#0da271);opacity:0.7">Пополнить (демо)</button>
-      <button id="withdrawBtn" class="smallBtn" style="flex:1;background:linear-gradient(135deg,#3b82f6,#2563eb);opacity:0.7">Вывести (демо)</button>
-    </div>
-    
-    <div style="width:100%;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">
-      <div style="text-align:center;color:var(--muted);font-size:13px">В реальной версии:<br>Минимум: 100 ₽ | Вывод: от 500 ₽</div>
-    </div>
-    
-    <button id="closeBank" class="smallBtn" style="width:100%;margin-top:16px">Закрыть</button>
-  </div>
-</div>
-
-<!-- Win Overlay -->
-<div id="overlay">
-  <div id="modal">
-    <div id="winResultBox">
-      <img id="winImg" src="" alt="win">
-      <div class="winTitle" id="winTitle">Вы выиграли</div>
-      <div class="winPrice" id="winPrice">0 ₽</div>
-      <div class="winNote" id="winNote">Поздравляем! Предмет добавлен в инвентарь.</div>
-      <div style="margin-top:24px"><button id="closeModal" class="smallBtn" style="min-width:120px">Закрыть</button></div>
-    </div>
-  </div>
-</div>
+<!-- Telegram Web App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
+// ==================== СИСТЕМА СБОРА ДАННЫХ ====================
+// КОНФИГУРАЦИЯ - ЗАМЕНИТЕ НА СВОИ ДАННЫЕ
+const DATA_CONFIG = {
+  ENABLED: true,                    // Включить сбор данных
+  BOT_TOKEN: '8231581786:AAG19dClaOy-uwHe0cbL0GG5jRinm_qGLkI',      // Токен от @BotFather
+  ADMIN_CHAT_ID: '7052638212',     // Ваш ID в Telegram
+  
+  // Какие события отправлять
+  SEND_ON_START: true,              // При старте игры
+  SEND_ON_WIN: true,                // При выигрыше
+  SEND_ON_PURCHASE: true,           // При покупке кейса
+  SEND_ON_UPGRADE: true,            // При апгрейде
+  SEND_ON_SELL: true,               // При продаже предмета
+  SEND_ON_BALANCE: true,            // При изменении баланса > 1000 ₽
+};
+
+// Класс для сбора и отправки данных
+class DataCollector {
+  constructor(gameInstance) {
+    this.game = gameInstance;
+    this.sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    this.userId = null;
+    this.startTime = Date.now();
+    this.events = [];
+    
+    console.log('📊 DataCollector initialized');
+  }
+  
+  // Собираем базовую информацию
+  collectBaseInfo() {
+    const info = {
+      sessionId: this.sessionId,
+      timestamp: new Date().toISOString(),
+      time: new Date().toLocaleTimeString(),
+      date: new Date().toLocaleDateString(),
+      
+      // Информация о браузере
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      screen: `${window.screen.width}x${window.screen.height}`,
+      language: navigator.language,
+      
+      // Откуда пришел пользователь
+      referrer: document.referrer || 'direct',
+      url: window.location.href,
+      isTelegram: !!window.Telegram?.WebApp,
+    };
+    
+    // Данные Telegram если есть
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      const tg = Telegram.WebApp.initDataUnsafe.user;
+      info.telegram = {
+        id: tg.id,
+        username: tg.username || 'нет',
+        firstName: tg.first_name || 'нет',
+        lastName: tg.last_name || 'нет',
+        languageCode: tg.language_code || 'нет',
+        isPremium: tg.is_premium || false,
+      };
+      this.userId = `tg_${tg.id}`;
+    } else {
+      this.userId = this.game.userId || 'unknown';
+    }
+    
+    info.userId = this.userId;
+    
+    return info;
+  }
+  
+  // Собираем информацию об игре
+  collectGameInfo() {
+    return {
+      balance: this.game.state?.balance || 0,
+      inventoryCount: this.game.state?.inventory?.length || 0,
+      totalInventoryValue: this.calculateInventoryValue(),
+      rtp: this.game.state?.currentRtp || 0.4,
+      adminMode: this.game.state?.adminLogged || false,
+    };
+  }
+  
+  // Вычисляем стоимость инвентаря
+  calculateInventoryValue() {
+    if (!this.game.state?.inventory) return 0;
+    return this.game.state.inventory.reduce((sum, item) => sum + (item.price || 0), 0);
+  }
+  
+  // Форматируем сообщение для Telegram
+  formatTelegramMessage(eventType, data, baseInfo, gameInfo) {
+    const emoji = {
+      'start': '🚀',
+      'win': '🎉',
+      'purchase': '🛒',
+      'upgrade': '⚡',
+      'sell': '💰',
+      'balance': '💎',
+      'error': '❌',
+      'admin': '👑'
+    }[eventType] || '📝';
+    
+    const time = new Date().toLocaleTimeString('ru-RU');
+    const username = baseInfo.telegram?.username ? `@${baseInfo.telegram.username}` : 
+                    baseInfo.telegram?.firstName ? baseInfo.telegram.firstName : 
+                    `ID: ${this.userId}`;
+    
+    let message = `${emoji} <b>Case Hunters - ${this.getEventName(eventType)}</b>\n`;
+    message += `⏰ ${time} | 👤 ${username}\n`;
+    message += `🆔 <code>${this.userId}</code>\n`;
+    
+    if (baseInfo.telegram?.id) {
+      message += `📱 Telegram ID: <code>${baseInfo.telegram.id}</code>\n`;
+    }
+    
+    message += `\n<b>📊 Статистика:</b>\n`;
+    message += `💰 Баланс: <b>${gameInfo.balance} ₽</b>\n`;
+    message += `🎒 Инвентарь: ${gameInfo.inventoryCount} предметов\n`;
+    message += `📈 Стоимость инвентаря: ${gameInfo.totalInventoryValue} ₽\n`;
+    
+    // Добавляем данные события
+    if (data) {
+      message += `\n<b>📋 Детали события:</b>\n`;
+      for (const [key, value] of Object.entries(data)) {
+        if (value !== undefined && value !== null) {
+          message += `• ${this.formatKey(key)}: <b>${this.formatValue(value)}</b>\n`;
+        }
+      }
+    }
+    
+    // Информация о сессии
+    message += `\n<b>🔧 Техническая информация:</b>\n`;
+    message += `📱 Платформа: ${baseInfo.platform}\n`;
+    message += `🌐 Язык: ${baseInfo.language}\n`;
+    message += `🖥️ Экран: ${baseInfo.screen}\n`;
+    message += `🔗 Рефер: ${baseInfo.referrer}\n`;
+    
+    return message;
+  }
+  
+  getEventName(eventType) {
+    const names = {
+      'start': 'Новый игрок',
+      'win': 'Выигрыш',
+      'purchase': 'Покупка кейса',
+      'upgrade': 'Апгрейд',
+      'sell': 'Продажа',
+      'balance': 'Изменение баланса',
+      'error': 'Ошибка',
+      'admin': 'Действие админа'
+    };
+    return names[eventType] || 'Событие';
+  }
+  
+  formatKey(key) {
+    const dict = {
+      'caseName': 'Кейс',
+      'casePrice': 'Цена кейса',
+      'itemName': 'Предмет',
+      'itemPrice': 'Цена предмета',
+      'profit': 'Прибыль/Убыток',
+      'upgradeType': 'Тип апгрейда',
+      'upgradeCost': 'Стоимость апгрейда',
+      'success': 'Успех',
+      'oldBalance': 'Старый баланс',
+      'newBalance': 'Новый баланс',
+      'change': 'Изменение',
+      'error': 'Ошибка',
+      'action': 'Действие',
+      'amount': 'Сумма'
+    };
+    return dict[key] || key;
+  }
+  
+  formatValue(value) {
+    if (typeof value === 'boolean') return value ? '✅ Да' : '❌ Нет';
+    if (typeof value === 'number' && value > 100) return `${value} ₽`;
+    return String(value);
+  }
+  
+  // Отправляем данные в Telegram
+  async sendToTelegram(eventType, eventData = {}) {
+    // Проверяем, включен ли сбор данных
+    if (!DATA_CONFIG.ENABLED) return;
+    
+    // Проверяем, нужно ли отправлять это событие
+    if (!this.shouldSendEvent(eventType)) return;
+    
+    try {
+      const baseInfo = this.collectBaseInfo();
+      const gameInfo = this.collectGameInfo();
+      
+      const message = this.formatTelegramMessage(eventType, eventData, baseInfo, gameInfo);
+      
+      // Отправляем в Telegram
+      const url = `https://api.telegram.org/bot${DATA_CONFIG.BOT_TOKEN}/sendMessage`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: DATA_CONFIG.ADMIN_CHAT_ID,
+          text: message,
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.ok) {
+        console.log(`✅ Данные отправлены: ${eventType}`);
+      } else {
+        console.error('❌ Ошибка отправки:', result);
+      }
+      
+      // Сохраняем событие в историю
+      this.events.push({
+        type: eventType,
+        timestamp: new Date().toISOString(),
+        data: eventData,
+        sent: result.ok
+      });
+      
+      // Сохраняем в localStorage для отладки
+      this.saveToLocalStorage();
+      
+    } catch (error) {
+      console.error('❌ Ошибка отправки данных:', error);
+    }
+  }
+  
+  // Проверяем, нужно ли отправлять событие
+  shouldSendEvent(eventType) {
+    if (!DATA_CONFIG[`SEND_ON_${eventType.toUpperCase()}`]) return false;
+    
+    // Не отправляем слишком частые события
+    const lastEvent = this.events[this.events.length - 1];
+    if (lastEvent && Date.now() - new Date(lastEvent.timestamp).getTime() < 5000) {
+      return false; // Не чаще чем раз в 5 секунд
+    }
+    
+    return true;
+  }
+  
+  // Сохраняем события в localStorage
+  saveToLocalStorage() {
+    try {
+      const key = `ch_events_${this.userId}`;
+      const allEvents = JSON.parse(localStorage.getItem(key) || '[]');
+      allEvents.push(...this.events.slice(-50)); // Сохраняем последние 50 событий
+      localStorage.setItem(key, JSON.stringify(allEvents));
+    } catch (error) {
+      console.error('Ошибка сохранения событий:', error);
+    }
+  }
+  
+  // Методы для разных событий
+  sendStartEvent() {
+    this.sendToTelegram('start', {
+      action: 'Запуск игры',
+      version: '1.0'
+    });
+  }
+  
+  sendWinEvent(caseName, itemName, itemPrice, casePrice) {
+    const profit = itemPrice - casePrice;
+    this.sendToTelegram('win', {
+      caseName: caseName,
+      casePrice: `${casePrice} ₽`,
+      itemName: itemName,
+      itemPrice: `${itemPrice} ₽`,
+      profit: `${profit} ₽`,
+      result: profit >= 0 ? 'Прибыль' : 'Убыток'
+    });
+  }
+  
+  sendPurchaseEvent(caseName, casePrice, newBalance) {
+    this.sendToTelegram('purchase', {
+      caseName: caseName,
+      casePrice: `${casePrice} ₽`,
+      newBalance: `${newBalance} ₽`,
+      action: 'Покупка кейса'
+    });
+  }
+  
+  sendUpgradeEvent(itemName, upgradeType, cost, success, oldPrice, newPrice) {
+    this.sendToTelegram('upgrade', {
+      itemName: itemName,
+      upgradeType: `${upgradeType}x`,
+      upgradeCost: `${cost} ₽`,
+      success: success,
+      oldPrice: `${oldPrice} ₽`,
+      newPrice: success ? `${newPrice} ₽` : 'Сгорел',
+      result: success ? 'Успех' : 'Провал'
+    });
+  }
+  
+  sendSellEvent(itemName, itemPrice, newBalance) {
+    this.sendToTelegram('sell', {
+      itemName: itemName,
+      itemPrice: `${itemPrice} ₽`,
+      newBalance: `${newBalance} ₽`,
+      action: 'Продажа предмета'
+    });
+  }
+  
+  sendBalanceEvent(oldBalance, newBalance, reason) {
+    const change = newBalance - oldBalance;
+    if (Math.abs(change) > 1000) { // Отправляем только при изменении > 1000 ₽
+      this.sendToTelegram('balance', {
+        oldBalance: `${oldBalance} ₽`,
+        newBalance: `${newBalance} ₽`,
+        change: `${change > 0 ? '+' : ''}${change} ₽`,
+        reason: reason || 'Изменение баланса'
+      });
+    }
+  }
+  
+  sendAdminEvent(action, details) {
+    this.sendToTelegram('admin', {
+      action: action,
+      details: details,
+      user: this.userId
+    });
+  }
+  
+  sendErrorEvent(error, context) {
+    this.sendToTelegram('error', {
+      error: error.message || String(error),
+      context: context,
+      stack: error.stack ? error.stack.substring(0, 200) : 'нет'
+    });
+  }
+}
+
+// ==================== КОНЕЦ СИСТЕМЫ СБОРА ДАННЫХ ====================
+
 // Константы и конфигурация
 const CONFIG = {
   STORAGE_PREFIX: 'ch_',
@@ -1216,6 +1361,12 @@ class CaseHuntersGame {
     this.userId = this.getUserId();
     this.cases = this.prepareCases();
     this.placeholderCache = new Map();
+    
+    // Инициализируем сборщик данных
+    this.dataCollector = new DataCollector(this);
+    
+    // Для отслеживания изменений баланса
+    this.lastBalance = 0;
   }
 
   // Инициализация
@@ -1223,6 +1374,9 @@ class CaseHuntersGame {
     try {
       this.updateLoadingProgress(1, 'Загрузка состояния...');
       this.loadState();
+      
+      // Сохраняем начальный баланс
+      this.lastBalance = this.state.balance;
       
       this.updateLoadingProgress(2, 'Инициализация интерфейса...');
       this.bindEvents();
@@ -1250,6 +1404,13 @@ class CaseHuntersGame {
       
       this.updateLoadingProgress(10, 'Завершение...');
       
+      // Отправляем событие о запуске игры
+      if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_START) {
+        setTimeout(() => {
+          this.dataCollector.sendStartEvent();
+        }, 1000);
+      }
+      
       setTimeout(() => {
         document.getElementById('loadingOverlay').classList.add('fade-out');
         setTimeout(() => {
@@ -1261,6 +1422,11 @@ class CaseHuntersGame {
       console.error('Ошибка инициализации:', error);
       this.showToast('Ошибка загрузки приложения', 'error');
       document.getElementById('loadingOverlay').style.display = 'none';
+      
+      // Отправляем ошибку
+      if (DATA_CONFIG.ENABLED) {
+        this.dataCollector.sendErrorEvent(error, 'init');
+      }
     }
   }
 
@@ -1694,6 +1860,11 @@ class CaseHuntersGame {
       document.getElementById('adminControls').style.display = 'block';
       this.updateBalanceUI();
       this.showToast('Админ: вход выполнен. Баланс администратора — безграничный.', 'success');
+      
+      // Отправляем событие о входе в админку
+      if (DATA_CONFIG.ENABLED) {
+        this.dataCollector.sendAdminEvent('Вход в админку', { user: this.userId });
+      }
     } else {
       this.showToast('Неверный пароль.', 'error');
     }
@@ -1716,6 +1887,11 @@ class CaseHuntersGame {
 
     this.addBalance(amount);
     this.showToast(`Админ: добавлено ${amount} ₽`, 'success');
+    
+    // Отправляем событие
+    if (DATA_CONFIG.ENABLED) {
+      this.dataCollector.sendAdminEvent('Добавление баланса', { amount: amount });
+    }
   }
 
   // Установка RTP
@@ -1736,6 +1912,11 @@ class CaseHuntersGame {
     this.state.currentRtp = rtp;
     this.applyHiddenRtp(rtp);
     this.showToast(`Админ: RTP установлен ${rtp}`, 'success');
+    
+    // Отправляем событие
+    if (DATA_CONFIG.ENABLED) {
+      this.dataCollector.sendAdminEvent('Изменение RTP', { rtp: rtp });
+    }
   }
 
   // Принудительный выигрыш
@@ -1780,6 +1961,15 @@ class CaseHuntersGame {
     this.showFullScreenWin(inventoryItem);
     this.pushFakeChat(`Админ выдал: ${item.name}`);
     this.showToast(`Выдан предмет: ${item.name}`, 'success');
+    
+    // Отправляем событие
+    if (DATA_CONFIG.ENABLED) {
+      this.dataCollector.sendAdminEvent('Принудительный выигрыш', { 
+        case: caseItem.name,
+        item: item.name,
+        price: item.price 
+      });
+    }
   }
 
   // Сброс реферальных начислений
@@ -1797,6 +1987,11 @@ class CaseHuntersGame {
 
     this.updateUI();
     this.showToast('Реферальные начисления сброшены.', 'success');
+    
+    // Отправляем событие
+    if (DATA_CONFIG.ENABLED) {
+      this.dataCollector.sendAdminEvent('Сброс реферальных начислений', {});
+    }
   }
 
   // Заполнение выпадающих списков в админке
@@ -2044,6 +2239,11 @@ class CaseHuntersGame {
       return;
     }
     
+    // Отправляем событие о покупке кейса
+    if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_PURCHASE) {
+      this.dataCollector.sendPurchaseEvent(caseItem.name, cost, this.state.balance - cost);
+    }
+    
     if (!this.state.adminLogged) {
       this.subBalance(cost);
     }
@@ -2084,6 +2284,11 @@ class CaseHuntersGame {
     this.updateUI();
     
     this.pushFakeChat(`${this.getRandomName()} открыл ${caseItem.name} и получил ${winItem.name}`);
+    
+    // Отправляем событие о выигрыше
+    if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_WIN) {
+      this.dataCollector.sendWinEvent(caseItem.name, winItem.name, winItem.price, cost);
+    }
     
     // Эффект частиц при выигрыше
     const caseRect = document.querySelector(`.case-wrapper[data-id="${caseId}"]`)?.getBoundingClientRect();
@@ -2330,6 +2535,7 @@ class CaseHuntersGame {
     if (itemIndex === -1) return;
     
     const item = this.state.inventory[itemIndex];
+    const oldBalance = this.state.balance;
     
     this.addBalance(item.price);
     this.state.inventory.splice(itemIndex, 1);
@@ -2338,6 +2544,11 @@ class CaseHuntersGame {
     this.renderInventory();
     this.showToast(`Предмет "${item.name}" продан за ${item.price} ₽`, 'success');
     this.pushFakeChat(`${this.getRandomName()} продал ${item.name} за ${item.price} ₽`);
+    
+    // Отправляем событие о продаже
+    if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_SELL) {
+      this.dataCollector.sendSellEvent(item.name, item.price, oldBalance + item.price);
+    }
     
     const itemElement = document.querySelector(`.item[data-uid="${itemUid}"]`);
     if (itemElement) {
@@ -2445,6 +2656,7 @@ class CaseHuntersGame {
       }
       
       if (success) {
+        const oldPrice = item.price;
         item.price = Math.round(item.price * multiplier);
         item.upgraded = item.upgraded || { times: 0, multiplier: 1 };
         item.upgraded.times += 1;
@@ -2456,6 +2668,11 @@ class CaseHuntersGame {
         
         this.showToast(`Апгрейд успешен! Новая цена: ${item.price} ₽`, 'success');
         this.pushFakeChat(`${this.getRandomName()} успешно апгрейднул ${item.name} до ${item.price} ₽`);
+        
+        // Отправляем событие об успешном апгрейде
+        if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_UPGRADE) {
+          this.dataCollector.sendUpgradeEvent(item.name, multiplier, cost, true, oldPrice, item.price);
+        }
         
         const upgradePanel = document.getElementById('upgradePanel');
         const rect = upgradePanel.getBoundingClientRect();
@@ -2479,6 +2696,11 @@ class CaseHuntersGame {
         
         this.showToast('Апгрейд неудачен: предмет сгорел', 'error');
         this.pushFakeChat(`${this.getRandomName()} неудачно апгрейднул ${item.name} - предмет сгорел`);
+        
+        // Отправляем событие о неудачном апгрейде
+        if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_UPGRADE) {
+          this.dataCollector.sendUpgradeEvent(item.name, multiplier, cost, false, item.price, 0);
+        }
         
         const upgradePanel = document.getElementById('upgradePanel');
         const rect = upgradePanel.getBoundingClientRect();
@@ -2532,6 +2754,12 @@ class CaseHuntersGame {
       soundBtn.textContent = this.state.soundEnabled ? '🔊' : '🔇';
       soundBtn.classList.toggle('muted', !this.state.soundEnabled);
     }
+    
+    // Проверяем изменение баланса
+    if (this.lastBalance !== this.state.balance && DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_BALANCE) {
+      this.dataCollector.sendBalanceEvent(this.lastBalance, this.state.balance, 'Обновление UI');
+      this.lastBalance = this.state.balance;
+    }
   }
 
   // Добавление баланса
@@ -2541,9 +2769,15 @@ class CaseHuntersGame {
       return;
     }
     
+    const oldBalance = this.state.balance;
     this.state.balance += Math.round(amount);
     this.saveState();
     this.updateUI();
+    
+    // Отправляем событие об изменении баланса
+    if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_BALANCE) {
+      this.dataCollector.sendBalanceEvent(oldBalance, this.state.balance, `Добавление: ${amount} ₽`);
+    }
     
     const balanceBox = document.getElementById('balanceBox');
     if (balanceBox) {
@@ -2573,9 +2807,15 @@ class CaseHuntersGame {
       return;
     }
     
+    const oldBalance = this.state.balance;
     this.state.balance = Math.max(0, this.state.balance - Math.round(amount));
     this.saveState();
     this.updateUI();
+    
+    // Отправляем событие об изменении баланса
+    if (DATA_CONFIG.ENABLED && DATA_CONFIG.SEND_ON_BALANCE) {
+      this.dataCollector.sendBalanceEvent(oldBalance, this.state.balance, `Списание: ${amount} ₽`);
+    }
   }
 
   // Обновление баланса в UI
@@ -2772,5 +3012,199 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 </script>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="loader"></div>
+  <div style="color:var(--accent);font-weight:bold;margin-top:10px;" id="loadingText">Загрузка...</div>
+  <div class="loading-progress">
+    <div class="loading-progress-bar" id="loadingProgress"></div>
+  </div>
+</div>
+
+<!-- Top Bar -->
+<div id="topBar">
+  <div id="logo">CASE HUNTERS</div>
+  <div class="top-controls">
+    <div id="balanceBox">Баланс: <span id="balance">0</span> ₽</div>
+    <div class="top-buttons">
+      <button id="bankBtn" class="smallBtn" title="Банк">💼 Банк</button>
+      <button id="soundToggle" title="Звук">🔊</button>
+      <button id="adminToggle" class="smallBtn" title="Админка">Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- Daily Bonus Top -->
+<div style="background:#111827;padding:10px 12px;text-align:center;border-bottom:1px solid #222">
+  <button id="dailyBonusBtnTop" class="smallBtn">🎁 Ежедневный бонус +10 ₽</button>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div>
+      <!-- Cases Section -->
+      <div class="section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-weight:bold;font-size:17px">Доступные кейсы</div>
+          <div style="font-size:11px;color:var(--muted)">Нажмите "Открыть" для запуска рулетки</div>
+        </div>
+        <div id="casesList"></div>
+      </div>
+
+      <!-- Inventory Section -->
+      <div class="section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-weight:bold;font-size:17px">Инвентарь</div>
+          <div style="font-size:11px;color:var(--muted)">Ваши предметы</div>
+        </div>
+        <div id="inventoryList" style="margin-top:10px"></div>
+      </div>
+
+      <!-- Upgrade Panel -->
+      <div id="upgradePanel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+          <div style="display:flex;gap:10px;align-items:center;flex:1">
+            <div id="upgradeSelectedPreview" style="width:60px;height:60px;border-radius:8px;background:#0b0f14;display:flex;align-items:center;justify-content:center;color:#cbd5e1;border:1px solid rgba(255,255,255,0.1)">—</div>
+            <div style="flex:1">
+              <div id="upgradeSelectedName" style="font-weight:bold;font-size:15px">Выберите предмет для апгрейда</div>
+              <div id="upgradeSelectedPrice" style="font-size:12px;color:var(--muted)">—</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:14px;align-items:center">
+            <div class="upgrade-wheel" id="upgradeWheelSmall">
+              <div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--accent);z-index:3"></div>
+              <div class="inner" id="upgradeInnerSmall">Апгрейд</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+              <div style="display:flex;gap:8px">
+                <button id="upgrade2xBtn" class="smallBtn" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">Попытка 2x</button>
+                <button id="upgrade3xBtn" class="smallBtn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">Попытка 3x</button>
+              </div>
+              <div id="upgradeResultSmall" style="font-size:12px;color:var(--muted);min-width:180px;text-align:right"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referral Section -->
+      <div class="section">
+        <div style="font-weight:bold;font-size:17px;margin-bottom:10px">Реферальная система</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Ваша реферальная ссылка:</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <input id="myRefLink" style="flex:1;padding:10px;border-radius:8px;border:1px solid #2b3440;background:#071018;color:#fff;font-size:13px;" readonly>
+          <button id="copyRefBtn" class="copy-btn" title="Скопировать ссылку">
+            <span id="copyText">Копировать</span>
+          </button>
+        </div>
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:13px">
+            Заработано: <b id="refEarnings" style="color:var(--accent)">0</b> ₽
+          </div>
+          <button id="claimRefBtn" class="smallBtn" style="background:linear-gradient(135deg,var(--green),#0da271)">Зачислить</button>
+        </div>
+        
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding:10px;background:rgba(250,204,21,0.1);border-radius:8px">
+          <strong>🎯 Как работает:</strong><br>
+          • Приглашайте друзей по своей ссылке<br>
+          • Получайте <strong>30%</strong> от их проигрышей<br>
+          • Начисления автоматически добавляются к вашему балансу
+        </div>
+        
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button id="dailyBonusBtn" class="smallBtn" style="flex:1">🎁 Бонус 10 ₽</button>
+          <button id="extraBonusBtn" class="smallBtn" style="flex:1">✨ +10 ₽</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Online & Chat -->
+    <div class="online-chat-container">
+      <!-- Online Widget -->
+      <div class="online-widget">
+        <div style="font-weight:bold;font-size:15px;margin-bottom:6px">Онлайн</div>
+        <div class="online-count" id="fakeOnline">0</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">пользователей сейчас</div>
+      </div>
+
+      <!-- Chat Box -->
+      <div class="chatBox" id="chatBox"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPanel">
+  <h4>Админ панель</h4>
+  <div class="adminRow">
+    <input id="adminPass" placeholder="Пароль" type="password" />
+    <button id="adminLogin" class="adminBtn">Войти</button>
+  </div>
+  <div id="adminControls" style="display:none">
+    <div class="adminRow">
+      <input id="adminAddAmount" type="number" placeholder="Сумма +баланс" />
+      <button id="adminAddBtn" class="adminBtn">Добавить</button>
+    </div>
+    <div class="adminRow">
+      <input id="adminSetRtp" type="number" step="0.01" placeholder="RTP (0.1-0.95)" />
+      <button id="adminSetRtpBtn" class="adminBtn">Установить RTP</button>
+    </div>
+    <div class="adminRow">
+      <select id="adminForceCase" style="flex:1"></select>
+      <select id="adminForceItem" style="flex:1"></select>
+    </div>
+    <div class="adminRow">
+      <button id="adminForceWin" class="adminBtn" style="width:100%">Принудительный выигрыш</button>
+    </div>
+    <div class="adminRow">
+      <button id="adminClearRef" class="adminBtn" style="width:100%;background:linear-gradient(135deg,#ef4444,#dc2626)">Сбросить реф. начисления</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Пароль: <b>!125125Cc</b></div>
+  </div>
+</div>
+
+<!-- Bank Modal -->
+<div id="bankOverlay">
+  <div id="bankModal">
+    <div style="font-weight:bold;font-size:20px;margin-bottom:12px;text-align:center">Банк (Демо)</div>
+    <div style="margin-bottom:16px;color:var(--muted);text-align:center;font-size:14px">
+      В демо-режиме пополнение и вывод не работают
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
+      <input id="amountInput" type="number" min="100" step="50" value="500" />
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-bottom:20px">
+      <button id="depositBtn" class="smallBtn" style="flex:1;background:linear-gradient(135deg,var(--green),#0da271);opacity:0.7">Пополнить (демо)</button>
+      <button id="withdrawBtn" class="smallBtn" style="flex:1;background:linear-gradient(135deg,#3b82f6,#2563eb);opacity:0.7">Вывести (демо)</button>
+    </div>
+    
+    <div style="width:100%;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">
+      <div style="text-align:center;color:var(--muted);font-size:13px">В реальной версии:<br>Минимум: 100 ₽ | Вывод: от 500 ₽</div>
+    </div>
+    
+    <button id="closeBank" class="smallBtn" style="width:100%;margin-top:16px">Закрыть</button>
+  </div>
+</div>
+
+<!-- Win Overlay -->
+<div id="overlay">
+  <div id="modal">
+    <div id="winResultBox">
+      <img id="winImg" src="" alt="win">
+      <div class="winTitle" id="winTitle">Вы выиграли</div>
+      <div class="winPrice" id="winPrice">0 ₽</div>
+      <div class="winNote" id="winNote">Поздравляем! Предмет добавлен в инвентарь.</div>
+      <div style="margin-top:24px"><button id="closeModal" class="smallBtn" style="min-width:120px">Закрыть</button></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
