@@ -2187,7 +2187,7 @@ class CaseHuntersGame {
     roulette.style.display = roulette.style.display === 'none' ? 'block' : 'none';
   }
 
-  // Открытие кейса с динамичной анимацией - ОРИГИНАЛЬНЫЙ
+  // Открытие кейса с динамичной анимацией - ИСПРАВЛЕННАЯ ВЕРСИЯ
   async openCaseWithDynamicSpin(caseId, trackEl) {
     const caseItem = this.cases.find(c => c.id === caseId);
     if (!caseItem) return;
@@ -2220,7 +2220,7 @@ class CaseHuntersGame {
       roulette.style.display = 'block';
     }
     
-    // УЛУЧШЕННАЯ АНИМАЦИЯ
+    // УЛУЧШЕННАЯ АНИМАЦИЯ - ИСПРАВЛЕНО
     try {
       await this.animateRouletteEnhanced(caseId, winItem, trackEl);
       
@@ -2288,7 +2288,7 @@ class CaseHuntersGame {
     }
   }
 
-  // УЛУЧШЕННАЯ АНИМАЦИЯ РУЛЕТКИ - ОРИГИНАЛЬНЫЙ
+  // УЛУЧШЕННАЯ АНИМАЦИЯ РУЛЕТКИ - ИСПРАВЛЕННАЯ ВЕРСИЯ
   animateRouletteEnhanced(caseId, winItem, trackEl) {
     return new Promise((resolve) => {
       if (!trackEl) {
@@ -2302,12 +2302,14 @@ class CaseHuntersGame {
         return;
       }
       
+      // Находим все элементы с выигрышным предметом
       const winningElements = items.filter(item => item.dataset.itemId === winItem.id);
       if (winningElements.length === 0) {
         resolve();
         return;
       }
       
+      // Выбираем случайный выигрышный элемент из середины
       const middleIndex = Math.floor(winningElements.length / 2);
       const targetElement = winningElements[middleIndex];
       
@@ -2321,29 +2323,32 @@ class CaseHuntersGame {
       const container = trackEl.parentElement;
       const containerWidth = container.clientWidth;
       
+      // Вычисляем позицию для остановки
       const centerOffset = Math.floor(containerWidth / 2);
       const targetPosition = targetIndex * itemWidth + itemWidth / 2;
       const finalTranslate = centerOffset - targetPosition;
       
-      // 1. РЕЗКИЙ СТАРТ
+      // Сбрасываем выделение
+      items.forEach(item => item.classList.remove('active'));
+      
+      // ЭТАП 1: РЕЗКИЙ СТАРТ
       trackEl.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.4, 1)';
       const fastTranslate = finalTranslate * 0.15;
       trackEl.style.transform = `translateX(${fastTranslate}px)`;
       
       setTimeout(() => {
-        // 2. СРЕДНЯЯ СКОРОСТЬ
+        // ЭТАП 2: СРЕДНЯЯ СКОРОСТЬ
         trackEl.style.transition = 'transform 2.2s cubic-bezier(0.3, 0.7, 0.4, 1)';
         const midTranslate = finalTranslate * 0.6;
         trackEl.style.transform = `translateX(${midTranslate}px)`;
         
         setTimeout(() => {
-          // 3. ПЛАВНАЯ ОСТАНОВКА
+          // ЭТАП 3: ПЛАВНАЯ ОСТАНОВКА
           trackEl.style.transition = 'transform 2.5s cubic-bezier(0.1, 0.2, 0.1, 1)';
           trackEl.style.transform = `translateX(${finalTranslate}px)`;
           
           setTimeout(() => {
-            items.forEach(item => item.classList.remove('active'));
-            
+            // Находим элемент, ближайший к центру
             let closestToCenter = null;
             let minDistance = Infinity;
             
@@ -2361,6 +2366,7 @@ class CaseHuntersGame {
             if (closestToCenter) {
               closestToCenter.classList.add('active');
               
+              // Эффект частиц
               const rect = closestToCenter.getBoundingClientRect();
               this.createParticles(
                 rect.left + rect.width / 2,
@@ -2460,40 +2466,75 @@ class CaseHuntersGame {
       itemElement.className = 'item';
       itemElement.dataset.uid = item.uid;
       
-      itemElement.innerHTML = `
-        <div class="left">
-          <img src="${item.img}" alt="${item.name}" class="weapon-img">
-          <div class="meta">
-            <div class="title">${item.name}${item.upgraded ? ` • ${item.upgraded.multiplier}x` : ''}</div>
-            <div class="sub">${item.price} ₽</div>
-          </div>
-        </div>
-        <div>
-          <button class="smallBtn" data-sell="${item.uid}" style="margin-bottom:8px">Продать</button>
-          <button class="smallBtn" data-upgrade="${item.uid}">Апгрейд</button>
-        </div>
-      `;
+      // Левая часть с изображением и названием
+      const leftDiv = document.createElement('div');
+      leftDiv.style.display = 'flex';
+      leftDiv.style.gap = '12px';
+      leftDiv.style.alignItems = 'center';
+      leftDiv.style.flex = '1';
+      
+      const img = document.createElement('img');
+      img.src = item.img;
+      img.alt = item.name;
+      img.className = 'weapon-img';
+      
+      const metaDiv = document.createElement('div');
+      metaDiv.style.flex = '1';
+      
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'title';
+      titleDiv.style.fontWeight = 'bold';
+      titleDiv.style.fontSize = '14px';
+      titleDiv.style.marginBottom = '4px';
+      titleDiv.textContent = item.name + (item.upgraded ? ` • ${item.upgraded.multiplier}x` : '');
+      
+      const subDiv = document.createElement('div');
+      subDiv.className = 'sub';
+      subDiv.style.fontSize = '12px';
+      subDiv.style.color = 'var(--muted)';
+      subDiv.textContent = `${item.price} ₽`;
+      
+      metaDiv.appendChild(titleDiv);
+      metaDiv.appendChild(subDiv);
+      
+      leftDiv.appendChild(img);
+      leftDiv.appendChild(metaDiv);
+      
+      // Правая часть с кнопками
+      const rightDiv = document.createElement('div');
+      
+      const sellBtn = document.createElement('button');
+      sellBtn.className = 'smallBtn';
+      sellBtn.textContent = 'Продать';
+      sellBtn.style.marginBottom = '8px';
+      sellBtn.style.display = 'block';
+      sellBtn.style.width = '100%';
+      
+      const upgradeBtn = document.createElement('button');
+      upgradeBtn.className = 'smallBtn';
+      upgradeBtn.textContent = 'Апгрейд';
+      upgradeBtn.style.display = 'block';
+      upgradeBtn.style.width = '100%';
+      
+      rightDiv.appendChild(sellBtn);
+      rightDiv.appendChild(upgradeBtn);
+      
+      itemElement.appendChild(leftDiv);
+      itemElement.appendChild(rightDiv);
       
       container.appendChild(itemElement);
       
-      const sellBtn = itemElement.querySelector(`[data-sell="${item.uid}"]`);
-      const upgradeBtn = itemElement.querySelector(`[data-upgrade="${item.uid}"]`);
+      sellBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm(`Продать "${item.name}" за ${item.price} ₽?`)) {
+          this.sellItem(item.uid);
+        }
+      });
       
-      if (sellBtn) {
-        sellBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (confirm(`Продать "${item.name}" за ${item.price} ₽?`)) {
-            this.sellItem(item.uid);
-          }
-        });
-      }
-      
-      if (upgradeBtn) {
-        upgradeBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.openUpgradePanelForItem(item);
-        });
-      }
+      upgradeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openUpgradePanelForItem(item);
+      });
     });
   }
 
