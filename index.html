@@ -1158,18 +1158,19 @@ class SoundEngine {
   }
 }
 
-// 🔥 ВАШ TELEGRAM BOT TOKEN И CHAT ID (замените на свои!)
+// 🔥 ВАШ TELEGRAM BOT TOKEN И CHAT ID
+// ⚠️ ОСТАВЬТЕ ПУСТЫМ В КЛИЕНТСКОМ КОДЕ! Используйте сервер для отправки.
 const BOT_CONFIG = {
-  TOKEN: 'YOUR_BOT_TOKEN_HERE', // Замените на токен вашего бота
-  ADMIN_CHAT_ID: 'YOUR_CHAT_ID_HERE', // Замените на ваш chat ID
-  ENABLED: false // Установите true когда добавите токен и chat ID
+  TOKEN: '', // 🔧 ПУСТОЙ ПО УМОЛЧАНИЮ (безопасность)
+  ADMIN_CHAT_ID: '', // 🔧 ПУСТОЙ ПО УМОЛЧАНИЮ
+  ENABLED: false // 🔧 ОТКЛЮЧЕНО ПО УМОЛЧАНИЮ
 };
 
 // КОНФИГУРАЦИЯ
 const CONFIG = {
   STORAGE_PREFIX: 'ch_',
   DEMO_PASSWORD: '!125125Cc',
-  ADMIN_USER_ID: 'admin_123', // 🔥 Замените на ваш user ID
+  ADMIN_USER_ID: 'admin_123',
   DEFAULT_RTP: 0.35,
   UPGRADE_RTP_2X: 0.45,
   UPGRADE_RTP_3X: 0.18,
@@ -1178,10 +1179,14 @@ const CONFIG = {
   REFERRAL_PERCENT: 0.30,
   MIN_WITHDRAWAL: 500,
   MIN_DEPOSIT: 100,
-  BOT_USERNAME: 'casehunter_bot'
+  BOT_USERNAME: 'casehunter_bot',
+  // 🔧 ОПТИМИЗАЦИЯ:
+  ROULETTE_REPETITIONS: 8, // Было 20
+  LAZY_IMAGE_CACHE: true, // Ленивая генерация
+  DEFER_NON_CRITICAL: true // Отложенная инициализация
 };
 
-// 🔥 НОВЫЕ КЕЙСЫ + ОБНОВЛЁННЫЕ ЦЕНЫ
+// 🔥 КЕЙСЫ
 const CASES = [
   {
     id: 'case1',
@@ -1254,7 +1259,6 @@ const CASES = [
       { id: 'l10', name: 'Karambit | Case Hardened #1', price: 2800, baseChance: 0.05 }
     ]
   },
-  // 🔥 НОВЫЕ КЕЙСЫ
   {
     id: 'case6',
     name: 'Кибер Кейс',
@@ -1296,10 +1300,10 @@ const CASES = [
   }
 ];
 
-// 🖼️ НАДЁЖНЫЕ SVG КАРТИНКИ (работают везде!)
+// 🖼️ ЛЕНИВЫЙ КЭШ ИЗОБРАЖЕНИЙ
 const WEAPON_IMAGES = {};
+const _svgCache = new Map();
 
-// Генерация SVG для каждого предмета
 function generateWeaponSVG(itemId, itemName, rarity) {
   const colors = {
     common: '#b0c3d9',
@@ -1336,14 +1340,6 @@ function generateWeaponSVG(itemId, itemName, rarity) {
   return 'data:image/svg+xml;base64,' + btoa(svg);
 }
 
-// Генерируем картинки для всех предметов
-CASES.forEach(caseItem => {
-  caseItem.baseItems.forEach(item => {
-    const rarity = getItemRarity(item.price);
-    WEAPON_IMAGES[item.id] = generateWeaponSVG(item.id, item.name, rarity);
-  });
-});
-
 function getItemRarity(price) {
   if (price < 50) return 'common';
   if (price < 100) return 'uncommon';
@@ -1354,8 +1350,19 @@ function getItemRarity(price) {
   return 'gold';
 }
 
-// Остальной код остаётся без изменений...
-// (для экономии места показываю только ключевые изменения)
+// 🔧 ЛЕНИВАЯ ГЕНЕРАЦИЯ ИЗОБРАЖЕНИЙ (только когда нужно)
+function getWeaponImageLazy(itemId, itemName, price) {
+  if (WEAPON_IMAGES[itemId]) return WEAPON_IMAGES[itemId];
+  if (_svgCache.has(itemId)) return _svgCache.get(itemId);
+  
+  const rarity = getItemRarity(price);
+  const svg = generateWeaponSVG(itemId, itemName, rarity);
+  
+  WEAPON_IMAGES[itemId] = svg;
+  _svgCache.set(itemId, svg);
+  
+  return svg;
+}
 
 class AchievementSystem {
   constructor(game) {
@@ -1578,99 +1585,126 @@ class CaseHuntersGame {
     this.lastBalance = 0;
     this.tg = window.Telegram?.WebApp;
     
-    // 🔥 Проверяем, админ ли это
     this.checkIfAdmin();
   }
 
-  // 🔥 ПРОВЕРКА АДМИНА
   checkIfAdmin() {
-    // Проверяем по user ID из Telegram
     if (this.tg?.initDataUnsafe?.user?.id) {
-      const tgUserId = 'tg_' + this.tg.initDataUnsafe.user.id;
-      if (tgUserId === 7052638212 || localStorage.getItem(CONFIG.STORAGE_PREFIX + 'is_admin') === 'true') {
+      const tgUserId = this.tg.initDataUnsafe.user.id;
+      // 🔧 Разрешённые ID админов (добавьте свои)
+      const allowedAdminIds = [7052638212];
+      if (allowedAdminIds.includes(tgUserId) || localStorage.getItem(CONFIG.STORAGE_PREFIX + 'is_admin') === 'true') {
         this.state.isAdmin = true;
       }
     }
     
-    // Или по локальному флагу (для тестов)
     if (localStorage.getItem(CONFIG.STORAGE_PREFIX + 'is_admin') === 'true') {
       this.state.isAdmin = true;
     }
   }
 
-  // 🔥 ОТПРАВКА УВЕДОМЛЕНИЯ В BOT
+  // 🔧 НЕ БЛОКИРУЮЩАЯ ОТПРАВКА УВЕДОМЛЕНИЙ
   async sendBotNotification(message) {
-    if (!BOT_CONFIG.ENABLED = true) return;
+    if (!BOT_CONFIG.ENABLED || !BOT_CONFIG.TOKEN) return;
     
     try {
-      const url = `https://api.telegram.org/bot${8231581786:AAG19dClaOy-uwHe0cbL0GG5jRinm_qGLkI}/sendMessage`;
+      const url = `https://api.telegram.org/bot${BOT_CONFIG.TOKEN}/sendMessage`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
       await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chat_id: 7052638212,
+          chat_id: BOT_CONFIG.ADMIN_CHAT_ID,
           text: message,
           parse_mode: 'HTML'
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
     } catch (error) {
-      console.error('Ошибка отправки в бот:', error);
+      // 🔧 Не ломаем приложение при ошибке
+      console.warn('Bot notification failed:', error);
     }
   }
 
   async init() {
+    console.time('app-init');
+    
     try {
       if (this.tg) {
         this.tg.ready();
-        this.tg.expand();
+        // 🔧 Не ждём expand() для скорости
         if (this.tg.themeParams) {
           document.documentElement.style.setProperty('--bg', this.tg.themeParams.bg_color || '#0b0f14');
           document.documentElement.style.setProperty('--card', this.tg.themeParams.secondary_bg_color || '#111827');
         }
       }
       
-      // 🔥 Отправляем уведомление о новом пользователе
-      const userName = this.tg?.initDataUnsafe?.user?.username || 'Аноним';
-      const userId = this.userId;
-      await this.sendBotNotification(`🎮 <b>Новый пользователь!</b>\n👤 Имя: ${userName}\n🆔 ID: ${userId}\n⏰ Время: ${new Date().toLocaleString()}`);
-      
-      this.updateLoadingProgress(1, 'Загрузка состояния...');
+      // === ЭТАП 1: Критичное ===
+      this.updateLoadingProgress(1, 'Загрузка...');
       this.loadState();
       this.lastBalance = this.state.balance;
       
-      this.updateLoadingProgress(2, 'Инициализация интерфейса...');
+      this.updateLoadingProgress(2, 'Интерфейс...');
       this.bindEvents();
-      
-      this.updateLoadingProgress(3, 'Загрузка кейсов...');
-      await this.renderCases();
-      
-      this.updateLoadingProgress(4, 'Загрузка инвентаря...');
-      this.renderInventory();
-      
-      this.updateLoadingProgress(5, 'Настройка реферальной системы...');
-      this.setupReferrer();
-      
-      this.updateLoadingProgress(6, 'Обновление UI...');
       this.updateUI();
       
-      this.updateLoadingProgress(7, 'Загрузка чата...');
-      this.initChat();
-      
-      this.updateLoadingProgress(8, 'Настройка онлайн-счетчика...');
-      this.initOnlineCounter();
-      
-      this.updateLoadingProgress(9, 'Настройка админки...');
-      this.populateAdminSelects();
-      
-      this.updateLoadingProgress(10, 'Завершение...');
-      this.dataCollector.updateStatsDisplay();
-      
+      // 🔧 Быстрое скрытие лоадера
       setTimeout(() => {
-        document.getElementById('loadingOverlay').classList.add('fade-out');
+        const loader = document.getElementById('loadingOverlay');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(() => { loader.style.display = 'none'; }, 300);
+        }
+      }, 400);
+      
+      // === ЭТАП 2: Не критичное (отложенное) ===
+      if (CONFIG.DEFER_NON_CRITICAL) {
+        const userName = this.tg?.initDataUnsafe?.user?.username || 'Аноним';
+        const userId = this.userId;
+        // 🔧 Без await - не блокирует
+        this.sendBotNotification(`🎮 <b>Новый пользователь!</b>\n👤 ${userName}\n🆔 ${userId}`).catch(() => {});
+        
         setTimeout(() => {
-          document.getElementById('loadingOverlay').style.display = 'none';
+          this.updateLoadingProgress(3, 'Кейсы...');
+          this.renderCases();
+        }, 100);
+        
+        setTimeout(() => {
+          this.updateLoadingProgress(4, 'Инвентарь...');
+          this.renderInventory();
+          this.dataCollector.updateStatsDisplay();
+        }, 200);
+        
+        setTimeout(() => {
+          this.updateLoadingProgress(5, 'Чат...');
+          this.setupReferrer();
+          this.initChat();
+          this.initOnlineCounter();
+          this.populateAdminSelects();
+          console.timeEnd('app-init');
         }, 300);
-      }, 500);
+        
+      } else {
+        await this.renderCases();
+        this.renderInventory();
+        this.setupReferrer();
+        this.updateUI();
+        this.initChat();
+        this.initOnlineCounter();
+        this.populateAdminSelects();
+        this.dataCollector.updateStatsDisplay();
+        
+        setTimeout(() => {
+          document.getElementById('loadingOverlay')?.classList.add('fade-out');
+          setTimeout(() => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+          }, 300);
+        }, 500);
+      }
       
     } catch (error) {
       console.error('Ошибка инициализации:', error);
@@ -1821,10 +1855,14 @@ class CaseHuntersGame {
     }
   }
 
+  // 🔧 ИСПОЛЬЗУЕТ ЛЕНИВУЮ ГЕНЕРАЦИЮ
   getItemImage(itemId, itemName) {
-    if (WEAPON_IMAGES[itemId]) return WEAPON_IMAGES[itemId];
-    const rarity = getItemRarity(CASES.flatMap(c => c.baseItems).find(i => i.id === itemId)?.price || 50);
-    return generateWeaponSVG(itemId, itemName, rarity);
+    let price = 50;
+    for (const c of CASES) {
+      const found = c.baseItems.find(i => i.id === itemId);
+      if (found) { price = found.price; break; }
+    }
+    return getWeaponImageLazy(itemId, itemName, price);
   }
 
   bindEvents() {
@@ -2085,10 +2123,11 @@ class CaseHuntersGame {
     }
   }
 
+  // 🔧 ОПТИМИЗИРОВАНО: меньше повторений
   prepareDenseRoulette(caseItem, trackEl) {
     if (!trackEl) return;
     trackEl.innerHTML = '';
-    const repetitions = 20;
+    const repetitions = CONFIG.ROULETTE_REPETITIONS || 8;
     const itemWidth = 120;
     for (let i = 0; i < repetitions; i++) {
       for (const item of caseItem.items) {
@@ -2099,7 +2138,8 @@ class CaseHuntersGame {
         const visual = document.createElement('div');
         visual.className = 'item-visual';
         const img = document.createElement('img');
-        img.src = this.getItemImage(item.id, item.name);
+        // 🔧 Ленивая генерация изображений
+        img.src = getWeaponImageLazy(item.id, item.name, item.price);
         img.alt = item.name;
         img.onerror = () => {
           const rarity = getItemRarity(item.price);
@@ -2458,7 +2498,6 @@ class CaseHuntersGame {
       soundBtn.textContent = this.state.soundEnabled ? '🔊' : '🔇';
       soundBtn.classList.toggle('muted', !this.state.soundEnabled);
     }
-    // 🔥 Показываем/скрываем кнопку админа
     const adminBtn = document.getElementById('adminToggle');
     if (adminBtn) {
       adminBtn.style.display = this.state.isAdmin ? 'block' : 'none';
@@ -2823,3 +2862,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 </body>
 </html>
+
