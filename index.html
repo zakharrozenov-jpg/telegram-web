@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -165,7 +166,7 @@ body{
   box-shadow:0 4px 12px rgba(0,0,0,.3);
 }
 
-/* Case Cards - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЙ СТИЛЬ */
+/* Case Cards */
 .case-wrapper{
   background:linear-gradient(135deg,#1a2233,#111827);
   border-radius:12px;
@@ -286,7 +287,7 @@ body{
   transform:none;
 }
 
-/* Roulette */
+/* Roulette - ИСПРАВЛЕННЫЙ СТИЛЬ */
 .case-roulette{
   width:100%;
   overflow:hidden;
@@ -308,6 +309,7 @@ body{
   left:0;
   top:0;
   gap:0;
+  transition:transform 4s cubic-bezier(0.15, 0, 0.15, 1);
 }
 .roulette-item{
   width:120px;
@@ -340,6 +342,12 @@ body{
   text-align:center;
   padding:5px;
   overflow:hidden;
+}
+.roulette-item .item-visual img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:8px;
 }
 .roulette-item.active{
   animation:itemHighlight 0.8s ease-in-out;
@@ -604,7 +612,7 @@ body{
   justify-content:space-between;
 }
 
-/* Admin Panel - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЙ */
+/* Admin Panel */
 #adminPanel{
   position:fixed;
   right:12px;
@@ -664,7 +672,7 @@ body{
   transform:scale(0.95);
 }
 
-/* Bank Modal - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЙ */
+/* Bank Modal */
 #bankOverlay{
   display:none;
   position:fixed;
@@ -708,7 +716,7 @@ body{
   box-shadow:0 0 0 2px rgba(250,204,21,0.1);
 }
 
-/* Upgrade Panel - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЙ */
+/* Upgrade Panel */
 #upgradePanel{
   position:relative;
   background:linear-gradient(135deg,#071018,#0a1524);
@@ -1000,7 +1008,7 @@ const CONFIG = {
   DEFAULT_RTP: 0.40,
   UPGRADE_RTP_2X: 0.50,
   UPGRADE_RTP_3X: 0.20,
-  SPIN_DURATION: 9000,
+  SPIN_DURATION: 4000,
   CHAT_UPDATE_INTERVAL: 7000,
   REFERRAL_PERCENT: 0.30,
   MIN_WITHDRAWAL: 500,
@@ -1008,7 +1016,56 @@ const CONFIG = {
   BOT_USERNAME: 'casehunter_bot'
 };
 
-// КЕЙСЫ - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЕ
+// 🔥 БАЗА ИЗОБРАЖЕНИЙ ОРУЖИЯ (CS:GO)
+const WEAPON_IMAGES = {
+  // Базовый кейс
+  's1': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopuP1FAR17P7NdTRH-t26q4SZlvD7PYTQgXtu5cB1g_zMu9uj2wXs_UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  's2': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79fnzL-YkvbnNqjummJW4NE_3r2XoY6h3gXk-ENuZGv1I4KRdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  's3': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou6ryFBRw7P7YJgJA4du5kYGZkPv9NLPF2G5S-vp8j-3I4IG72wDm-UVkZGHyJYKRdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  's4': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ09-jq5WYh8j_OrfdqWhe5sN4mOTE8bP5gVO8v0o9YGj1cNKVdAE9YVrY_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  's5': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposLOzLhNl7P7YJgJB4d2_kY60m_7zO6-fkjgFu5Qk3bqZ9N2t2wXs_UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  
+  // Стандартный кейс
+  'g1': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'g2': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alIITck29Y_chOhujT8om7jQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'g3': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'g4': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'g5': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgporrf0e1Y07PDYTiVPvYznwL-YkvbnNqjummJW4NE_3r2XoY6h3gXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'g6': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  
+  // Премиум кейс
+  'p1': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'p2': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'p3': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou6ryFBRw7P7YJgJA4du5kYGZkPv9NLPF2G5S-vp8j-3I4IG72wDm-UVkZGHyJYKRdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'p4': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'p5': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'p6': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'p7': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  
+  // Элитный кейс
+  'e1': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e2': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e3': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alIITck29Y_chOhujT8om7jQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e4': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e5': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e6': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e7': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'e8': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  
+  // Легендарный кейс
+  'l1': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l2': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l3': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou6ryFBRw7P7YJgJA4du5kYGZkPv9NLPF2G5S-vp8j-3I4IG72wDm-UVkZGHyJYKRdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l4': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l5': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l6': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l7': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l8': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJD_9W7m5a0mvLwOq7c2G9SupUijOjAotyg3w2x_0ZkZmGhd4SQdAM9aV3V_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l9': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f',
+  'l10': 'https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsKQJx7PLZTjlH_9mkgIWKkPvLPr7Vn35cpsQg3r2Qo9-g3wXk-ENuZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhJsvQz/360fx360f'
+};
+
+// КЕЙСЫ
 const CASES = [
   {
     id: 'case1',
@@ -1319,7 +1376,7 @@ class DataCollector {
   }
 }
 
-// ОСНОВНОЙ КЛАСС ИГРЫ - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЙ
+// ОСНОВНОЙ КЛАСС ИГРЫ
 class CaseHuntersGame {
   constructor() {
     this.state = {
@@ -1335,7 +1392,6 @@ class CaseHuntersGame {
     this.cases = this.prepareCases();
     this.placeholderCache = new Map();
     
-    // Инициализируем сборщик статистики и достижений
     this.dataCollector = new DataCollector(this);
     this.achievementSystem = new AchievementSystem(this);
     
@@ -1376,7 +1432,6 @@ class CaseHuntersGame {
       
       this.updateLoadingProgress(10, 'Завершение...');
       
-      // Обновляем статистику
       this.dataCollector.updateStatsDisplay();
       
       setTimeout(() => {
@@ -1393,7 +1448,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Обновление прогресса загрузки
   updateLoadingProgress(step, message = '') {
     const progress = (step / 10) * 100;
     const progressBar = document.getElementById('loadingProgress');
@@ -1408,7 +1462,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Метод для сокращения названий оружия
   getShortItemName(fullName) {
     const shortNames = {
       'P250 | Sand Dune': 'P250 Dune',
@@ -1453,7 +1506,6 @@ class CaseHuntersGame {
       (fullName.length > 15 ? fullName.substring(0, 12) + '...' : fullName);
   }
 
-  // Показать уведомление
   showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -1474,7 +1526,6 @@ class CaseHuntersGame {
     }, 3000);
   }
 
-  // Создание эффекта частиц
   createParticles(x, y, count = 10, color = '#facc15') {
     for (let i = 0; i < count; i++) {
       const particle = document.createElement('div');
@@ -1506,7 +1557,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Получение ID пользователя
   getUserId() {
     const key = CONFIG.STORAGE_PREFIX + 'userid';
     let id = localStorage.getItem(key);
@@ -1517,12 +1567,10 @@ class CaseHuntersGame {
     return id;
   }
 
-  // Генерация реферальной ссылки
   getReferralLink() {
     return `https://t.me/${CONFIG.BOT_USERNAME}?start=${this.userId}`;
   }
 
-  // Загрузка состояния
   loadState() {
     try {
       const balanceKey = CONFIG.STORAGE_PREFIX + 'balance_' + this.userId;
@@ -1544,7 +1592,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Сохранение состояния
   saveState() {
     try {
       const balanceKey = CONFIG.STORAGE_PREFIX + 'balance_' + this.userId;
@@ -1560,7 +1607,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Подготовка кейсов
   prepareCases() {
     return CASES.map(c => ({
       ...c,
@@ -1572,7 +1618,6 @@ class CaseHuntersGame {
     }));
   }
 
-  // Расчет реальных шансов
   calculateRealChance(item, allItems, targetRtp) {
     const totalPrice = allItems.reduce((sum, i) => sum + i.price, 0);
     const avgPrice = totalPrice / allItems.length;
@@ -1584,7 +1629,6 @@ class CaseHuntersGame {
     return Math.max(adjustedChance, 1);
   }
 
-  // Регистрация реферала
   setupReferrer() {
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -1599,7 +1643,17 @@ class CaseHuntersGame {
     }
   }
 
-  // Создание placeholder для изображения
+  // 🔥 ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ ПРЕДМЕТА
+  getItemImage(itemId, itemName) {
+    // Сначала пробуем найти по ID
+    if (WEAPON_IMAGES[itemId]) {
+      return WEAPON_IMAGES[itemId];
+    }
+    
+    // Если не нашли - возвращаем плейсхолдер
+    return this.createPlaceholder(itemName);
+  }
+
   createPlaceholder(text) {
     const cacheKey = `placeholder_${text}`;
     if (this.placeholderCache.has(cacheKey)) {
@@ -1650,9 +1704,7 @@ class CaseHuntersGame {
     return dataUrl;
   }
 
-  // Привязка событий - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЕ
   bindEvents() {
-    // Банк - ОРИГИНАЛЬНЫЙ
     document.getElementById('bankBtn')?.addEventListener('click', () => {
       this.showBankModal();
     });
@@ -1666,7 +1718,6 @@ class CaseHuntersGame {
       this.withdraw();
     });
 
-    // Админка - ОРИГИНАЛЬНЫЙ
     document.getElementById('adminToggle')?.addEventListener('click', () => {
       this.toggleAdminPanel();
     });
@@ -1686,7 +1737,6 @@ class CaseHuntersGame {
       this.adminClearRef();
     });
 
-    // Бонусы - ОРИГИНАЛЬНЫЙ
     document.getElementById('dailyBonusBtn')?.addEventListener('click', () => {
       this.claimBonus('daily');
     });
@@ -1700,12 +1750,10 @@ class CaseHuntersGame {
       this.claimReferralEarnings();
     });
 
-    // Закрытие модалок - ОРИГИНАЛЬНЫЙ
     document.getElementById('closeModal')?.addEventListener('click', () => {
       document.getElementById('overlay').style.display = 'none';
     });
 
-    // Апгрейд - ОРИГИНАЛЬНЫЙ
     document.getElementById('upgrade2xBtn')?.addEventListener('click', () => {
       this.performUpgrade(2);
     });
@@ -1713,17 +1761,14 @@ class CaseHuntersGame {
       this.performUpgrade(3);
     });
 
-    // Копирование реферальной ссылки - ОРИГИНАЛЬНЫЙ
     document.getElementById('copyRefBtn')?.addEventListener('click', () => {
       this.copyReferralLink();
     });
 
-    // Звук - ОРИГИНАЛЬНЫЙ
     document.getElementById('soundToggle')?.addEventListener('click', () => {
       this.toggleSound();
     });
     
-    // НОВЫЕ КНОПКИ
     document.getElementById('showStatsBtn')?.addEventListener('click', () => {
       this.toggleStats();
     });
@@ -1732,7 +1777,6 @@ class CaseHuntersGame {
     });
   }
 
-  // Переключение статистики
   toggleStats() {
     const statsSection = document.getElementById('statsSection');
     const isVisible = statsSection.style.display === 'block';
@@ -1743,7 +1787,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Переключение достижений
   toggleAchievements() {
     const achievementsHTML = this.achievementSystem.renderAchievements();
     const existing = document.getElementById('achievementsSection');
@@ -1758,7 +1801,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Копирование реферальной ссылки
   async copyReferralLink() {
     const refLink = document.getElementById('myRefLink');
     const copyBtn = document.getElementById('copyRefBtn');
@@ -1792,17 +1834,14 @@ class CaseHuntersGame {
     }
   }
 
-  // Показать банк модалку - ОРИГИНАЛЬНЫЙ
   showBankModal() {
     document.getElementById('bankOverlay').style.display = 'flex';
   }
 
-  // Скрыть банк модалку - ОРИГИНАЛЬНЫЙ
   hideBankModal() {
     document.getElementById('bankOverlay').style.display = 'none';
   }
 
-  // Пополнение баланса - ОРИГИНАЛЬНЫЙ
   deposit() {
     const amountInput = document.getElementById('amountInput');
     const amount = parseInt(amountInput?.value) || 0;
@@ -1818,7 +1857,6 @@ class CaseHuntersGame {
     this.pushFakeChat(`${this.getRandomName()} пополнил баланс на ${amount} ₽`);
   }
 
-  // Вывод средств - ОРИГИНАЛЬНЫЙ
   withdraw() {
     const amountInput = document.getElementById('amountInput');
     const amount = parseInt(amountInput?.value) || 0;
@@ -1842,13 +1880,11 @@ class CaseHuntersGame {
     this.pushFakeChat(`${this.getRandomName()} вывел ${amount} ₽`);
   }
 
-  // Переключение админ панели - ОРИГИНАЛЬНЫЙ
   toggleAdminPanel() {
     const panel = document.getElementById('adminPanel');
     panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
   }
 
-  // Вход в админку - ОРИГИНАЛЬНЫЙ
   adminLogin() {
     const password = document.getElementById('adminPass')?.value || '';
     
@@ -1862,7 +1898,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Добавление баланса через админку - ОРИГИНАЛЬНЫЙ
   adminAddBalance() {
     if (!this.state.adminLogged) {
       this.showToast('Требуется вход в админку', 'error');
@@ -1881,7 +1916,6 @@ class CaseHuntersGame {
     this.showToast(`Админ: добавлено ${amount} ₽`, 'success');
   }
 
-  // Установка RTP - ОРИГИНАЛЬНЫЙ
   adminSetRtp() {
     if (!this.state.adminLogged) {
       this.showToast('Требуется вход в админку', 'error');
@@ -1901,7 +1935,6 @@ class CaseHuntersGame {
     this.showToast(`Админ: RTP установлен ${rtp}`, 'success');
   }
 
-  // Принудительный выигрыш - ОРИГИНАЛЬНЫЙ
   adminForceWin() {
     if (!this.state.adminLogged) {
       this.showToast('Требуется вход в админку', 'error');
@@ -1933,7 +1966,7 @@ class CaseHuntersGame {
       id: item.id,
       name: item.name,
       price: item.price,
-      img: this.createPlaceholder(item.name),
+      img: this.getItemImage(item.id, item.name),
       upgraded: null
     };
 
@@ -1945,7 +1978,6 @@ class CaseHuntersGame {
     this.showToast(`Выдан предмет: ${item.name}`, 'success');
   }
 
-  // Сброс реферальных начислений - ОРИГИНАЛЬНЫЙ
   adminClearRef() {
     if (!this.state.adminLogged) {
       this.showToast('Требуется вход в админку', 'error');
@@ -1962,7 +1994,6 @@ class CaseHuntersGame {
     this.showToast('Реферальные начисления сброшены.', 'success');
   }
 
-  // Заполнение выпадающих списков в админке - ОРИГИНАЛЬНЫЙ
   populateAdminSelects() {
     const caseSelect = document.getElementById('adminForceCase');
     const itemSelect = document.getElementById('adminForceItem');
@@ -1988,7 +2019,6 @@ class CaseHuntersGame {
     });
   }
 
-  // Обновление списка предметов в админке - ОРИГИНАЛЬНЫЙ
   updateAdminItems(caseId) {
     const itemSelect = document.getElementById('adminForceItem');
     if (!itemSelect) return;
@@ -2006,7 +2036,6 @@ class CaseHuntersGame {
     });
   }
 
-  // Получение бонуса - ОРИГИНАЛЬНЫЙ
   claimBonus(type) {
     const today = new Date().toISOString().split('T')[0];
     const storageKey = type === 'daily' 
@@ -2037,7 +2066,6 @@ class CaseHuntersGame {
     );
   }
 
-  // Зачисление реферальных средств - ОРИГИНАЛЬНЫЙ
   claimReferralEarnings() {
     const earnings = this.getReferralEarnings();
     
@@ -2051,7 +2079,6 @@ class CaseHuntersGame {
     this.showToast(`Зачислено ${earnings} ₽ на баланс`, 'success');
   }
 
-  // Получение реферальных доходов - ОРИГИНАЛЬНЫЙ
   getReferralEarnings() {
     try {
       const key = CONFIG.STORAGE_PREFIX + 'refearn_' + this.userId;
@@ -2061,7 +2088,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Очистка реферальных доходов - ОРИГИНАЛЬНЫЙ
   clearReferralEarnings() {
     try {
       const key = CONFIG.STORAGE_PREFIX + 'refearn_' + this.userId;
@@ -2072,7 +2098,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Рендер кейсов - ВОССТАНАВЛИВАЕМ ОРИГИНАЛЬНЫЙ
   async renderCases() {
     const container = document.getElementById('casesList');
     if (!container) return;
@@ -2130,16 +2155,13 @@ class CaseHuntersGame {
     }
   }
 
-  // Подготовка плотной рулетки без пробелов - ОРИГИНАЛЬНЫЙ
   prepareDenseRoulette(caseItem, trackEl) {
     if (!trackEl) return;
 
     trackEl.innerHTML = '';
     
-    const repetitions = 12;
+    const repetitions = 20; // 🔥 Увеличили для более плавной анимации
     const itemWidth = 120;
-    
-    const totalItems = caseItem.items.length * repetitions;
     
     for (let i = 0; i < repetitions; i++) {
       for (const item of caseItem.items) {
@@ -2150,7 +2172,17 @@ class CaseHuntersGame {
 
         const visual = document.createElement('div');
         visual.className = 'item-visual';
-        visual.textContent = this.getShortItemName(item.name);
+        
+        // 🔥 Добавляем реальное изображение
+        const img = document.createElement('img');
+        img.src = this.getItemImage(item.id, item.name);
+        img.alt = item.name;
+        img.onerror = () => {
+          // Если картинка не загрузилась - показываем текст
+          visual.innerHTML = `<div style="font-size:10px;font-weight:bold;color:#facc15;text-align:center;padding:5px">${this.getShortItemName(item.name)}</div>`;
+        };
+        visual.appendChild(img);
+        
         el.appendChild(visual);
         
         const nameDiv = document.createElement('div');
@@ -2170,10 +2202,11 @@ class CaseHuntersGame {
       }
     }
     
-    trackEl.style.transform = `translateX(${totalItems * 0.3 * itemWidth}px)`;
+    // 🔥 ИСПРАВЛЕНИЕ: начальная позиция без смещения
+    trackEl.style.transform = 'translateX(0)';
+    trackEl.style.transition = 'none';
   }
 
-  // Переключение рулетки кейса - ОРИГИНАЛЬНЫЙ
   toggleCaseRoulette(caseId) {
     const roulette = document.getElementById(`roulette-${caseId}`);
     if (!roulette) return;
@@ -2187,7 +2220,7 @@ class CaseHuntersGame {
     roulette.style.display = roulette.style.display === 'none' ? 'block' : 'none';
   }
 
-  // Открытие кейса с динамичной анимацией - ИСПРАВЛЕННАЯ ВЕРСИЯ
+  // 🔥 ИСПРАВЛЕННАЯ РУЛЕТКА - ОДНО ПЛАВНОЕ ВРАЩЕНИЕ
   async openCaseWithDynamicSpin(caseId, trackEl) {
     const caseItem = this.cases.find(c => c.id === caseId);
     if (!caseItem) return;
@@ -2199,7 +2232,6 @@ class CaseHuntersGame {
       return;
     }
     
-    // Записываем статистику
     this.dataCollector.recordCaseOpen(cost);
     
     if (!this.state.adminLogged) {
@@ -2214,29 +2246,26 @@ class CaseHuntersGame {
     
     const winItem = this.pickRandomItem(caseItem.items);
     
-    // Показываем рулетку
     const roulette = document.getElementById(`roulette-${caseId}`);
     if (roulette) {
       roulette.style.display = 'block';
     }
     
-    // УЛУЧШЕННАЯ АНИМАЦИЯ - ИСПРАВЛЕНО
     try {
-      await this.animateRouletteEnhanced(caseId, winItem, trackEl);
+      await this.animateRouletteSmooth(caseId, winItem, trackEl);
       
       const inventoryItem = {
         uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
         id: winItem.id,
         name: winItem.name,
         price: winItem.price,
-        img: this.createPlaceholder(winItem.name),
+        img: this.getItemImage(winItem.id, winItem.name),
         upgraded: null
       };
       
       this.state.inventory.push(inventoryItem);
       this.saveState();
       
-      // Записываем выигрыш в статистику
       this.dataCollector.recordWin(winItem.price);
       
       this.creditReferrerIfApplicable(cost, winItem.price);
@@ -2245,12 +2274,10 @@ class CaseHuntersGame {
       this.renderInventory();
       this.updateUI();
       
-      // Проверяем достижения
       this.achievementSystem.checkAchievements();
       
       this.pushFakeChat(`${this.getRandomName()} открыл ${caseItem.name} и получил ${winItem.name}`);
       
-      // Эффект частиц при выигрыше
       const caseRect = document.querySelector(`.case-wrapper[data-id="${caseId}"]`)?.getBoundingClientRect();
       if (caseRect) {
         this.createParticles(
@@ -2265,13 +2292,12 @@ class CaseHuntersGame {
       console.error('Animation error:', error);
       this.showToast('Ошибка анимации', 'error');
       
-      // Все равно дать выигрыш при ошибке
       const inventoryItem = {
         uid: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2),
         id: winItem.id,
         name: winItem.name,
         price: winItem.price,
-        img: this.createPlaceholder(winItem.name),
+        img: this.getItemImage(winItem.id, winItem.name),
         upgraded: null
       };
       
@@ -2288,8 +2314,8 @@ class CaseHuntersGame {
     }
   }
 
-  // УЛУЧШЕННАЯ АНИМАЦИЯ РУЛЕТКИ - ИСПРАВЛЕННАЯ ВЕРСИЯ
-  animateRouletteEnhanced(caseId, winItem, trackEl) {
+  // 🔥 НОВАЯ ПЛАВНАЯ АНИМАЦИЯ РУЛЕТКИ
+  animateRouletteSmooth(caseId, winItem, trackEl) {
     return new Promise((resolve) => {
       if (!trackEl) {
         resolve();
@@ -2302,89 +2328,91 @@ class CaseHuntersGame {
         return;
       }
       
-      // Находим все элементы с выигрышным предметом
+      const itemWidth = 120;
+      const container = trackEl.parentElement;
+      const containerWidth = container?.clientWidth || 400;
+      
+      // 🔥 Находим выигрышный элемент в середине ленты
       const winningElements = items.filter(item => item.dataset.itemId === winItem.id);
       if (winningElements.length === 0) {
         resolve();
         return;
       }
       
-      // Выбираем случайный выигрышный элемент из середины
+      // Берем элемент из середины (не первый и не последний)
       const middleIndex = Math.floor(winningElements.length / 2);
       const targetElement = winningElements[middleIndex];
-      
       const targetIndex = items.indexOf(targetElement);
+      
       if (targetIndex === -1) {
         resolve();
         return;
       }
       
-      const itemWidth = 120;
-      const container = trackEl.parentElement;
-      const containerWidth = container.clientWidth;
+      // 🔥 Рассчитываем конечную позицию
+      const centerOffset = Math.floor(containerWidth / 2) - Math.floor(itemWidth / 2);
+      const finalPosition = -(targetIndex * itemWidth - centerOffset);
       
-      // Вычисляем позицию для остановки
-      const centerOffset = Math.floor(containerWidth / 2);
-      const targetPosition = targetIndex * itemWidth + itemWidth / 2;
-      const finalTranslate = centerOffset - targetPosition;
+      // 🔥 Добавляем случайное смещение для вариативности (±30px)
+      const randomOffset = (Math.random() - 0.5) * 60;
+      const finalTranslate = finalPosition + randomOffset;
       
-      // Сбрасываем выделение
+      // 🔥 Сбрасываем выделение
       items.forEach(item => item.classList.remove('active'));
       
-      // ЭТАП 1: РЕЗКИЙ СТАРТ
-      trackEl.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.4, 1)';
-      const fastTranslate = finalTranslate * 0.15;
-      trackEl.style.transform = `translateX(${fastTranslate}px)`;
+      // 🔥 ОДНО ПЛАВНОЕ ВРАЩЕНИЕ с правильным easing
+      trackEl.style.transition = 'none';
+      trackEl.style.transform = 'translateX(0)';
       
-      setTimeout(() => {
-        // ЭТАП 2: СРЕДНЯЯ СКОРОСТЬ
-        trackEl.style.transition = 'transform 2.2s cubic-bezier(0.3, 0.7, 0.4, 1)';
-        const midTranslate = finalTranslate * 0.6;
-        trackEl.style.transform = `translateX(${midTranslate}px)`;
-        
-        setTimeout(() => {
-          // ЭТАП 3: ПЛАВНАЯ ОСТАНОВКА
-          trackEl.style.transition = 'transform 2.5s cubic-bezier(0.1, 0.2, 0.1, 1)';
+      // Небольшая задержка для применения сброса
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Запускаем анимацию
+          trackEl.style.transition = `transform ${CONFIG.SPIN_DURATION}ms cubic-bezier(0.15, 0, 0.15, 1)`;
           trackEl.style.transform = `translateX(${finalTranslate}px)`;
+        });
+      });
+      
+      // 🔥 Ждем окончания анимации
+      setTimeout(() => {
+        // Находим элемент ближе всего к центру
+        let closestToCenter = null;
+        let minDistance = Infinity;
+        
+        const containerRect = container.getBoundingClientRect();
+        const centerX = containerRect.left + containerRect.width / 2;
+        
+        winningElements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const itemCenter = rect.left + rect.width / 2;
+          const distance = Math.abs(itemCenter - centerX);
           
-          setTimeout(() => {
-            // Находим элемент, ближайший к центру
-            let closestToCenter = null;
-            let minDistance = Infinity;
-            
-            winningElements.forEach(el => {
-              const rect = el.getBoundingClientRect();
-              const center = container.getBoundingClientRect().left + containerWidth / 2;
-              const distance = Math.abs(rect.left + rect.width / 2 - center);
-              
-              if (distance < minDistance) {
-                minDistance = distance;
-                closestToCenter = el;
-              }
-            });
-            
-            if (closestToCenter) {
-              closestToCenter.classList.add('active');
-              
-              // Эффект частиц
-              const rect = closestToCenter.getBoundingClientRect();
-              this.createParticles(
-                rect.left + rect.width / 2,
-                rect.top + rect.height / 2,
-                15,
-                '#facc15'
-              );
-            }
-            
-            trackEl.style.transition = '';
-            resolve();
-          }, 2400);
-        }, 2100);
-      }, 780);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestToCenter = el;
+          }
+        });
+        
+        if (closestToCenter) {
+          closestToCenter.classList.add('active');
+          
+          const rect = closestToCenter.getBoundingClientRect();
+          this.createParticles(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+            15,
+            '#facc15'
+          );
+        }
+        
+        // Сбрасываем transition для следующих вращений
+        trackEl.style.transition = 'none';
+        resolve();
+        
+      }, CONFIG.SPIN_DURATION + 100);
     });
   }
 
-  // Выбор случайного предмета с учетом реальных шансов - ОРИГИНАЛЬНЫЙ
   pickRandomItem(items) {
     const totalChance = items.reduce((sum, item) => sum + (item.chance || 1), 0);
     let random = Math.random() * totalChance;
@@ -2399,7 +2427,6 @@ class CaseHuntersGame {
     return { ...items[items.length - 1] };
   }
 
-  // Начисление рефералу - ОРИГИНАЛЬНЫЙ
   creditReferrerIfApplicable(cost, winPrice) {
     try {
       const refKey = CONFIG.STORAGE_PREFIX + 'referrer_' + this.userId;
@@ -2425,7 +2452,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Показать выигрыш в полноэкранном режиме - ОРИГИНАЛЬНЫЙ
   showFullScreenWin(item) {
     const winImg = document.getElementById('winImg');
     const winTitle = document.getElementById('winTitle');
@@ -2433,6 +2459,9 @@ class CaseHuntersGame {
     const winNote = document.getElementById('winNote');
     
     winImg.src = item.img;
+    winImg.onerror = () => {
+      winImg.src = this.createPlaceholder(item.name);
+    };
     winTitle.textContent = item.name;
     winPrice.textContent = `${item.price} ₽`;
     winNote.textContent = 'Поздравляем! Предмет добавлен в инвентарь.';
@@ -2449,7 +2478,6 @@ class CaseHuntersGame {
     );
   }
 
-  // Рендер инвентаря - ОРИГИНАЛЬНЫЙ
   renderInventory() {
     const container = document.getElementById('inventoryList');
     if (!container) return;
@@ -2466,7 +2494,6 @@ class CaseHuntersGame {
       itemElement.className = 'item';
       itemElement.dataset.uid = item.uid;
       
-      // Левая часть с изображением и названием
       const leftDiv = document.createElement('div');
       leftDiv.style.display = 'flex';
       leftDiv.style.gap = '12px';
@@ -2477,6 +2504,9 @@ class CaseHuntersGame {
       img.src = item.img;
       img.alt = item.name;
       img.className = 'weapon-img';
+      img.onerror = () => {
+        img.src = this.createPlaceholder(item.name);
+      };
       
       const metaDiv = document.createElement('div');
       metaDiv.style.flex = '1';
@@ -2500,7 +2530,6 @@ class CaseHuntersGame {
       leftDiv.appendChild(img);
       leftDiv.appendChild(metaDiv);
       
-      // Правая часть с кнопками
       const rightDiv = document.createElement('div');
       
       const sellBtn = document.createElement('button');
@@ -2538,7 +2567,6 @@ class CaseHuntersGame {
     });
   }
 
-  // Продажа предмета - ОРИГИНАЛЬНЫЙ
   sellItem(itemUid) {
     const itemIndex = this.state.inventory.findIndex(item => item.uid === itemUid);
     if (itemIndex === -1) return;
@@ -2548,10 +2576,7 @@ class CaseHuntersGame {
     this.addBalance(item.price);
     this.state.inventory.splice(itemIndex, 1);
     
-    // Записываем статистику
     this.dataCollector.recordItemSell(item.price);
-    
-    // Проверяем достижения
     this.achievementSystem.checkAchievements();
     
     this.saveState();
@@ -2571,7 +2596,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Открытие панели апгрейда - ОРИГИНАЛЬНЫЙ
   openUpgradePanelForItem(item) {
     this.state.upgradeSelectedItem = item;
     
@@ -2584,6 +2608,9 @@ class CaseHuntersGame {
       img.style.borderRadius = '8px';
       img.style.objectFit = 'cover';
       img.src = item.img;
+      img.onerror = () => {
+        img.src = this.createPlaceholder(item.name);
+      };
       preview.appendChild(img);
     }
     
@@ -2604,7 +2631,6 @@ class CaseHuntersGame {
     }, 1500);
   }
 
-  // Выполнение апгрейда - УЛУЧШЕННЫЙ С ВРАЩЕНИЕМ КОЛЕСА
   performUpgrade(multiplier) {
     if (!this.state.upgradeSelectedItem) {
       document.getElementById('upgradeResultSmall').textContent = 'Выберите предмет';
@@ -2633,14 +2659,12 @@ class CaseHuntersGame {
     const inner = document.getElementById('upgradeInnerSmall');
     
     if (wheel && inner) {
-      // Анимация вращения
       wheel.style.transition = 'transform 3s cubic-bezier(.2,.9,.2,1)';
       inner.textContent = 'Крутится...';
       
       const baseSpins = 4;
       let finalAngle;
       
-      // Определяем результат
       const probability = multiplier === 2 ? CONFIG.UPGRADE_RTP_2X : CONFIG.UPGRADE_RTP_3X;
       const success = Math.random() < probability;
       
@@ -2666,10 +2690,7 @@ class CaseHuntersGame {
           item.upgraded.times += 1;
           item.upgraded.multiplier *= multiplier;
           
-          // Записываем статистику
           this.dataCollector.recordUpgradeAttempt(true);
-          
-          // Проверяем достижения
           this.achievementSystem.checkAchievements();
           
           document.getElementById('upgradeResultSmall').textContent = 
@@ -2679,7 +2700,6 @@ class CaseHuntersGame {
           this.showToast(`Апгрейд успешен! Новая цена: ${item.price} ₽`, 'success');
           this.pushFakeChat(`${this.getRandomName()} успешно апгрейднул ${item.name} до ${item.price} ₽`);
           
-          // Эффект частиц
           const upgradePanel = document.getElementById('upgradePanel');
           const rect = upgradePanel.getBoundingClientRect();
           this.createParticles(
@@ -2693,10 +2713,8 @@ class CaseHuntersGame {
           wheel.classList.add('upgrade-fail');
           inner.textContent = 'ПРОВАЛ';
           
-          // Записываем статистику
           this.dataCollector.recordUpgradeAttempt(false);
           
-          // Сгорание предмета
           const itemElement = document.querySelector(`.item[data-uid="${item.uid}"]`);
           if (itemElement) {
             itemElement.classList.add('item-burn');
@@ -2747,7 +2765,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Обновление UI - ОРИГИНАЛЬНЫЙ
   updateUI() {
     const balanceElement = document.getElementById('balance');
     if (balanceElement) {
@@ -2773,7 +2790,6 @@ class CaseHuntersGame {
     this.lastBalance = this.state.balance;
   }
 
-  // Добавление баланса - ОРИГИНАЛЬНЫЙ
   addBalance(amount) {
     if (this.state.adminLogged) {
       this.updateUI();
@@ -2785,7 +2801,6 @@ class CaseHuntersGame {
     this.saveState();
     this.updateUI();
     
-    // Проверяем достижения
     this.achievementSystem.checkAchievements();
     
     const balanceBox = document.getElementById('balanceBox');
@@ -2809,7 +2824,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Списание баланса - ОРИГИНАЛЬНЫЙ
   subBalance(amount) {
     if (this.state.adminLogged) {
       this.updateUI();
@@ -2822,7 +2836,6 @@ class CaseHuntersGame {
     this.updateUI();
   }
 
-  // Обновление баланса в UI - ОРИГИНАЛЬНЫЙ
   updateBalanceUI() {
     const balanceElement = document.getElementById('balance');
     if (!balanceElement) return;
@@ -2836,7 +2849,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Применение RTP - ОРИГИНАЛЬНЫЙ
   applyHiddenRtp(targetRtp) {
     this.cases.forEach(c => {
       const items = c.items;
@@ -2856,7 +2868,6 @@ class CaseHuntersGame {
     });
   }
 
-  // Переключение звука - ОРИГИНАЛЬНЫЙ
   toggleSound() {
     this.state.soundEnabled = !this.state.soundEnabled;
     const soundBtn = document.getElementById('soundToggle');
@@ -2869,7 +2880,6 @@ class CaseHuntersGame {
     this.saveState();
   }
 
-  // Инициализация чата - ОРИГИНАЛЬНЫЙ
   initChat() {
     const initialMessages = [
       'Добро пожаловать в Case Hunters! 🎮',
@@ -2925,7 +2935,6 @@ class CaseHuntersGame {
     }, 15000);
   }
 
-  // Добавление сообщения в чат - ОРИГИНАЛЬНЫЙ
   pushFakeChat(text, user = null) {
     const chatBox = document.getElementById('chatBox');
     if (!chatBox) return;
@@ -2956,7 +2965,6 @@ class CaseHuntersGame {
     }
   }
 
-  // Случайное имя для чата - ОРИГИНАЛЬНЫЙ
   getRandomName() {
     const names = [
       'Иван_92', 'Anna_Pro', 'GamerMax', 'Oleg_CS', 'Vlad99',
@@ -2966,7 +2974,6 @@ class CaseHuntersGame {
     return names[Math.floor(Math.random() * names.length)];
   }
 
-  // Счетчик онлайн - ОРИГИНАЛЬНЫЙ
   initOnlineCounter() {
     let onlineCount = 120 + Math.floor(Math.random() * 80);
     
@@ -2985,7 +2992,7 @@ class CaseHuntersGame {
   }
 }
 
-// Инициализация приложения при загрузке страницы
+// Инициализация
 let app;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2997,7 +3004,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     console.log('Case Hunters успешно загружен!');
     
-    // Добавляем глобальные функции
     window.toggleStats = () => app.toggleStats();
     window.toggleAchievements = () => app.toggleAchievements();
     
@@ -3254,5 +3260,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   </div>
 </div>
 
-</body> 
+</body>
 </html>
