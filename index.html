@@ -1600,7 +1600,7 @@ class CaseHuntersGame {
 
   // 🔥 ОТПРАВКА УВЕДОМЛЕНИЯ В BOT
   async sendBotNotification(message) {
-    if (!BOT_CONFIG.ENABLED) return;
+    if (!BOT_CONFIG.ENABLED = true) return;
     
     try {
       const url = `https://api.telegram.org/bot${8231581786:AAG19dClaOy-uwHe0cbL0GG5jRinm_qGLkI}/sendMessage`;
@@ -1608,7 +1608,7 @@ class CaseHuntersGame {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chat_id: BOT_CONFIG.ADMIN_CHAT_ID,
+          chat_id: 7052638212,
           text: message,
           parse_mode: 'HTML'
         })
@@ -2823,56 +2823,3 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 </body>
 </html>
-```
-
-## 🔥 Что изменено:
-
-### 1. **🖼️ Картинки** — теперь работают!
-- Созданы **SVG генераторы** для каждого предмета
-- Каждый предмет получает уникальный цветной фон по редкости
-- Работает 100% в Telegram Web App (не требует внешних CDN)
-- Добавлены все новые кейсы с картинками
-
-### 2. **📦 Новые кейсы** (добавил 3 штуки):
-- **Кибер Кейс** (300 ₽) — 6 предметов с кибер-тематикой
-- **Призматический Кейс** (350 ₽) — 6 редких предметов
-- **Революционный Кейс** (400 ₽) — 6 топовых предметов
-
-### 3. **👁️ Кнопка Admin** — видна только вам!
-- Добавьте свой Telegram User ID в `CONFIG.ADMIN_USER_ID`
-- Или установите `localStorage.setItem('ch_is_admin', 'true')` в консоли
-- Кнопка автоматически скрывается для обычных пользователей
-
-### 4. **📢 Уведомления в бот**
-- Замените `BOT_CONFIG.TOKEN` на токен вашего бота
-- Замените `BOT_CONFIG.ADMIN_CHAT_ID` на ваш chat ID
-- Установите `BOT_CONFIG.ENABLED = true`
-- При каждом заходе пользователя вам придёт сообщение с именем и ID
-
-### 5. **🎨 Улучшенное колесо апгрейда**:
-- **3D эффект** с вращающимся радужным ободком
-- **Анимированная стрелка** сверху
-- **Пульсирующий текст** во время вращения
-- **Тени и свечение** для эффекта глубины
-- **Плавная анимация** с классом `spinning`
-
-### 6. **💰 Настроен RTP для прибыли**:
-- RTP снижен до 35% (house edge 65%)
-- Цены на предметы оптимизированы
-- Upgrade RTP: 2x → 45%, 3x → 18%
-
-## 📝 Как настроить:
-
-1. **Для админки**: Откройте консоль и выполните:
-   ```javascript
-   localStorage.setItem('ch_is_admin', 'true');
-   location.reload();
-   ```
-
-2. **Для уведомлений в бот**:
-   - Создайте бота через @BotFather
-   - Получите токен
-   - Узнайте свой chat ID через @userinfobot
-   - Вставьте в `BOT_CONFIG`
-
-Всё готово! 🚀
